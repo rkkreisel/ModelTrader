@@ -23,12 +23,12 @@ class App:
 
         self.connected = Indicator(self.root, "Connected", "True")
         self.contract = Indicator(self.root, "Contract", "")
-        self.cci = Indicator(self.root, "CCI", "")
-        self.cci_category = Indicator(self.root, "CCI Category", "")
-        self.cci_average = Indicator(self.root, "CCI Average", "")
-        self.price = Indicator(self.root, "Last Price", "")
-        self.time = Indicator(self.root, "Time", "")
-        self.time_category = Indicator(self.root, "Time Category", "")
+        self.cci15 = Indicator(self.root, "CCI (15m)", "")        
+        self.cci15_av = Indicator(self.root, "CCI Avg (15m)", "")
+        self.atr15 = Indicator(self.root, "ATR (15m)", "")
+        self.bband15_width = Indicator(self.root, "BBAND Width (15m)", "")
+        self.bband15_b = Indicator(self.root, "BBAND %B (15m)", "")
+
 
         self.ib.connectedEvent += self.connectEvent
         self.ib.disconnectedEvent += self.disconnectEvent
@@ -53,10 +53,16 @@ class App:
         self.connected.update("Disconnected")
         logger.getLogger().info("Disconnected.")
 
-    def barUpdateEvent(self, bars: objects.BarDataList, hasNewBar: bool):
-        logger.getLogger().info("Got New Bars")
-
-
+    def barupdateEvent_15m(self, bars: objects.BarDataList, hasNewBar: bool):
+        logger.getLogger().info(f"Got 15m Bars.")
+        cci, avg = logic.calculate_cci(bars)
+        atr = logic.calculate_atr(bars)
+        bband_width, bband_b, = logic.calculate_bbands(bars)
+        self.cci15.update(f"{cci:.02f}")
+        self.cci15_av.update(f"{avg:.02f}")
+        self.atr15.update(f"{atr:.02f}")
+        self.bband15_width.update(f"{bband_width:.04f}")
+        self.bband15_b.update(f"{bband_b:.04f}")
 
 def main(ib: IB):
     try:
