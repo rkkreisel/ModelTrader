@@ -2,7 +2,7 @@ import statistics
 from sys import exit as sysexit
 
 from ib_insync import IB
-from ib_insync.contract import ContFuture
+from ib_insync.contract import ContFuture, Contract
 from ib_insync.objects import BarDataList
 import talib
 import numpy as np
@@ -20,13 +20,13 @@ class Algo():
 
     def run(self):
         """ Execute the algorithm """
-        contract = self.get_contract()
-        tradeContract = self.ib.qualifyContracts(contract.contract)[0]
-        log.info("Got Trading Contract: {}".format(tradeContract.localSymbol))
-        self.app.contract.update(tradeContract.localSymbol)
+        contContract = self.get_contract()
+        dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
+        log.info("Got Contract: {}".format(dataContract.localSymbol))
+        self.app.contract.update(dataContract.localSymbol)
 
         bars = self.ib.reqHistoricalData(
-            contract=contract.contract,
+            contract=dataContract,
             endDateTime="",
             durationStr="1 D",
             barSizeSetting="15 mins",
@@ -34,18 +34,10 @@ class Algo():
             useRTH=False,
             keepUpToDate=True
         )
+        print(bars)
         log.info("Got Historical Data Subscription")
+        self.app.barUpdateEvent(bars, True)
         bars.updateEvent += self.app.barUpdateEvent
-
-        ticks = self.ib.reqTickByTickData(
-            contract=contract.contract,
-            tickType="Last",
-            numberOfTicks=0,
-            ignoreSize=True
-        )
-        ticks.updateEvent += self.app.tickUpdateEvent
-
-        log.info("Got Ticker Subscription")
 
     def get_contract(self):
         contract = self.ib.reqContractDetails(
@@ -54,8 +46,7 @@ class Algo():
         if not contract:
             log.error("Failed to Grab Continuous Future {}".format(config.SYMBOL))
             sysexit()
-        else:
-            return contract[0]
+        return contract[0].contract
 
 
 def calculate_cci(bars: BarDataList):

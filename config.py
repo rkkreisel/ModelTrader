@@ -15,7 +15,7 @@ SYMBOL = "ES"
 EXCHANGE = "GLOBEX"
 
 # Type of Market Data To Stream.
-DATATYPE = MarketDataTypes.LIVE
+DATATYPE = MarketDataTypes.FROZEN
 
 CCI_PERIODS = 34
 CCI_AVERAGE_PERIODS = 8

@@ -54,18 +54,7 @@ class App:
         logger.getLogger().info("Disconnected.")
 
     def barUpdateEvent(self, bars: objects.BarDataList, hasNewBar: bool):
-        cci, average = logic.calculate_cci(bars)
-        self.cci.update(f"{cci:.2f}")
-        self.cci_category.update(categories.categorize_cci(int(cci)))
-        self.cci_average.update((f"{average:.2f}"))
-
-    def tickUpdateEvent(self, ticker: Ticker):
-        price = ticker.tickByTicks[0].price
-        utctime = ticker.tickByTicks[0].time
-        time = utctime.astimezone(pytz.timezone('US/Eastern'))
-        self.price.update(f"${price}")
-        self.time.update(time.strftime("%I:%M:%S %p"))
-        self.time_category.update(categories.categorize_time(time))
+        logger.getLogger().info("Got New Bars")
 
 
 
