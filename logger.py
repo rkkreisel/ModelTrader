@@ -7,7 +7,9 @@ import config
 
 LOGGER_NAME = "ModelTrader"
 FMT = '{asctime} :: {message}'
+
 DATE_FMT = '%m/%d/%Y %I:%M:%S %p'
+#DATE_FMT = '%d %I:%M %p'
 
 
 def setup():
@@ -22,7 +24,7 @@ def setup():
         handlers.append(logging.FileHandler(filename=config.LOGFILE))
 
     logger = logging.getLogger(LOGGER_NAME)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     logger.propagate = False
 
     for handler in handlers:

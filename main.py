@@ -1,6 +1,7 @@
 import asyncio
 from sys import exit as sys_exit
 from ib_insync import IB, util, objects, Ticker
+from datetime import *
 import tkinter as tk
 import pytz
 
@@ -21,17 +22,38 @@ class App:
         self.root.protocol('WM_DELETE_WINDOW', self._onDeleteWindow)
         self.root.minsize(width=250, height=50)
 
-        self.connected = Indicator(self.root, "Connected", "True")
-        self.contract = Indicator(self.root, "Contract", "")
-        self.cci15 = Indicator(self.root, "CCI (15m)", "")        
-        self.cci15_av = Indicator(self.root, "CCI Avg (15m)", "")
-        self.atr15 = Indicator(self.root, "ATR (15m)", "")
-        self.bband15_width = Indicator(self.root, "BBAND Width (15m)", "")
-        self.bband15_b = Indicator(self.root, "BBAND %B (15m)", "")
+        self.qtrhour = Indicator(self.root, "Time of Check","",1)
+        self.connected = Indicator(self.root, "Connected", "True",1)
+        self.contract = Indicator(self.root, "Contract", "",1)
+        self.label3 = Indicator(self.root, "15 Minutes ","",1)
+        self.crossover = Indicator(self.root, "Crossover", "False",1)
 
+        self.cci15 = Indicator(self.root, "CCI      ", "",1)        
+        self.cci15_av = Indicator(self.root, "CCI Avg ", "",1)
+        self.atr15 = Indicator(self.root, "ATR ", "",1)
+        self.bband15_width = Indicator(self.root, "BBAND Width", "",1)
+        self.bband15_b = Indicator(self.root, "BBAND %B ", "",1)
+        self.label1 = Indicator(self.root, " ","",1)
+        self.cci15p = Indicator(self.root, "CCI ", "",1)
+        self.cci15p_av = Indicator(self.root, "CCIP Avg", "",1)
+        
+        self.label2 = Indicator(self.root, "1 Hour ","",1)
+        self.cci1h = Indicator(self.root, "CCI ", "",2)
+        self.cci1h_av = Indicator(self.root, "CCI Avg ","",2)
+        self.atr1h = Indicator(self.root, "ATR ","",2)
+        self.bband1h_width = Indicator(self.root, "BBand Width ","",2)
+        self.bband1h_b = Indicator(self.root, "BBand %p ","",2)
 
-        self.ib.connectedEvent += self.connectEvent
+        self.label1 = Indicator(self.root, "1 Day ","",1)
+        self.cci1d = Indicator(self.root, "CCI ", "",3)
+        self.cci1d_av = Indicator(self.root, "CCI Avg ","",3)
+        self.atr1d = Indicator(self.root, "ATR ","",3)
+        self.bband1d_width = Indicator(self.root, "BBand Width ","",3)
+        self.bband1d_b = Indicator(self.root, "BBand %p ","",3)
+        self.status1 = Indicator(self.root, "Status1 ","",0)
+        
         self.ib.disconnectedEvent += self.disconnectEvent
+        self.ib.connectedEvent += self.connectEvent
 
     def run(self):
         self._onTimeout()
@@ -53,16 +75,18 @@ class App:
         self.connected.update("Disconnected")
         logger.getLogger().info("Disconnected.")
 
-    def barupdateEvent_15m(self, bars: objects.BarDataList, hasNewBar: bool):
-        logger.getLogger().info(f"Got 15m Bars.")
-        cci, avg = logic.calculate_cci(bars)
-        atr = logic.calculate_atr(bars)
-        bband_width, bband_b, = logic.calculate_bbands(bars)
-        self.cci15.update(f"{cci:.02f}")
-        self.cci15_av.update(f"{avg:.02f}")
-        self.atr15.update(f"{atr:.02f}")
-        self.bband15_width.update(f"{bband_width:.04f}")
-        self.bband15_b.update(f"{bband_b:.04f}")
+    #def barupdateEvent_15m(self, bars: objects.BarDataList, hasNewBar: bool):
+        #logger.getLogger().info(f"Got 15m Bars.")
+        #cci, avg = logic.calculate_cci(bars)
+        #atr = logic.calculate_atr(bars)
+        #bband_width, bband_b, = logic.calculate_bbands(bars)
+        #qtrtime = datetime.now()
+        #self.cci15.update(f"{cci:.02f}")
+        #self.cci15_av.update(f"{avg:.02f}")
+        #self.atr15.update(f"{atr:.02f}")
+        #self.bband15_width.update(f"{bband_width:.04f}")
+        #self.bband15_b.update(f"{bband_b:.04f}")
+        #self.qtrhour.update(qtrtime)
 
 def main(ib: IB):
     try:

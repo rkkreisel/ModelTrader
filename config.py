@@ -5,10 +5,10 @@ from constants import MarketDataTypes
 VERSION = "0.1"
 
 LOGFILE = "modeltrader_{}.log".format(datetime.now().strftime('%Y%m%d_%H%M'))
-LOGFILE_ENABLED = False
+LOGFILE_ENABLED = True
 
 HOST = "127.0.0.1"
-PORT = 44444
+PORT = 55555
 CLIENTID = 6
 
 SYMBOL = "ES"
