@@ -22,5 +22,4 @@ def categorize_time(time: datetime.datetime):
     if time.hour < 16:
         return "PM"
     return "Night"
-    
-
+ 
