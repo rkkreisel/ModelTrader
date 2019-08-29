@@ -22,18 +22,10 @@ class Algo():
 
     def run(self):
         """ Execute the algorithm """
-        key_arr = ['blank','ATR15','ATR1','ATRD','CCI15','CCIA15','CCIA1h','CCIA1d','BBW15','BBb15','BBW1h','BBb1h','BBW1d','BBb1d']
-        print(key_arr)
-        print(key_arr[0])
-        print(key_arr)
-        tradenow = False
         not_finished = True
-        tradenow = False
-        cci_trade = False
-        ccibb_trade = False
         while not_finished:
             print ("top of algo run self")
-            crossed = False
+            crossed = False 
             self.app.crossover.update(crossed)
             contContract = get_contract(self)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
@@ -50,14 +42,16 @@ class Algo():
                 nextqtr = 30
                 getqtr = 45
             elif datetime.now().minute < 45:
-                nextqtr = 45
-                getqtr = 0
+                 nextqtr = 45
+                 getqtr = 0
             else:
                 nexthour = nexthour + 1
                 nextqtr = 0
                 getqtr = 15
             test=(datetime(int(date.today().year),int(date.today().month),int(nextday),int(nexthour),int(getqtr),int(0)))
-            print ("nextqtr and getqtr {} {}".format(nextqtr,getqtr))
+            print ("nextqtr and getqtr")
+            print (nextqtr)
+            print (getqtr)
             log.info("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(test))
             #
             #nextqtr = datetime.now().minute + 1
@@ -68,7 +62,7 @@ class Algo():
             # 15 Minute Data
             self.app.qtrhour.update(datetime.now())
             print(datetime.now())
-            log.info("requesting info for the following timeframe today: {} nexthour: {} minutes: {}".format(date.today().day,nexthour+1,getqtr))
+            log.info("requesting info for the following timeframe today: {} nexthour: {} minutes: {}".format(date.today().day,nexthour,getqtr))
             bars_15m = self.get_bars_data(dataContract,"2 D","15 mins",date.today().day,nexthour + 1,getqtr)
             x = np.array(bars_15m)
             log.debug("15 min bars {}".format(bars_15m))
@@ -90,21 +84,18 @@ class Algo():
             #key_arr = []
             if (cci > cci_prior and cci_prior < cci3) or (cci < cci_prior and cci_prior > cci3):
                 crossed = True
-                tradenow = True
                 csv_row = "'"+str(datetime.now())+",'long'"
-                key_arr[0] = "long"
+                #key_arr[0] = "long"
             else:
-                crossed = True
-                tradenow = True
+                crossed = False
                 csv_row = "'"+str(datetime.now())+",'short'"
-                key_arr[0] = "short"
+                #key_arr[0] = "short"
             csv_row += ",'"+str(crossed)+"',"+str(cci)+","+str(avg)+","+str(cci_prior)+","+str(averageh)+","+str(atr)+","+str(bband_width)+","+str(bband_b)
-            print(key_arr)
-            key_arr[1] = categories.categorize_atr15(atr)
-            key_arr[4] = categories.categorize_cci_15(cci)
-            key_arr[5] = categories.categorize_cci_15_avg(avg)
-            key_arr[8] = categories.categorize_BBW15(bband_width)
-            key_arr[9] = categories.categorize_BBb15(bband_b)
+            #key_arr[1] = categories.categorize_atr15(atr)
+            #key_arr[4] = categories.categorize_cci_15(cci)
+            #key_arr[5] = categories.categorize_cci_15_avg(avg)
+            #key_arr[8] = categories.categorize_BBW15(bband_width)
+            #key_arr[9] = categories.categorize_BBb15(bband_c)
             stat = "check crossed status"
 
             #print("printing self app ********************************************")
@@ -123,18 +114,17 @@ class Algo():
             
             #1 hour data 
             test=(datetime(int(date.today().year),int(date.today().month),int(nextday),int(nexthour),int(getqtr),int(0)))
-            #log.info("next datetime for 1 hour - should be 1 hour behind current hour {}".format(test))
-            log.info("requesting info for the following timeframe today: {} nexthour: {} minutes: {} ".format(date.today().day,nexthour,0))
+            log.info("next datetime for 1 hour - should be 1 hour behind current hour {}".format(test))
             bars_1h = self.get_bars_data(dataContract,"5 D","1 hour",date.today().day,nexthour,0)
             cci, avg, cci_prior, averageh, cci3 = calculate_cci(bars_1h)
             log.debug("bars_1h {}".format(bars_1h))
             atr,atrprior = calculate_atr(bars_1h)
             bband_width, bband_b,bband_width_prior, bband_b_prior = calculate_bbands(bars_1h)
             csv_row += ","+str(cci)+","+str(avg)+","+str(atr)+","+str(bband_width)+","+str(bband_b)
-            key_arr[2] = categories.categorize_atr1h(atr)
-            key_arr[6] = categories.categorize_cci_1h(avg)
-            key_arr[10] = categories.categorize_BBW1h(bband_width)
-            key_arr[11] = categories.categorize_BBb1h(bband_b)
+            #key_arr[2] = categories.categorize_atr1h(atr)
+            #key_arr[6] = categories.categorize_cci_1h_avg(avg)
+            #key_arr[10] = categories.categorize_BBW1h(bband_width)
+            #key_arr[11] = categories.categorize_BBb1h(bband_c)
             log.info("starting 1H ")
             log.info("CCI       {} ".format(cci))
             log.info("CCIA:     {} ".format(avg))
@@ -148,17 +138,16 @@ class Algo():
             self.app.bband1h_width.update(f"{bband_width:.04f}")
             self.app.atr1h.update(f"{atr:.02f}")
             
-            log.info("requesting info for the following timeframe today: nextday: {} hour: {} minute: {} ".format((nextday-1),0,0))
             bars_1d = self.get_bars_data(dataContract,"75 D","1 day",nextday - 1, 0 ,0)
             log.debug("1d min bars {}".format(bars_1d))
             cci, avg, cci_prior, averageh, cci3 = calculate_cci(bars_1d)
             atr, atrprior = calculate_atr(bars_1d)
             bband_width, bband_b,bband_width_prior, bband_b_prior = calculate_bbands(bars_1d)
             csv_row += ","+str(cci)+","+str(avg)+","+str(atr)+","+str(bband_width)+","+str(bband_b)
-            key_arr[3] = categories.categorize_atr1d(atr)
-            key_arr[7] = categories.categorize_cci_1d(avg)
-            key_arr[12] = categories.categorize_BBW1d(bband_width)
-            key_arr[13] = categories.categorize_BBb1d(bband_b)
+            #key_arr[3] = categories.categorize_atr1d(atr)
+            #key_arr[7] = categories.categorize_cci_1d_avg(avg)
+            #key_arr[12] = categories.categorize_BBW1d(bband_width)
+            #key_arr[13] = categories.categorize_BBb1d(bband_c)
             log.info("starting 1H ")
             log.info("starting 1D ")
             log.info("CCIP      {} ".format(cci))
@@ -173,30 +162,12 @@ class Algo():
             self.app.bband1d_b.update(f"{bband_b:.04f}")
             self.app.bband1d_width.update(f"{bband_width:.04f}")
             self.app.atr1d.update(f"{atr:.02f}")
-            if tradenow:
-                csv_file = csv.reader(open('data/ccibb.csv', "rt"), delimiter = "'")
-                for row in csv_file:
-                    if (''.join(key_arr)) == row[0]:
-                            print("we have a match in ccibb.csv")
-                            print(row)
-                            ccibb_trade = True
-                csv_file = csv.reader(open('data/cci.csv', "rt"), delimiter = "'")
-                for row in csv_file:
-                    if (''.join(key_arr[0:7])) == row[0]:
-                            print("we have a match in cci.csv")
-                            print(row)
-                            cci_trade = True
-            csv_row += ","+(''.join(key_arr))+","+str(ccibb_trade)+","+str(ccibb_trade)
             with open('data/hist15.csv', mode='a') as hist15:
                 histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 histwriter.writerow([csv_row])
-            print ("key array comming *************************")
-            print (''.join(key_arr))
-            log.info("key array {}".format(key_arr))
-            #key_arr.clear()
-            tradenow = False
-            cci_trade = False
-            ccibb_trade = False
+            #print ("key array comming *************************")
+            #print (key_arr)
+            #log.info("key array {}".format(key_arr))
     
     print ("end of run self")
     def get_bars_data(self, contract, bardur, tframe,nextday, nexthour, nextqtr):
