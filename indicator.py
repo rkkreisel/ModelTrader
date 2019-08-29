@@ -2,7 +2,7 @@ import tkinter as tk
 
 
 class Indicator():
-    def __init__(self, master: tk.Tk, name: str, value: str, col: int):
+    def __init__(self, master: tk.Tk, name: str, value: str):
         frame = tk.Frame(master)
         self.data = tk.IntVar()
         self.data.set(value)
