@@ -6,7 +6,7 @@ from ib_insync.contract import ContFuture, Contract
 from ib_insync.objects import BarDataList
 import talib
 import numpy as np
-from datetime import *
+from datetime import datetime, timedelta
 import config
 import logger
 import csv
@@ -36,39 +36,18 @@ class Algo():
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.info("Got Contract: {}".format(dataContract.localSymbol))
             self.app.contract.update(dataContract.localSymbol)
-        
-            # my add
-            nextday = datetime.now().day 
-            nexthour = datetime.now().hour 
-            # endDateTime=datetime(int(date.today().year),int(date.today().month),int(nextday),int(nexthour),int(nextqtr),int(0)),
-            if datetime.now().minute < 15:
-                nextqtr = 15
-                getqtr = 30
-
-            elif datetime.now().minute < 30:
-                nextqtr = 30
-                getqtr = 45
-            elif datetime.now().minute < 45:
-                nextqtr = 45
-                getqtr = 0
-            else:
-                nexthour = nexthour + 1
-                nextqtr = 0
-                getqtr = 15
-            test=(datetime(int(date.today().year),int(date.today().month),int(nextday),int(nexthour),int(getqtr),int(0)))
-            print ("nextqtr and getqtr {} {}".format(nextqtr,getqtr))
-            log.info("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(test))
+            wait_time, datetime_15, datetime_1h, datetime_1d = self.define_times()
+            log.info("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
             #
             #nextqtr = datetime.now().minute + 1
             #print ("we manually overwrote start time")
             #print (nextqtr)
             #
-            self.ib.waitUntil(time(hour=nexthour,minute=nextqtr))
+            self.ib.waitUntil(wait_time)
             # 15 Minute Data
-            self.app.qtrhour.update(datetime.now())
-            print(datetime.now())
-            log.info("requesting info for the following timeframe today: {} nexthour: {} minutes: {}".format(date.today().day,nexthour+1,getqtr))
-            bars_15m = self.get_bars_data(dataContract,"2 D","15 mins",date.today().day,nexthour + 1,getqtr)
+            self.app.qtrhour.update(wait_time)
+            log.info("requesting info for the following timeframe today: {} ".format(wait_time))
+            bars_15m = self.get_bars_data(dataContract,"2 D","15 mins",datetime_15)
             x = np.array(bars_15m)
             log.debug("15 min bars {}".format(bars_15m[-1]))
             #sef.app. barupdateEvent_15m(baas_15m, True)
@@ -121,10 +100,8 @@ class Algo():
             
             
             #1 hour data 
-            test=(datetime(int(date.today().year),int(date.today().month),int(nextday),int(nexthour),int(getqtr),int(0)))
-            #log.info("next datetime for 1 hour - should be 1 hour behind current hour {}".format(test))
-            log.info("requesting info for the following timeframe today: {} nexthour: {} minutes: {} ".format(date.today().day,nexthour,0))
-            bars_1h = self.get_bars_data(dataContract,"5 D","1 hour",date.today().day,nexthour,0)
+            log.info("next datetime for 1 hour - should be 1 hour behind current hour {}".format(datetime_1h))
+            bars_1h = self.get_bars_data(dataContract,"5 D","1 hour",datetime_1h)
             cci, avg, cci_prior, averageh, cci3 = calculate_cci(bars_1h)
             log.debug("bars_1h {}".format(bars_1h[-1]))
             atr,atrprior = calculate_atr(bars_1h)
@@ -147,8 +124,8 @@ class Algo():
             self.app.bband1h_width.update(f"{bband_width:.04f}")
             self.app.atr1h.update(f"{atr:.02f}")
             
-            log.info("requesting info for the following timeframe today: nextday: {} hour: {} minute: {} ".format((nextday-1),0,0))
-            bars_1d = self.get_bars_data(dataContract,"75 D","1 day",nextday - 1, 0 ,0)
+            log.info("requesting info for the following timeframe today: nextday: ".format(datetime_1d))
+            bars_1d = self.get_bars_data(dataContract,"75 D","1 day",datetime_1d)
             log.debug("1d min bars {}".format(bars_1d[-1]))
             cci, avg, cci_prior, averageh, cci3 = calculate_cci(bars_1d)
             atr, atrprior = calculate_atr(bars_1d)
@@ -177,13 +154,15 @@ class Algo():
                 for row in csv_file:
                     if (''.join(key_arr)) == row[0]:
                             print("we have a match in ccibb.csv")
-                            print(row)
+                            print("found a match in CCIBB ",row)
+                            status_done = self.row_results(self, row)
                             ccibb_trade = True
                 csv_file = csv.reader(open('data/cci.csv', "rt"), delimiter = "'")
                 for row in csv_file:
                     if (''.join(key_arr[0:7])) == row[0]:
                             print("we have a match in cci.csv")
-                            print(row)
+                            print("found a math in CCI ",row)
+                            status_done = self.row_results(self, row)
                             cci_trade = True
             csv_row += ","+(''.join(key_arr))+","+str(ccibb_trade)+","+str(ccibb_trade)
             with open('data/hist15.csv', mode='a') as hist15:
@@ -196,20 +175,58 @@ class Algo():
             tradenow = False
             cci_trade = False
             ccibb_trade = False
-    
-    print ("end of run self")
-    def get_bars_data(self, contract, bardur, tframe,nextday, nexthour, nextqtr):
-        log.info ("inputs to request hist for get bars - {}/{}/{} {}:{}".format(date.today().year,date.today().month,nextday,nexthour,nextqtr))
+            print ("end of run self")
+
+    def get_bars_data(self, contract, bardur, tframe,bar_datetime):
+        log.info ("inputs to request hist for get bars - {}".format(bar_datetime))
         return self.ib.reqHistoricalData(
                 contract=contract,
-                endDateTime=datetime(int(date.today().year),int(date.today().month),int(nextday),int(nexthour),int(nextqtr),int(0)),
+                endDateTime=bar_datetime,
                 durationStr=bardur,
                 barSizeSetting=tframe,
                 whatToShow="TRADES",
                 useRTH=False,
                 keepUpToDate=False
-         )
+        )
     
+    def define_times(self):
+        current_time = datetime.now()
+        current_minute = datetime.now().minute
+        print("now ",current_time)
+        print("minute ",current_minute)
+        if current_minute < 15:
+            wait_time = current_time.replace(minute = 15,second=0) 
+            datetime_15 = current_time.replace(minute = 30, second = 0)
+        elif current_minute < 30:
+            wait_time = current_time.replace(minute = 30,second=0) 
+            datetime_15 = current_time.replace(minute = 45, second=0)
+        elif current_minute < 45:
+            wait_time = current_time.replace(minute = 45,second=0) 
+            datetime_15 = current_time + timedelta(minutes=(45-current_minute+15))
+            datetime_15 = datetime_15.replace(second=0)
+        else:
+            wait_time = current_time + timedelta(minutes=(60-current_minute))
+            wait_time = wait_time.replace(second=0)
+            datetime_15 = current_time + timedelta(minutes=(60-current_minute+15))
+            datetime_15 = datetime_15.replace(second=0)
+        datetime_1h = wait_time - timedelta(hours = 1)
+        datetime_1h = datetime_1h.replace(minute=0)
+        datetime_1d = current_time -  timedelta(days = 1)
+        datetime_1d = datetime_1d.replace(hour = 0, minute=0, second=0)
+        print("wait time",wait_time)
+        print("datetime_15 ",datetime_15)
+        print("datetime_1h",datetime_1h)
+        print("datetime_1d",datetime_1d)
+        return wait_time, datetime_15, datetime_1h, datetime_1d
+
+    def row_results(self, row):
+        log.info("Do we buy this one: {}".format)(row[13])
+        log.info("Winning %: {}".format(row[11]))
+        log.info("Previous Order: {}".format(row[6]))
+        log.info("Previous Wins: {}".format(row[7]))
+        return
+
+
 def calculate_cci(bars: BarDataList):
     cci = talib.CCI(
         np.array([bar.high for bar in bars]),
@@ -222,7 +239,7 @@ def calculate_cci(bars: BarDataList):
     #print (cci)
     #bars_debug = np.array(bars)
     #log.info("bars : %b" % bars)
-    log.debug("cci array: {} ".format(cci))
+    #log.debug("cci array: {} ".format(cci))
     return cci[-1], average, cci[-2], averageh, cci[-3]
 
 def calculate_atr(bars):
