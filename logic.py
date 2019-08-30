@@ -168,14 +168,14 @@ class Algo():
             with open('data/hist15.csv', mode='a') as hist15:
                 histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 histwriter.writerow([csv_row])
-            print ("key array comming *************************")
+            print ("*******************************************key array comming *************************")
             print (''.join(key_arr))
             log.info("key array {}".format(key_arr))
             #key_arr.clear()
             tradenow = False
             cci_trade = False
             ccibb_trade = False
-            print ("end of run self")
+            print ("end of run self **********************************************************************************************")
 
     def get_bars_data(self, contract, bardur, tframe,bar_datetime):
         log.info ("inputs to request hist for get bars - {}".format(bar_datetime))
