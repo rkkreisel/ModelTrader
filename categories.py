@@ -20,12 +20,12 @@ def categorize_cci_15_avg(cci: int):
 	
 def categorize_cci_1h(cci: int):
     if cci < -100:
-        return "CCI1h:U"
+        return "CCIA1h:U"
     if cci > 100:
-        return "CCI1h:O"
+        return "CCIA1h:O"
     if cci > 0:
-        return "CCI1h:IU"
-    return "CCI1h:IL"
+        return "CCIA1h:IU"
+    return "CCIA1h:IL"
 
 def categorize_cci_1d(cci: int):
     if cci < -100:
