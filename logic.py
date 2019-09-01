@@ -31,11 +31,11 @@ class Algo():
         ccibb_trade = False
         while not_finished:
             print ("top of algo run self")
-            open_today = helpers.is_open_today(contract)
-            print("open today ",open_today)
             crossed = False
             self.app.crossover.update(crossed)
             contContract = get_contract(self)
+            open_today = helpers.is_open_today(contContract)
+            print("open today ",open_today)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.info("Got Contract: {}".format(dataContract.localSymbol))
             self.app.contract.update(dataContract.localSymbol)
