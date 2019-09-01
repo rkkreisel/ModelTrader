@@ -32,7 +32,7 @@ class Algo():
         while not_finished:
             print ("top of algo run self")
             open_today = helpers.is_open_today(contract)
-            print("open today",open_today)
+            print("open today ",open_today)
             crossed = False
             self.app.crossover.update(crossed)
             contContract = get_contract(self)
