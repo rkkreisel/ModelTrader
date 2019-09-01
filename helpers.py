@@ -1,5 +1,5 @@
 """
-    Second30 Helper Functions
+    ModelTrader Helper Functions
 """
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
