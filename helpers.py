@@ -4,7 +4,7 @@
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 from re import compile as compile_re
-from ib_insync.contract import Contract
+from ib_insync.contract import contract
 
 import config
 
