@@ -8,10 +8,10 @@ from ib_insync.contract import contract
 
 import config
 
-def is_open_today(contract: Contract):
+def is_open_today(concontract: Contract):
     """ Parse contract Trading Hours to Check if Valid Trading Day"""
     date_re = compile_re(r"([0-9]{8}):([0-9]+)-([0-9]{8}):([0-9]+)")
-    days = contract.tradingHours.split(";")
+    days = contcontract.tradingHours.split(";")
     today = datetime.today().strftime("%Y%m%d")
     yesterday = (datetime.today() - timedelta(days=1)).strftime("%Y%m%d")
     hours = []
