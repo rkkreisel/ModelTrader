@@ -2,7 +2,8 @@ import statistics
 from sys import exit as sysexit
 
 from ib_insync import IB
-from ib_insync.contract import ContFuture, Contract
+from ib_insync.contract import ContFuture, Contract, Future 
+
 from ib_insync.objects import BarDataList
 import talib
 import numpy as np
@@ -31,11 +32,11 @@ class Algo():
         ccibb_trade = False
         while not_finished:
             print ("top of algo run self")
-            open_today = helpers.is_open_today(contract)
-            print("open today ",open_today)
             crossed = False
             self.app.crossover.update(crossed)
-            contContract = get_contract(self)
+            contract = get_contract(self)
+            open_today = helpers.is_open_today(contract)
+            print("open today ",open_today)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.info("Got Contract: {}".format(dataContract.localSymbol))
             self.app.contract.update(dataContract.localSymbol)
