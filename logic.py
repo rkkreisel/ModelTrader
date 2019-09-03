@@ -2,7 +2,7 @@ import statistics
 from sys import exit as sysexit
 
 from ib_insync import IB
-from ib_insync.contract import ContFuture, Contract, Future 
+from ib_insync.contract import ContFuture, Contract 
 
 from ib_insync.objects import BarDataList
 import talib
@@ -12,7 +12,7 @@ import config
 import logger
 import csv
 import categories
-import helpers
+#import helpers
 
 log = logger.getLogger()
 
@@ -34,9 +34,10 @@ class Algo():
             print ("top of algo run self")
             crossed = False
             self.app.crossover.update(crossed)
-            contract = get_contract(self)
-            open_today = helpers.is_open_today(contract)
-            print("open today ",open_today)
+            contContract = get_contract(self)
+            #print(contract.tradingHours.split(";"))
+            #open_today = helpers.is_open_today(contract)
+            #print("open today ",open_today)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.info("Got Contract: {}".format(dataContract.localSymbol))
             self.app.contract.update(dataContract.localSymbol)
@@ -70,16 +71,20 @@ class Algo():
             log.info("bband p:  {} ".format(bband_b))
             qtrtime = datetime.now()
             #key_arr = []
-            if (cci > cci_prior and cci_prior < cci3) or (cci < cci_prior and cci_prior > cci3):
+            if cci > cci_prior and cci_prior < cci3:
                 crossed = True
                 tradenow = True
                 csv_row = "'"+str(datetime.now())+",'long'"
                 key_arr[0] = "long"
-            else:
+            elif cci < cci_prior and cci_prior > cci3:
                 crossed = True
                 tradenow = True
                 csv_row = "'"+str(datetime.now())+",'short'"
                 key_arr[0] = "short"
+            else:
+                csv_row = "'"+str(datetime.now())+",'flat'"
+                crossed = False
+                tradenow = False
             csv_row += ",'"+str(crossed)+"',"+str(cci)+","+str(avg)+","+str(cci_prior)+","+str(averageh)+","+str(atr)+","+str(bband_width)+","+str(bband_b)
             print(key_arr)
             key_arr[1] = categories.categorize_atr15(atr)
@@ -163,19 +168,15 @@ class Algo():
                             ccibb_trade = True
                 csv_file = csv.reader(open('data/cci.csv', "rt"), delimiter = "'")
                 for row in csv_file:
-                    if (''.join(key_arr[0:7])) == row[0]:
+                    if (''.join(key_arr[0:8])) == row[0]:
                             print("we have a match in cci.csv")
                             print("found a math in CCI ",row)
                             status_done = self.row_results(self, row)
                             cci_trade = True
-            csv_row += ","+(''.join(key_arr))+","+str(ccibb_trade)+","+str(ccibb_trade)
+            csv_row += ","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(ccibb_trade)+","+str(ccibb_trade)
             with open('data/hist15.csv', mode='a') as hist15:
                 histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 histwriter.writerow([csv_row])
-            print ("*******************************************key array comming *************************")
-            print (''.join(key_arr))
-            log.info("key array {}".format(key_arr))
-            #key_arr.clear()
             tradenow = False
             cci_trade = False
             ccibb_trade = False
@@ -274,6 +275,9 @@ def get_contract(client):
     contract = client.ib.reqContractDetails(
         ContFuture(symbol=config.SYMBOL, exchange=config.EXCHANGE)
     )
+    #print(contract)
+    #print(contract[0].contract)
+    #print(len(contract))
     if not contract:
         log.error("Failed to Grab Continuous Future {}".format(config.SYMBOL))
         sysexit()
