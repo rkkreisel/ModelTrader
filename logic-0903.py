@@ -12,7 +12,7 @@ import config
 import logger
 import csv
 import categories
-import helpers
+#import helpers
 
 log = logger.getLogger()
 
@@ -27,7 +27,6 @@ class Algo():
         key_arr = ['blank','ATR15','ATR1','ATRD','CCI15','CCIA15','CCIA1h','CCIA1d','BBW15','BBb15','BBW1h','BBb1h','BBW1d','BBb1d']
         tradenow = False
         not_finished = True
-        pending = False
         tradenow = False
         cci_trade = False
         ccibb_trade = False
@@ -35,9 +34,9 @@ class Algo():
             print ("top of algo run self")
             crossed = False
             self.app.crossover.update(crossed)
-            contContract, contracthours = get_contract(self)
+            contContract = get_contract(self)
             #print(contract.tradingHours.split(";"))
-            open_today = helpers.is_open_today(contracthours)
+            #open_today = helpers.is_open_today(contract)
             #print("open today ",open_today)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.info("Got Contract: {}".format(dataContract.localSymbol))
@@ -72,23 +71,20 @@ class Algo():
             log.info("bband p:  {} ".format(bband_b))
             qtrtime = datetime.now()
             #key_arr = []
-            if cci > avg and cci_prior < averageh:
+            if cci > cci_prior and cci_prior < cci3:
                 crossed = True
                 tradenow = True
                 csv_row = "'"+str(datetime.now())+",'long'"
                 key_arr[0] = "long"
-            elif cci < avg and cci_prior > averageh:
+            elif cci < cci_prior and cci_prior > cci3:
                 crossed = True
                 tradenow = True
                 csv_row = "'"+str(datetime.now())+",'short'"
                 key_arr[0] = "short"
             else:
-                csv_row = "'"+str(datetime.now())+",'cash'"
+                csv_row = "'"+str(datetime.now())+",'flat'"
                 crossed = False
                 tradenow = False
-            if abs(cci - avg) > config.SPREAD:
-                pending = True
-            csv_header = "Date,Status,Crossed,CCI15,CCIA15,CCI15P,CCIA15P,ATR15,BBw15,BBB15"
             csv_row += ",'"+str(crossed)+"',"+str(cci)+","+str(avg)+","+str(cci_prior)+","+str(averageh)+","+str(atr)+","+str(bband_width)+","+str(bband_b)
             print(key_arr)
             key_arr[1] = categories.categorize_atr15(atr)
@@ -120,7 +116,6 @@ class Algo():
             atr,atrprior = calculate_atr(bars_1h)
             bband_width, bband_b,bband_width_prior, bband_b_prior = calculate_bbands(bars_1h)
             csv_row += ","+str(cci)+","+str(avg)+","+str(atr)+","+str(bband_width)+","+str(bband_b)
-            csv_header += ",CCI1h,CCIA1h,ATR1h,BBW1h,BBB1h"
             key_arr[2] = categories.categorize_atr1h(atr)
             key_arr[6] = categories.categorize_cci_1h(avg)
             key_arr[10] = categories.categorize_BBW1h(bband_width)
@@ -145,11 +140,11 @@ class Algo():
             atr, atrprior = calculate_atr(bars_1d)
             bband_width, bband_b,bband_width_prior, bband_b_prior = calculate_bbands(bars_1d)
             csv_row += ","+str(cci)+","+str(avg)+","+str(atr)+","+str(bband_width)+","+str(bband_b)
-            csv_header += ",CCI1d,CCIA1d,ATR1d,BBB1d,BBW1d"
             key_arr[3] = categories.categorize_atr1d(atr)
             key_arr[7] = categories.categorize_cci_1d(avg)
             key_arr[12] = categories.categorize_BBW1d(bband_width)
             key_arr[13] = categories.categorize_BBb1d(bband_b)
+            log.info("starting 1H ")
             log.info("starting 1D ")
             log.info("CCIP      {} ".format(cci))
             log.info("CCIPA:    {} ".format(avg))
@@ -164,31 +159,23 @@ class Algo():
             self.app.bband1d_width.update(f"{bband_width:.04f}")
             self.app.atr1d.update(f"{atr:.02f}")
             if tradenow:
-                print("Tradeing this bar ",(''.join(key_arr))," - ",''.join(key_arr[0:8]))
-                csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
-                for row1 in csv_file1:
-                    #print("ccibb row: ",row1[0])
-                    if ((''.join(key_arr)) == row1[0]):
-                            log.info("we have a match in ccibb.csv")
-                            print("found a match in CCIBB ",row1[0])
+                csv_file = csv.reader(open('data/ccibb.csv', "rt"), delimiter = "'")
+                for row in csv_file:
+                    if (''.join(key_arr)) == row[0]:
+                            print("we have a match in ccibb.csv")
+                            print("found a match in CCIBB ",row)
+                            status_done = self.row_results(self, row)
                             ccibb_trade = True
-                            status_done = self.row_results(row1,cci_trade,ccibb_trade)
-                            break
-                csv_file2 = csv.reader(open('data/cci.csv', "rt"), delimiter = ",")
-                for row2 in csv_file2:
-                    #print("cci row: ",row2[0])
-                    #print("cci csv row: ",row[0])
-                    if ((''.join(key_arr[0:8])) == row2[0]):
+                csv_file = csv.reader(open('data/cci.csv', "rt"), delimiter = "'")
+                for row in csv_file:
+                    if (''.join(key_arr[0:8])) == row[0]:
                             print("we have a match in cci.csv")
-                            print("found a math in CCI ",row2[0])
+                            print("found a math in CCI ",row)
+                            status_done = self.row_results(self, row)
                             cci_trade = True
-                            status_done = self.row_results(row2,cci_trade,ccibb_trade)
-                            break
-            csv_row += ","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pending)
-            csv_header += ",CCIbbKey,CCIKey,CCI Trade,CCIbbTrade,Pending"
+            csv_row += ","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(ccibb_trade)+","+str(ccibb_trade)
             with open('data/hist15.csv', mode='a') as hist15:
                 histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                histwriter.writerow([csv_header])
                 histwriter.writerow([csv_row])
             tradenow = False
             cci_trade = False
@@ -237,17 +224,11 @@ class Algo():
         print("datetime_1d",datetime_1d)
         return wait_time, datetime_15, datetime_1h, datetime_1d
 
-    def row_results(self, row, cci_trade, ccibb_trade):
-        print("************************************************")
-        print("* CCI Trade:          ",cci_trade)
-        print("* CCIbb Trade:        ",ccibb_trade)
-        print("* Do we buy this one: ",row[13])
-        print("* Profit:             ",row[5])
-        print("* Winning %:          ",row[11]*100,"%")
-        print("* Risk:               ",row[12]*100,"%")
-        print("* Previous Order:     ",row[6])
-        print("* Previous Wins:      ",row[7])
-        print("************************************************")
+    def row_results(self, row):
+        log.info("Do we buy this one: {}".format)(row[13])
+        log.info("Winning %: {}".format(row[11]))
+        log.info("Previous Order: {}".format(row[6]))
+        log.info("Previous Wins: {}".format(row[7]))
         return
 
 
@@ -294,9 +275,12 @@ def get_contract(client):
     contract = client.ib.reqContractDetails(
         ContFuture(symbol=config.SYMBOL, exchange=config.EXCHANGE)
     )
+    #print(contract)
+    #print(contract[0].contract)
+    #print(len(contract))
     if not contract:
         log.error("Failed to Grab Continuous Future {}".format(config.SYMBOL))
         sysexit()
-    return contract[0].contract, contract[0].tradingHours
+    return contract[0].contract
 
 
