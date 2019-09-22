@@ -40,17 +40,22 @@ class Algo():
             contContract, contracthours = get_contract(self)
             # NEW
             tradeContract = self.ib.qualifyContracts(contContract)   # gives all the details of a contract so we can trade it
+            #print("fully qualified trading Contract: ",tradeContract)
             positions = self.ib.positions()
-            open_long, open_short = self.have_position(positions)
+            open = self.have_position(positions)
             open_today = helpers.is_open_today(contracthours)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.info("Got Contract: {}".format(dataContract.localSymbol))
-            pnl = self.ib.pnl()
-            print("PNL: ",pnl)
             self.app.contract.update(dataContract.localSymbol)
             wait_time, datetime_15, datetime_1h, datetime_1d = self.define_times()
             log.info("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
+            #
+            # starting the analysis section
+            #
             self.ib.waitUntil(wait_time)
+            #
+            # 15 Minute Data
+            #
             self.app.qtrhour.update(wait_time)
             log.info("requesting info for the following timeframe today: {} ".format(wait_time))
             bars_15m = self.get_bars_data(dataContract,"2 D","15 mins",datetime_15)
@@ -70,22 +75,27 @@ class Algo():
             qtrtime = datetime.now()
             if cci > avg and cci_prior < averageh:
                 crossed = True
+                print("crossed long",crossed)
                 tradenow = True
                 csv_row = "'"+str(datetime.now())+",'long'"
                 key_arr[0] = "long"
             elif cci < avg and cci_prior > averageh:
                 crossed = True
                 tradenow = True
+                print("crossed short",crossed)
                 csv_row = "'"+str(datetime.now())+",'short'"
                 key_arr[0] = "short"
             else:
                 csv_row = "'"+str(datetime.now())+",'cash'"
                 crossed = False
                 tradenow = False
-            if abs(cci - avg) > config.SPREAD:
-                pending = True
+                print("NOT CROSSED ",crossed)
+            print("csv row crossed ",csv_row)
+            #if abs(cci - avg) > config.SPREAD:
+            #    pending = True
             csv_header = "Date,Status,Crossed,CCI15,CCIA15,CCI15P,CCIA15P,ATR15,BBw15,BBB15"
             csv_row += ",'"+str(crossed)+"',"+str(cci)+","+str(avg)+","+str(cci_prior)+","+str(averageh)+","+str(atr)+","+str(bband_width)+","+str(bband_b)
+            print("csv row 15",csv_row)
             key_arr[1] = categories.categorize_atr15(atr)
             key_arr[4] = categories.categorize_cci_15(cci)
             key_arr[5] = categories.categorize_cci_15_avg(avg)
@@ -113,6 +123,7 @@ class Algo():
             atr,atrprior = calculate_atr(bars_1h)
             bband_width, bband_b,bband_width_prior, bband_b_prior = calculate_bbands(bars_1h)
             csv_row += ","+str(cci)+","+str(avg)+","+str(atr)+","+str(bband_width)+","+str(bband_b)
+            print("csv row 1 hour ",csv_row)
             csv_header += ",CCI1h,CCIA1h,ATR1h,BBW1h,BBB1h"
             key_arr[2] = categories.categorize_atr1h(atr)
             key_arr[6] = categories.categorize_cci_1h(avg)
@@ -138,6 +149,7 @@ class Algo():
             atr, atrprior = calculate_atr(bars_1d)
             bband_width, bband_b,bband_width_prior, bband_b_prior = calculate_bbands(bars_1d)
             csv_row += ","+str(cci)+","+str(avg)+","+str(atr)+","+str(bband_width)+","+str(bband_b)
+            print("csv row daily ",csv_row)
             csv_header += ",CCI1d,CCIA1d,ATR1d,BBB1d,BBW1d"
             key_arr[3] = categories.categorize_atr1d(atr)
             key_arr[7] = categories.categorize_cci_1d(avg)
@@ -171,7 +183,7 @@ class Algo():
                             break
                 csv_file2 = csv.reader(open('data/cci.csv', "rt"), delimiter = ",")
                 for row2 in csv_file2:
-                    print("cci   row: ",row2[0])
+                    print("cci row: ",row2[0])
                     if ((''.join(key_arr[0:8])) == row2[0]):
                             print("we have a match in cci.csv")
                             print("found a math in CCI ",row2[0])
@@ -179,20 +191,21 @@ class Algo():
                             tradenow = False
                             status_done = self.row_results(row2,cci_trade,ccibb_trade)
                             break
-                print("did we find a match?  If true than no ",tradenow)
-            csv_row += ","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pending)
-            csv_header += ",CCIbbKey,CCIKey,CCI Trade,CCIbbTrade,Pending"
+            print("did we find a match?  If true than no ",tradenow)
+            csv_row += ","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendinglong)+","+str(pendingshort)
+            csv_header += ",CCIbbKey,CCIKey,CCI Trade,CCIbbTrade,Pending Long, Pending Short"
+            print("csv row right before csv write ",csv_row)
             with open('data/hist15.csv', mode='a') as hist15:
                 histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                histwriter.writerow([csv_header])
-                histwriter.writerow([csv_row])
+                #histwriter.writerow([csv_header])
+                #histwriter.writerow([csv_row])
             tradenow = False
             cci_trade = False
             ccibb_trade = False
-            print ("end of run  **********************************************************************************************")
+            print ("end of run self **********************************************************************************************")
 
     def get_bars_data(self, contract, bardur, tframe,bar_datetime):
-        #log.info ("inputs to request hist for get bars - {}".format(bar_datetime))
+        log.info ("inputs to request hist for get bars - {}".format(bar_datetime))
         return self.ib.reqHistoricalData(
                 contract=contract,
                 endDateTime=bar_datetime,
@@ -206,14 +219,11 @@ class Algo():
     def define_times(self):
         current_time = datetime.now()
         current_minute = datetime.now().minute
-        #print("now ",current_time)
-        #print("minute ",current_minute)
+        print("now ",current_time)
+        datetime_15 = current_time.replace(minute = 45, second=0)
         if current_minute < 15:
             wait_time = current_time.replace(minute = 15,second=0) 
             datetime_15 = current_time.replace(minute = 30, second = 0)
-        elif current_minute < 30:
-            wait_time = current_time.replace(minute = 30,second=0) 
-            datetime_15 = current_time.replace(minute = 45, second=0)
         elif current_minute < 45:
             wait_time = current_time.replace(minute = 45,second=0) 
             datetime_15 = current_time + timedelta(minutes=(45-current_minute+15))
@@ -226,10 +236,10 @@ class Algo():
         datetime_1h = wait_time.replace(minute=0)
         datetime_1d = current_time -  timedelta(days = 1)
         datetime_1d = datetime_1d.replace(hour = 0, minute=0, second=0)
-        #print("wait time",wait_time)
-        #print("datetime_15 ",datetime_15)
-        #print("datetime_1h",datetime_1h)
-        #print("datetime_1d",datetime_1d)
+        print("wait time",wait_time)
+        print("datetime_15 ",datetime_15)
+        print("datetime_1h",datetime_1h)
+        print("datetime_1d",datetime_1d)
         return wait_time, datetime_15, datetime_1h, datetime_1d
 
     def row_results(self, row, cci_trade, ccibb_trade):
@@ -238,33 +248,23 @@ class Algo():
         print("* CCIbb Trade:        ",ccibb_trade)
         print("* Do we buy this one: ",row[13])
         print("* Profit:             ",row[5])
-        print("* Winning %:          ",row[11]*100,"%")
-        print("* Risk:               ",row[12]*100,"%")
+        print("* Winning %:          ",row[11]*100)
+        print("* Risk:               ",row[12]*100)
         print("* Previous Order:     ",row[6])
         print("* Previous Wins:      ",row[7])
         print("************************************************")
         return
 
     def have_position(self,positions):
-        position_long_tf = False
-        position_short_tf = False
+        position_tf = False
+        print("positions",positions)
         x = 0
         while x < len(positions):
             if (positions[x][1].symbol) == "ES": 
-                if (positions[x][2]) > 0:
-                    position_long_tf = True
-                    position_short_tf = False
-                elif (positions[x][2]) < 0:
-                    position_long_tf = False
-                    position_short_tf = True
-                else:
-                    position_long_tf = False
-                    position_short_tf = False
-                print("Have a position and qty ",positions[x][1].symbol,positions[x][2])
+                position_tf = True 
                 break
             x += + 1
-        return position_long_tf, position_short_tf 
-
+        return position_tf 
 
 def calculate_cci(bars: BarDataList):
     cci = talib.CCI(
@@ -306,6 +306,8 @@ def get_contract(client):
         ContFuture(symbol=config.SYMBOL, exchange=config.EXCHANGE)
     )
     if not contract:
-        log.error("Failed to Grab Continuous Future {}".format(config.SYMBOL))
-        sysexit()
-    return contract[0].contract, contract[0].tradingHours
+        percentb = (bars[-1].close - low[-1]) / (up[-1] - low[-1]) * 100
+        widthprior = (up[-2] - low[-2]) / sma[-2] * 100
+        percentbprior = (bars[-2].close - low[-2]) / (up[-2] - low[-2]) * 100
+    return width, percentb, widthprior, percentbprior
+

@@ -17,14 +17,14 @@ def is_open_today(contracthours: Contract):
     today = datetime.today().strftime("%Y%m%d")             #today in fomat matching the list
     yesterday = (datetime.today() - timedelta(days=1)).strftime("%Y%m%d")
     tomorrow = (datetime.today() + timedelta(days=1)).strftime("%Y%m%d")
-    print("yesterday: ",yesterday)
-    print("today:     ",today)
-    print("tomorrow:  ",tomorrow)
+    #print("yesterday: ",yesterday)
+    #print("today:     ",today)
+    #print("tomorrow:  ",tomorrow)
     hours = []
 
     for day in days:
         match = date_re.match(day)
-        print("date re: ",date_re.match(day))
+        #print("date re: ",date_re.match(day))
         if not match: continue
         if match.group(1) not in [today, yesterday]: continue
         if match.group(3) not in [today, yesterday]: continue
