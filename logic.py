@@ -3,7 +3,6 @@ from sys import exit as sysexit
 
 from ib_insync import IB
 from ib_insync.contract import ContFuture, Contract 
-
 from ib_insync.objects import BarDataList
 import talib
 import numpy as np
@@ -13,6 +12,7 @@ import logger
 import csv
 import categories
 import helpers
+import orders
 
 log = logger.getLogger()
 
@@ -28,62 +28,64 @@ class Algo():
         tradenow = False
         not_finished = True
         pendingshort = False
-        pendinglong = False
+        pendinglong = False      # this is when the cross over is not wide enough
+        PendingLongCnt = 0
+        PendingShortCnt = 0
         tradenow = False
         cci_trade = False
         ccibb_trade = False
         while not_finished:
-            print ("top of algo run self")
+            print ("top of algo run self*************************************************")
             #top of logic - want to check status as we enter a new bar/hour/day/contract
             crossed = False
-            self.app.crossover.update(crossed)
-            contContract, contracthours = get_contract(self)
-            # NEW
+            contContract, contracthours = get_contract(self) #basic information on continuious contact
+            #i NEW
             tradeContract = self.ib.qualifyContracts(contContract)   # gives all the details of a contract so we can trade it
-            positions = self.ib.positions()
-            open_long, open_short = self.have_position(positions)
+            print("tradeContract  ",tradeContract)
+            open_long, open_short, position_qty = self.have_position(self.ib.positions())   # do we have an open position?
             open_today = helpers.is_open_today(contracthours)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
-            log.info("Got Contract: {}".format(dataContract.localSymbol))
-            pnl = self.ib.pnl()
-            print("PNL: ",pnl)
+            log.debug("Got Contract: {}".format(dataContract.localSymbol))
+            #pnl = self.ib.pnl()
+            log.debug("account names: {}".format(self.ib.managedAccounts()))
+            log.info("PNL : {PNL} ".format(PNL=self.ib.pnl("all")))
             self.app.contract.update(dataContract.localSymbol)
             wait_time, datetime_15, datetime_1h, datetime_1d = self.define_times()
-            log.info("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
+            log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
             self.ib.waitUntil(wait_time)
             self.app.qtrhour.update(wait_time)
-            log.info("requesting info for the following timeframe today: {} ".format(wait_time))
+            log.debug("requesting info for the following timeframe today: {} ".format(wait_time))
+            #
+            #start of study
+            #
             bars_15m = self.get_bars_data(dataContract,"2 D","15 mins",datetime_15)
             x = np.array(bars_15m)
-            log.info("15 min bars {}".format(bars_15m[-1]))
+            log.debug("15 min bars {}".format(str(bars_15m[-1])))
             cci, avg, cci_prior, averageh, cci3 = calculate_cci(bars_15m)
             atr, atrprior =  calculate_atr(bars_15m)
             bband_width, bband_b,bband_width_prior, bband_b_prior = calculate_bbands(bars_15m)
-            log.info("starting 15 minutes".format(datetime.now()))
-            log.info("CCI:      {} ".format(cci))
-            log.info("CCIA      {} ".format(avg))
-            log.info("CCIP      {} ".format(cci_prior))
-            log.info("CCIPA:    {} ".format(averageh))
-            log.info("ATR:      {} ".format(atr))
-            log.info("bband w:  {} ".format(bband_width))
-            log.info("bband p:  {} ".format(bband_b))
+            logged_it = self.log_value("Starting 15 minutes", cci,avg,cci_prior, averageh,atr,bband_width,bband_b)
             qtrtime = datetime.now()
             if cci > avg and cci_prior < averageh:
                 crossed = True
                 tradenow = True
                 csv_row = "'"+str(datetime.now())+",'long'"
                 key_arr[0] = "long"
+                tradeAction = "BUY"
             elif cci < avg and cci_prior > averageh:
                 crossed = True
                 tradenow = True
                 csv_row = "'"+str(datetime.now())+",'short'"
                 key_arr[0] = "short"
+                tradeAction = "SELL"
             else:
                 csv_row = "'"+str(datetime.now())+",'cash'"
                 crossed = False
                 tradenow = False
             if abs(cci - avg) > config.SPREAD:
-                pending = True
+                log.info("Pending ".format(cci-avg))
+                pendinglong = True
+                pendingshort = True
             csv_header = "Date,Status,Crossed,CCI15,CCIA15,CCI15P,CCIA15P,ATR15,BBw15,BBB15"
             csv_row += ",'"+str(crossed)+"',"+str(cci)+","+str(avg)+","+str(cci_prior)+","+str(averageh)+","+str(atr)+","+str(bband_width)+","+str(bband_b)
             key_arr[1] = categories.categorize_atr15(atr)
@@ -91,25 +93,13 @@ class Algo():
             key_arr[5] = categories.categorize_cci_15_avg(avg)
             key_arr[8] = categories.categorize_BBW15(bband_width)
             key_arr[9] = categories.categorize_BBb15(bband_b)
-            stat = "check crossed status"
-
-            self.app.status1.update(stat)
-            self.app.crossover.update(crossed)
-            self.app.cci15.update(f"{cci:.02f}")
-            self.app.cci15_av.update(f"{avg:.02f}")
-            self.app.cci15p_av.update(f"{averageh:.02f}")
-            self.app.cci15p.update(f"{cci_prior:.02f}")
-            self.app.atr15.update(f"{atr:.02f}")
-            self.app.bband15_width.update(f"{bband_width:.04f}")
-            self.app.bband15_b.update(f"{bband_b:.04f}")
-            self.app.qtrhour.update(qtrtime)
-            
-            
+            #
             #1 hour data 
-            log.info("next datetime for 1 hour - should be 1 hour behind current hour {}".format(datetime_1h))
+            #
+            log.debug("next datetime for 1 hour - should be 1 hour behind current hour {}".format(datetime_1h))
             bars_1h = self.get_bars_data(dataContract,"5 D","1 hour",datetime_1h)
             cci, avg, cci_prior, averageh, cci3 = calculate_cci(bars_1h)
-            log.info("bars_1h {}".format(bars_1h[-1]))
+            log.debug("bars_1h {}".format(str(bars_1h[-1])))
             atr,atrprior = calculate_atr(bars_1h)
             bband_width, bband_b,bband_width_prior, bband_b_prior = calculate_bbands(bars_1h)
             csv_row += ","+str(cci)+","+str(avg)+","+str(atr)+","+str(bband_width)+","+str(bband_b)
@@ -118,22 +108,12 @@ class Algo():
             key_arr[6] = categories.categorize_cci_1h(avg)
             key_arr[10] = categories.categorize_BBW1h(bband_width)
             key_arr[11] = categories.categorize_BBb1h(bband_b)
-            log.info("starting 1H ")
-            log.info("CCI       {} ".format(cci))
-            log.info("CCIA:     {} ".format(avg))
-            log.info("ATR:      {} ".format(atr))
-            log.info("bband w:  {} ".format(bband_width))
-            log.info("bband p:  {} ".format(bband_b))
+            #logged_it = self.log_value("Starting 1 hour", cci,avg,cci_prior, averageh,atr,bband_width,bband_b)
             qtrtime = datetime.now()
-            self.app.cci1h.update(f"{cci:.02f}")
-            self.app.cci1h_av.update(f"{avg:.02f}")
-            self.app.bband1h_b.update(f"{bband_b:.04f}")
-            self.app.bband1h_width.update(f"{bband_width:.04f}")
-            self.app.atr1h.update(f"{atr:.02f}")
             
-            log.info("requesting info for the following timeframe today: nextday: ".format(datetime_1d))
+            log.debug("requesting info for the following timeframe today: nextday: ".format(datetime_1d))
             bars_1d = self.get_bars_data(dataContract,"75 D","1 day",datetime_1d)
-            log.info("1d min bars {}".format(bars_1d[-1]))
+            log.debug("1d min bars {}".format(str(bars_1d[-1])))
             cci, avg, cci_prior, averageh, cci3 = calculate_cci(bars_1d)
             atr, atrprior = calculate_atr(bars_1d)
             bband_width, bband_b,bband_width_prior, bband_b_prior = calculate_bbands(bars_1d)
@@ -143,45 +123,43 @@ class Algo():
             key_arr[7] = categories.categorize_cci_1d(avg)
             key_arr[12] = categories.categorize_BBW1d(bband_width)
             key_arr[13] = categories.categorize_BBb1d(bband_b)
-            log.info("starting 1D ")
-            log.info("CCIP      {} ".format(cci))
-            log.info("CCIPA:    {} ".format(avg))
-            log.info("ATR:      {} ".format(atr))
-            log.info("bband w:  {} ".format(bband_width))
-            log.info("bband p:  {} ".format(bband_b))
+            #logged_it = self.log_value("Starting 1 Day", cci,avg,cci_prior, averageh,atr,bband_width,bband_b)
             qtrtime = datetime.now()
-            qtrtime = datetime.now()
-            self.app.cci1d.update(f"{cci:.02f}")
-            self.app.cci1d_av.update(f"{avg:.02f}")
-            self.app.bband1d_b.update(f"{bband_b:.04f}")
-            self.app.bband1d_width.update(f"{bband_width:.04f}")
-            self.app.atr1d.update(f"{atr:.02f}")
-            print("tradenow: ",tradenow)
+            setsum = self.setupsummary(key_arr)
+            log.info("tradenow: {trade}".format(trade = tradenow))
+            #
+            # starting trade logic
+            #
+            # test buy
+            ParentOrderID = orders.buildOrders(self.ib,tradeContract,"BUY",2,"cci_day")
             if tradenow:
-                print("Tradeing this bar ",(''.join(key_arr))," - ",''.join(key_arr[0:8]))
+                log.info("Tradeing this bar {}".format(str(''.join(key_arr))," - ",''.join(key_arr[0:8])))
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
                 for row1 in csv_file1:
-                    print("ccibb row: ",row1[0])
+                    #print("ccibb row: ",row1[0])
                     if ((''.join(key_arr)) == row1[0]):
                             log.info("we have a match in ccibb.csv")
-                            print("found a match in CCIBB ",row1[0])
+                            log.info("found a match in CCIBB ".format(str(row1[0])))
                             ccibb_trade = True
+                            #ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,2,"ccibb_day")
+                            log.info("order placed, parentID: {}".format(ParentOrderID))
                             tradenow = False
                             status_done = self.row_results(row1,cci_trade,ccibb_trade)
                             break
                 csv_file2 = csv.reader(open('data/cci.csv', "rt"), delimiter = ",")
                 for row2 in csv_file2:
-                    print("cci   row: ",row2[0])
+                    #print("cci   row: ",row2[0])
                     if ((''.join(key_arr[0:8])) == row2[0]):
-                            print("we have a match in cci.csv")
-                            print("found a math in CCI ",row2[0])
+                            log.info("we have a match in cci.csv")
+                            log.info("found a math in CCI {}".format(str(row2[0])))
+                            #ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,2,"cci_day")
                             cci_trade = True
                             tradenow = False
                             status_done = self.row_results(row2,cci_trade,ccibb_trade)
                             break
-                print("did we find a match?  If true than no ",tradenow)
-            csv_row += ","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pending)
-            csv_header += ",CCIbbKey,CCIKey,CCI Trade,CCIbbTrade,Pending"
+                log.info("did we find a match?  If true than no {match}".format(match = tradenow))
+            csv_row += ","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendinglong)+","+str(pendingshort)
+            csv_header += ",CCIbbKey,CCIKey,CCI Trade,CCIbbTrade,PendingLong, PendingShort"
             with open('data/hist15.csv', mode='a') as hist15:
                 histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 histwriter.writerow([csv_header])
@@ -189,10 +167,9 @@ class Algo():
             tradenow = False
             cci_trade = False
             ccibb_trade = False
-            print ("end of run  **********************************************************************************************")
 
     def get_bars_data(self, contract, bardur, tframe,bar_datetime):
-        #log.info ("inputs to request hist for get bars - {}".format(bar_datetime))
+        log.debug("inputs to request hist for get bars - {}".format(bar_datetime))
         return self.ib.reqHistoricalData(
                 contract=contract,
                 endDateTime=bar_datetime,
@@ -202,7 +179,17 @@ class Algo():
                 useRTH=False,
                 keepUpToDate=False
         )
-    
+    def log_value(self, label,cci,avg,cci_prior, averageh,atr,bband_width,bband_b):
+        log.info(label.format(datetime.now()))
+        log.info("CCI:      {} ".format(cci))
+        log.info("CCIA      {} ".format(avg))
+        log.info("CCIP      {} ".format(cci_prior))
+        log.info("CCIPA:    {} ".format(averageh))
+        log.info("ATR:      {} ".format(atr))
+        log.info("bband w:  {} ".format(bband_width))
+        log.info("bband p:  {} ".format(bband_b))
+        return True
+
     def define_times(self):
         current_time = datetime.now()
         current_minute = datetime.now().minute
@@ -233,38 +220,56 @@ class Algo():
         return wait_time, datetime_15, datetime_1h, datetime_1d
 
     def row_results(self, row, cci_trade, ccibb_trade):
-        print("************************************************")
-        print("* CCI Trade:          ",cci_trade)
-        print("* CCIbb Trade:        ",ccibb_trade)
-        print("* Do we buy this one: ",row[13])
-        print("* Profit:             ",row[5])
-        print("* Winning %:          ",row[11]*100,"%")
-        print("* Risk:               ",row[12]*100,"%")
-        print("* Previous Order:     ",row[6])
-        print("* Previous Wins:      ",row[7])
-        print("************************************************")
+        log.info("************************************************")
+        log.info("* CCI Trade:          {}".format(cci_trade))
+        log.info("* CCIbb Trade:        {}".format(ccibb_trade))
+        log.info("* Do we buy this one: {}".format(row[13]))
+        log.info("* Profit:             {}".format(row[5]))
+        log.info("* Winning %:          {}%".format(row[11]))
+        log.info("* Risk:               {}%".format(row[12]))
+        log.info("* Previous Order:     {}".format(row[6]))
+        log.info("* Previous Wins:      {}".format(row[7]))
+        log.info("************************************************")
         return
 
     def have_position(self,positions):
         position_long_tf = False
         position_short_tf = False
         x = 0
+        position_qty = 0
+        print("positions: ",positions)
         while x < len(positions):
-            if (positions[x][1].symbol) == "ES": 
-                if (positions[x][2]) > 0:
+            if (positions[x][1].symbol) == "ES":
+                position_qty = positions[x][2]
+                if (position_qty) > 0:
                     position_long_tf = True
                     position_short_tf = False
-                elif (positions[x][2]) < 0:
+                elif (position_qty) < 0:
                     position_long_tf = False
                     position_short_tf = True
                 else:
                     position_long_tf = False
                     position_short_tf = False
-                print("Have a position and qty ",positions[x][1].symbol,positions[x][2])
+                log.info("Have a position: {position} and qty {qty} ".format(position = positions[x][1].symbol,qty=positions[x][2]))
                 break
             x += + 1
-        return position_long_tf, position_short_tf 
+        return position_long_tf, position_short_tf, position_qty 
 
+    def setupsummary(self,key_arr):
+        csv_file3 = csv.reader(open('data/setupsummary.csv', "rt"), delimiter = ",")
+        log.debug("key setupsummary: ".format(str(''.join(key_arr[5:8]))))
+        for row3 in csv_file3:
+            #print("setupsummary   row: ",row3[4])
+            if ((''.join(key_arr[5:8])) == row3[4]):
+                log.info("join key: {}".format(''.join(key_arr[5:8])))
+                log.info("CCI Long %  : {}".format(row3[7]))
+                log.info("CCI Profit  : {}".format(row3[9]))
+                log.info("CCI Win%    : {}".format(row3[12]))
+                log.info("CCIbb Long %: {}".format(row3[15]))
+                log.info("CCIbb Profit: {}".format(row3[17]))
+                log.info("CCIbb Win%  : {}".format(row3[20]))
+                break
+        return
 
 def calculate_cci(bars: BarDataList):
     cci = talib.CCI(

@@ -4,7 +4,7 @@ from constants import MarketDataTypes
 
 VERSION = "0.1"
 
-LOGFILE = "modeltrader_{}.log".format(datetime.now().strftime('%Y%m%d_%H%M'))
+LOGFILE = "log/modeltrader_{}.log".format(datetime.now().strftime('%Y%m%d_%H%M'))
 LOGFILE_ENABLED = True
 
 HOST = "127.0.0.1"

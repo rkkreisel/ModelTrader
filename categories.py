@@ -60,31 +60,31 @@ def categorize_atr1h(atr: float):
     return "ATR1:A"
 	
 def categorize_atr1d(atr: float):
-    if atr < 5:
+    if atr < 15:
         return "ATRD:L"
-    if atr > 10:
+    if atr > 50:
         return "ATRD:H"
     return "ATRD:A"
 
 	
 def categorize_BBW15(bbw: float):
-    if bbw <= 0.004:
+    if bbw <= 0.4:
         return "BBW15:L"
-    if bbw > 0.0054:
+    if bbw > 0.54:
         return "BBW15:H"
     return "BBW15:A"
 	
 def categorize_BBW1h(bbw: float):
-    if bbw <= 0.005:
+    if bbw <= 0.5:
         return "BBW1h:L"
-    if bbw > 0.008:
+    if bbw > 0.8:
         return "BBW1h:H"
     return "BBW1h:A"
 	
 def categorize_BBW1d(bbw: float):
-    if bbw <= 0.026:
+    if bbw <= 2.6:
         return "BBW1d:L"
-    if bbw > 0.05:
+    if bbw > 5:
         return "BBW1d:H"
     return "BBW1d:A"	
 	
