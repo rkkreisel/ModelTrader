@@ -31,7 +31,6 @@ class Algo():
         pendinglong = False      # this is when the cross over is not wide enough
         PendingLongCnt = 0
         PendingShortCnt = 0
-        pendingCnt = 0
         tradenow = False
         cci_trade = False
         ccibb_trade = False
@@ -41,7 +40,8 @@ class Algo():
             crossed = False
             contContract, contracthours = get_contract(self) #basic information on continuious contact
             #i NEW
-            tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
+            tradeContract = self.ib.qualifyContracts(contContract)   # gives all the details of a contract so we can trade it
+            print("tradeContract  ",tradeContract)
             open_long, open_short, position_qty = self.have_position(self.ib.positions())   # do we have an open position?
             open_today = helpers.is_open_today(contracthours)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
@@ -59,7 +59,6 @@ class Algo():
             #start of study
             #
             bars_15m = self.get_bars_data(dataContract,"2 D","15 mins",datetime_15)
-            print("bar data close: ",bars_15m[-1].close)
             x = np.array(bars_15m)
             log.debug("15 min bars {}".format(str(bars_15m[-1])))
             cci, avg, cci_prior, averageh, cci3 = calculate_cci(bars_15m)
@@ -67,9 +66,26 @@ class Algo():
             bband_width, bband_b,bband_width_prior, bband_b_prior = calculate_bbands(bars_15m)
             logged_it = self.log_value("Starting 15 minutes", cci,avg,cci_prior, averageh,atr,bband_width,bband_b)
             qtrtime = datetime.now()
-            print("stop loss = ",round(bars_15m[-1].close + (atr *2)*4,0)/4)
-            pendinglong, pendingshort = self.crossoverPending()
-            print("pendinglong & pendingshort",pendinglong, pendingshort)
+            if cci > avg and cci_prior < averageh:
+                crossed = True
+                tradenow = True
+                csv_row = "'"+str(datetime.now())+",'long'"
+                key_arr[0] = "long"
+                tradeAction = "BUY"
+            elif cci < avg and cci_prior > averageh:
+                crossed = True
+                tradenow = True
+                csv_row = "'"+str(datetime.now())+",'short'"
+                key_arr[0] = "short"
+                tradeAction = "SELL"
+            else:
+                csv_row = "'"+str(datetime.now())+",'cash'"
+                crossed = False
+                tradenow = False
+            if abs(cci - avg) > config.SPREAD:
+                log.info("Pending ".format(cci-avg))
+                pendinglong = True
+                pendingshort = True
             csv_header = "Date,Status,Crossed,CCI15,CCIA15,CCI15P,CCIA15P,ATR15,BBw15,BBB15"
             csv_row += ",'"+str(crossed)+"',"+str(cci)+","+str(avg)+","+str(cci_prior)+","+str(averageh)+","+str(atr)+","+str(bband_width)+","+str(bband_b)
             key_arr[1] = categories.categorize_atr15(atr)
@@ -115,6 +131,7 @@ class Algo():
             # starting trade logic
             #
             # test buy
+            ParentOrderID = orders.buildOrders(self.ib,tradeContract,"BUY",2,"cci_day")
             if tradenow:
                 log.info("Tradeing this bar {}".format(str(''.join(key_arr))," - ",''.join(key_arr[0:8])))
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
@@ -124,7 +141,7 @@ class Algo():
                             log.info("we have a match in ccibb.csv")
                             log.info("found a match in CCIBB ".format(str(row1[0])))
                             ccibb_trade = True
-                            ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,2,"ccibb_day",stoplossprice)
+                            #ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,2,"ccibb_day")
                             log.info("order placed, parentID: {}".format(ParentOrderID))
                             tradenow = False
                             status_done = self.row_results(row1,cci_trade,ccibb_trade)
@@ -135,7 +152,7 @@ class Algo():
                     if ((''.join(key_arr[0:8])) == row2[0]):
                             log.info("we have a match in cci.csv")
                             log.info("found a math in CCI {}".format(str(row2[0])))
-                            ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,2,"cci_day",stoplossprice)
+                            #ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,2,"cci_day")
                             cci_trade = True
                             tradenow = False
                             status_done = self.row_results(row2,cci_trade,ccibb_trade)
@@ -212,7 +229,6 @@ class Algo():
         log.info("* Risk:               {}%".format(row[12]))
         log.info("* Previous Order:     {}".format(row[6]))
         log.info("* Previous Wins:      {}".format(row[7]))
-        log.info("* Rank (0-100)s:      {}".format(row[31]))
         log.info("************************************************")
         return
 
@@ -252,52 +268,7 @@ class Algo():
                 log.info("CCIbb Long %: {}".format(row3[15]))
                 log.info("CCIbb Profit: {}".format(row3[17]))
                 log.info("CCIbb Win%  : {}".format(row3[20]))
-                log.info("Rank (0-100): {}".format(row3[21]))
                 break
-        return
-        
-    def crossoverPending(self):
-        if cci > avg and cci_prior < averageh:
-            crossed = True
-            tradenow = True
-            csv_row = "'"+str(datetime.now())+",'long'"
-            key_arr[0] = "long"
-            tradeAction = "BUY"
-            stoplossprice = round(bars_15m[-1].close - (atr * 2)*4,0)/4
-        elif cci < avg and cci_prior > averageh:
-            crossed = True
-            tradenow = True
-            csv_row = "'"+str(datetime.now())+",'short'"
-            key_arr[0] = "short"
-            tradeAction = "SELL"
-            stoplossprice = round(bars_15m[-1].close + (atr * 2)*4,0)/4
-        else:
-            csv_row = "'"+str(datetime.now())+",'cash'"
-            crossed = False
-            tradenow = False
-            stoplossprice = 0
-            stoploss = 0
-        if abs(cci - avg) < config.SPREAD:
-            log.info("spread < config".format(abs(cci - avg)))
-            if pendingCnt < 3:
-                log.info("pendingcnt < 3".format(pendingCnt))
-                pendingCnt += 1
-                if tradeAction = "BUY":
-                    pendinglong = True
-                    PendingShort = False
-                else:
-                    pendinglong = False
-                    PendingShort = True
-            else:
-                log.info("pendingCnt > 2".format(pendingCnt))
-                pendingCnt = 0
-                PendingLong, PendingShort, PendingSkip = False
-        elif pendingCnt > 0:
-            log.info("pending count done > spread ".format(abs(cci - avg)))
-            ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,2,"cci_day",stoplossprice)
-            pendingCnt = 0
-            PendingLong, PendingShort = False
-            PendingSkip = True
         return
 
 def calculate_cci(bars: BarDataList):

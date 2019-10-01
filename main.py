@@ -75,6 +75,11 @@ class App:
         self.connected.update("Disconnected")
         logger.getLogger().info("Disconnected.")
 
+    def profitandloss(self):
+        pandl = elf.objects.PnL()
+        logger.getLogger().info("PNL",pandl)
+
+    
     #def barupdateEvent_15m(self, bars: objects.BarDataList, hasNewBar: bool):
         #logger.getLogger().info(f"Got 15m Bars.")
         #cci, avg = logic.calculate_cci(bars)

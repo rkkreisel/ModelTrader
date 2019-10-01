@@ -31,7 +31,6 @@ class Algo():
         pendinglong = False      # this is when the cross over is not wide enough
         PendingLongCnt = 0
         PendingShortCnt = 0
-        pendingCnt = 0
         tradenow = False
         cci_trade = False
         ccibb_trade = False
@@ -68,8 +67,30 @@ class Algo():
             logged_it = self.log_value("Starting 15 minutes", cci,avg,cci_prior, averageh,atr,bband_width,bband_b)
             qtrtime = datetime.now()
             print("stop loss = ",round(bars_15m[-1].close + (atr *2)*4,0)/4)
-            pendinglong, pendingshort = self.crossoverPending()
-            print("pendinglong & pendingshort",pendinglong, pendingshort)
+            if cci > avg and cci_prior < averageh:
+                crossed = True
+                tradenow = True
+                csv_row = "'"+str(datetime.now())+",'long'"
+                key_arr[0] = "long"
+                tradeAction = "BUY"
+                stoplossprice = round(bars_15m[-1].close - (atr * 2)*4,0)/4
+            elif cci < avg and cci_prior > averageh:
+                crossed = True
+                tradenow = True
+                csv_row = "'"+str(datetime.now())+",'short'"
+                key_arr[0] = "short"
+                tradeAction = "SELL"
+                stoplossprice = round(bars_15m[-1].close + (atr * 2)*4,0)/4
+            else:
+                csv_row = "'"+str(datetime.now())+",'cash'"
+                crossed = False
+                tradenow = False
+                stoplossprice = 0
+                stoploss = 0
+            if abs(cci - avg) > config.SPREAD:
+                log.info("Pending ".format(cci-avg))
+                pendinglong = True
+                pendingshort = True
             csv_header = "Date,Status,Crossed,CCI15,CCIA15,CCI15P,CCIA15P,ATR15,BBw15,BBB15"
             csv_row += ",'"+str(crossed)+"',"+str(cci)+","+str(avg)+","+str(cci_prior)+","+str(averageh)+","+str(atr)+","+str(bband_width)+","+str(bband_b)
             key_arr[1] = categories.categorize_atr15(atr)
@@ -255,51 +276,11 @@ class Algo():
                 log.info("Rank (0-100): {}".format(row3[21]))
                 break
         return
-        
     def crossoverPending(self):
-        if cci > avg and cci_prior < averageh:
-            crossed = True
-            tradenow = True
-            csv_row = "'"+str(datetime.now())+",'long'"
-            key_arr[0] = "long"
-            tradeAction = "BUY"
-            stoplossprice = round(bars_15m[-1].close - (atr * 2)*4,0)/4
-        elif cci < avg and cci_prior > averageh:
-            crossed = True
-            tradenow = True
-            csv_row = "'"+str(datetime.now())+",'short'"
-            key_arr[0] = "short"
-            tradeAction = "SELL"
-            stoplossprice = round(bars_15m[-1].close + (atr * 2)*4,0)/4
-        else:
-            csv_row = "'"+str(datetime.now())+",'cash'"
-            crossed = False
-            tradenow = False
-            stoplossprice = 0
-            stoploss = 0
-        if abs(cci - avg) < config.SPREAD:
-            log.info("spread < config".format(abs(cci - avg)))
-            if pendingCnt < 3:
-                log.info("pendingcnt < 3".format(pendingCnt))
-                pendingCnt += 1
-                if tradeAction = "BUY":
-                    pendinglong = True
-                    PendingShort = False
-                else:
-                    pendinglong = False
-                    PendingShort = True
-            else:
-                log.info("pendingCnt > 2".format(pendingCnt))
-                pendingCnt = 0
-                PendingLong, PendingShort, PendingSkip = False
-        elif pendingCnt > 0:
-            log.info("pending count done > spread ".format(abs(cci - avg)))
-            ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,2,"cci_day",stoplossprice)
-            pendingCnt = 0
-            PendingLong, PendingShort = False
-            PendingSkip = True
-        return
 
+
+
+        return
 def calculate_cci(bars: BarDataList):
     cci = talib.CCI(
         np.array([bar.high for bar in bars]),
