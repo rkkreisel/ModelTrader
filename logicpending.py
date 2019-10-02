@@ -27,13 +27,15 @@ class Algo():
         key_arr = ['blank','ATR15','ATR1','ATRD','CCI15','CCIA15','CCIA1h','CCIA1d','BBW15','BBb15','BBW1h','BBb1h','BBW1d','BBb1d']
         tradenow = False
         not_finished = True
-        pendingshort = False
-        pendinglong = False      # this is when the cross over is not wide enough
-        PendingLongCnt = 0
-        PendingShortCnt = 0
+        pendingShort = False
+        pendingLong = False      # this is when the cross over is not wide enough
+        pendingLongCnt = 0
+        pendingShortCnt = 0
+        pendingCnt = 0
         tradenow = False
         cci_trade = False
-        ccibb_trade = False
+        ccibbtrade = False
+        pendingSkip = False
         while not_finished:
             print ("top of algo run self*************************************************")
             #top of logic - want to check status as we enter a new bar/hour/day/contract
@@ -66,31 +68,9 @@ class Algo():
             bband_width, bband_b,bband_width_prior, bband_b_prior = calculate_bbands(bars_15m)
             logged_it = self.log_value("Starting 15 minutes", cci,avg,cci_prior, averageh,atr,bband_width,bband_b)
             qtrtime = datetime.now()
-            print("stop loss = ",round((bars_15m[-1].close + (atr *2))*4,0)/4)
-            if cci > avg and cci_prior < averageh:
-                crossed = True
-                tradenow = True
-                csv_row = "'"+str(datetime.now())+",'long'"
-                key_arr[0] = "long"
-                tradeAction = "BUY"
-                stoplossprice = round((bars_15m[-1].close - (atr * 2))*4,0)/4
-            elif cci < avg and cci_prior > averageh:
-                crossed = True
-                tradenow = True
-                csv_row = "'"+str(datetime.now())+",'short'"
-                key_arr[0] = "short"
-                tradeAction = "SELL"
-                stoplossprice = round((bars_15m[-1].close + (atr * 2))*4,0)/4
-            else:
-                csv_row = "'"+str(datetime.now())+",'cash'"
-                crossed = False
-                tradenow = False
-                stoplossprice = 0
-                stoploss = 0
-            if abs(cci - avg) > config.SPREAD:
-                log.info("Pending ".format(cci-avg))
-                pendinglong = True
-                pendingshort = True
+            print("stop loss = ",round(bars_15m[-1].close + (atr *2)*4,0)/4)
+            pendingSkip = self.crossoverPending()
+            print("pendingLong & pendingShort",pendingLong, pendingShort)
             csv_header = "Date,Status,Crossed,CCI15,CCIA15,CCI15P,CCIA15P,ATR15,BBw15,BBB15"
             csv_row += ",'"+str(crossed)+"',"+str(cci)+","+str(avg)+","+str(cci_prior)+","+str(averageh)+","+str(atr)+","+str(bband_width)+","+str(bband_b)
             key_arr[1] = categories.categorize_atr15(atr)
@@ -140,44 +120,30 @@ class Algo():
                 log.info("Tradeing this bar {}".format(str(''.join(key_arr))," - ",''.join(key_arr[0:8])))
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
                 for row1 in csv_file1:
-                    print("ccibb row: ",row1[0],row1[13])
-                    if ((''.join(key_arr)) == row1[0]) and row1[13] == "Y": #13 is winrisk - whether we trade or not
-                            quantity = 2
+                    #print("ccibb row: ",row1[0])
+                    if ((''.join(key_arr)) == row1[0]):
                             log.info("we have a match in ccibb.csv")
                             log.info("found a match in CCIBB ".format(str(row1[0])))
                             ccibb_trade = True
-                            if open_long or open_short:
-                                quantity = 4
-                            ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
+                            ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,2,"ccibb_day",stoplossprice)
                             log.info("order placed, parentID: {}".format(ParentOrderID))
-                            open_long = False
-                            open_short = False
                             tradenow = False
                             status_done = self.row_results(row1,cci_trade,ccibb_trade)
                             break
                 csv_file2 = csv.reader(open('data/cci.csv', "rt"), delimiter = ",")
                 for row2 in csv_file2:
-                    print("cci   row: ",row2[0],row2[13])
-                    if ((''.join(key_arr[0:8])) == row2[0]) and row2[13] == "Y":
-                            quantity = 2
-                            log.info("we have a match in cci.csv - tradeAction".format(tradeAction))
+                    #print("cci   row: ",row2[0])
+                    if ((''.join(key_arr[0:8])) == row2[0]):
+                            log.info("we have a match in cci.csv")
                             log.info("found a math in CCI {}".format(str(row2[0])))
-                            if open_long or open_short:
-                                quantity = 4
-                            ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"cci_day",stoplossprice)
-                            open_long = False
-                            open_short = False
+                            ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,2,"cci_day",stoplossprice)
+                            cci_trade = True
                             tradenow = False
                             status_done = self.row_results(row2,cci_trade,ccibb_trade)
                             break
                 log.info("did we find a match?  If true than no {match}".format(match = tradenow))
-                if open_long or open_short:
-                    quantity = 2
-                    ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
-                    open_long =False
-                    open_short = False
-            csv_row += ","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendinglong)+","+str(pendingshort)
-            csv_header += ",CCIbbKey,CCIKey,CCI Trade,CCIbbTrade,PendingLong, PendingShort"
+            csv_row += ","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort)
+            csv_header += ",CCIbbKey,CCIKey,CCI Trade,CCIbbTrade,pendingLong, pendingShort"
             with open('data/hist15.csv', mode='a') as hist15:
                 histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 histwriter.writerow([csv_header])
@@ -290,11 +256,54 @@ class Algo():
                 log.info("Rank (0-100): {}".format(row3[21]))
                 break
         return
+        
     def crossoverPending(self):
+        if self.cci > avg and self.cci_prior < self.averageh:
+            self.crossed = True
+            self.tradenow = True
+            self.csv_row = "'"+str(datetime.now())+",'long'"
+            self.key_arr[0] = "long"
+            self.tradeAction = "BUY"
+            self.stoplossprice = round(self.bars_15m[-1].close - (self.atr * 2)*4,0)/4
+        elif self.cci < self.avg and self.cci_prior > self.averageh:
+            self.crossed = True
+            self.tradenow = True
+            csv_row = "'"+str(datetime.now())+",'short'"
+            key_arr[0] = "short"
+            tradeAction = "SELL"
+            stoplossprice = round(bars_15m[-1].close + (atr * 2)*4,0)/4
+        else:
+            csv_row = "'"+str(datetime.now())+",'cash'"
+            crossed = False
+            tradenow = False
+            stoplossprice = 0
+            stoploss = 0
+        if abs(cci - avg) < config.SPREAD:
+            log.info("spread < config".format(abs(cci - avg)))
+            if pendingCnt < 3:
+                log.info("pendingCnt < 3".format(pendingCnt))
+                pendingCnt += 1
+                pendingSkip = True
+                if tradeAction == "BUY":
+                    pendingLong = True
+                    pendingShort = False
+                else:
+                    pendingLong = False
+                    pendingShort = True
+            else:
+                log.info("pendingCnt > 2".format(pendingCnt))
+                pendingCnt = 0
+                pendingLong, pendingShort, PendingSkip = False
+        elif pendingCnt > 0:
+            log.info("pending count done > spread ".format(abs(cci - avg)))
+            ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,2,"cci_day",stoplossprice)
+            pendingCnt = 0
+            pendingLong, pendingShort = False
+            pendingSkip = True
+        else:
+            pendingSkip = False
+        return pendingSkip
 
-
-
-        return
 def calculate_cci(bars: BarDataList):
     cci = talib.CCI(
         np.array([bar.high for bar in bars]),
