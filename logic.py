@@ -26,27 +26,21 @@ class Algo():
     def run(self):
         """ Execute the algorithm """
         key_arr = ['blank','ATR15','ATR1','ATRD','CCI15','CCIA15','CCIA1h','CCIA1d','BBW15','BBb15','BBW1h','BBb1h','BBW1d','BBb1d']
-        tradenow = False
-        not_finished = True
-        pendingshort = False
-        pendinglong = False      # this is when the cross over is not wide enough
-        tradenow = False
+        tradenow, not_finished, pendingShort, pendingLong = False, True, False, False
         cci_trade = False
         ccibb_trade = False
         while not_finished:
             print ("top of algo run self*************************************************")
             #top of logic - want to check status as we enter a new bar/hour/day/contract
-            crossed = False
             contContract, contracthours = get_contract(self) #basic information on continuious contact
-            #i NEW
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
             open_long, open_short, position_qty = self.have_position(self.ib.positions())   # do we have an open position?
             open_today = helpers.is_open_today(contracthours)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.debug("Got Contract: {}".format(dataContract.localSymbol))
             #pnl = self.ib.pnl()
-            log.debug("account names: {}".format(self.ib.managedAccounts()))
-            log.info("PNL : {PNL} ".format(PNL=self.ib.pnl("all")))
+            #log.debug("account names: {}".format(self.ib.managedAccounts()))
+            #log.info("PNL : {PNL} ".format(PNL=self.ib.pnl("all")))
             self.app.contract.update(dataContract.localSymbol)
             wait_time, datetime_15, datetime_1h, datetime_1d = self.define_times()
             log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
@@ -56,26 +50,22 @@ class Algo():
             #
             #start of study
             #
-            bars_15m = calculations.Calculations"2 D","15 mins",datetime_15)
-            #
-            #1 hour data 
-            #
-            bars_1h = calculations.Calculations("5 D","1 hour",datetime_1h)
-            
-            log.debug("requesting info for the following timeframe today: nextday: ".format(datetime_1d))
-            bars_1d = calculations.Calculations("75 D","1 day",datetime_1d)
+            bars_15m = calculations.Calculations(dataContract,"2 D","15 mins",datetime_15)
+            bars_1h = calculations.Calculations(dataContract,"5 D","1 hour",datetime_1h)
+            bars_1d = calculations.Calculations(dataContract,"75 D","1 day",datetime_1d)
             setsum = self.setupsummary(key_arr)
             log.info("tradenow: {trade}".format(trade = tradenow))
             #
             # starting trade logic
             #
             # test buy
-            if tradenow:
+            if bars_15m.tradenow:
                 log.info("Tradeing this bar {}".format(str(''.join(key_arr))," - ",''.join(key_arr[0:8])))
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
+                cci_key, ccibb_key == key_array(bars_15m, bars_1h, bars_1d)
                 for row1 in csv_file1:
                     print("ccibb row: ",row1[0],row1[13])
-                    if ((''.join(key_arr)) == row1[0]) and row1[13] == "Y": #13 is winrisk - whether we trade or not
+                    if ccibb_key == row1[0]) and row1[13] == "Y": #13 is winrisk - whether we trade or not
                             quantity = 2
                             log.info("we have a match in ccibb.csv")
                             log.info("found a match in CCIBB ".format(str(row1[0])))
@@ -84,41 +74,31 @@ class Algo():
                                 quantity = 4
                             ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
                             log.info("order placed, parentID: {}".format(ParentOrderID))
-                            open_long = False
-                            open_short = False
-                            tradenow = False
+                            open_long, open_short, tradenow = False, False, False
                             status_done = self.row_results(row1,cci_trade,ccibb_trade)
                             break
                 csv_file2 = csv.reader(open('data/cci.csv', "rt"), delimiter = ",")
                 for row2 in csv_file2:
                     print("cci   row: ",row2[0],row2[13])
-                    if ((''.join(key_arr[0:8])) == row2[0]) and row2[13] == "Y":
+                    if ccibb_key == row2[0]) and row2[13] == "Y":
                             quantity = 2
                             log.info("we have a match in cci.csv - tradeAction".format(tradeAction))
                             log.info("found a math in CCI {}".format(str(row2[0])))
                             if open_long or open_short:
                                 quantity = 4
                             ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"cci_day",stoplossprice)
-                            open_long = False
-                            open_short = False
-                            tradenow = False
+                            open_long, open_short, tradenow = False, False, False
                             status_done = self.row_results(row2,cci_trade,ccibb_trade)
                             break
                 log.info("did we find a match?  If true than no {match}".format(match = tradenow))
                 if open_long or open_short:
                     quantity = 2
                     ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
-                    open_long =False
-                    open_short = False
-            csv_row += ","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendinglong)+","+str(pendingshort)
-            csv_header += ",CCIbbKey,CCIKey,CCI Trade,CCIbbTrade,PendingLong, PendingShort"
-            with open('data/hist15.csv', mode='a') as hist15:
-                histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                histwriter.writerow([csv_header])
-                histwriter.writerow([csv_row])
-            tradenow = False
-            cci_trade = False
-            ccibb_trade = False
+                    open_long, open_short = False, False
+            csv_row_add = helpers.build_csv_bars_row(","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort),True)
+            
+            
+            tradenow, cci_trade, ccibb_trade = False, False, False
 
     def log_value(self, label,cci,avg,cci_prior, averageh,atr,bband_width,bband_b):
         log.info(label.format(datetime.now()))
@@ -154,10 +134,6 @@ class Algo():
         datetime_1h = wait_time.replace(minute=0)
         datetime_1d = current_time -  timedelta(days = 1)
         datetime_1d = datetime_1d.replace(hour = 0, minute=0, second=0)
-        #print("wait time",wait_time)
-        #print("datetime_15 ",datetime_15)
-        #print("datetime_1h",datetime_1h)
-        #print("datetime_1d",datetime_1d)
         return wait_time, datetime_15, datetime_1h, datetime_1d
 
     def row_results(self, row, cci_trade, ccibb_trade):
@@ -227,3 +203,25 @@ def get_contract(client):
         log.error("Failed to Grab Continuous Future {}".format(config.SYMBOL))
         sysexit()
     return contract[0].contract, contract[0].tradingHours
+
+def key_array(bars_15m, bars_1h, bars_1d):
+    #15m
+    key_arr[1] = categories.categorize_atr15(bars_15m.atr)
+    key_arr[4] = categories.categorize_cci_15(bars_15m.cci)
+    key_arr[5] = categories.categorize_cci_15_avg(bars_15m.ccia)
+    key_arr[8] = categories.categorize_BBW15(bars_15m.bband_width)
+    key_arr[9] = categories.categorize_BBb15(bars_15m.bband_b)
+    #hour
+    key_arr[2] = categories.categorize_atr1h(bars_1h.atr)
+    key_arr[6] = categories.categorize_cci_1h(bars_1h.ccia)
+    key_arr[10] = categories.categorize_BBW1h(bars_1h.bband_width)
+    key_arr[11] = categories.categorize_BBb1h(bars_1h.bband_b)
+    #day
+    key_arr[3] = categories.categorize_atr1d(bars_1d.atr)
+    key_arr[7] = categories.categorize_cci_1d(bars_1d.ccia)
+    key_arr[12] = categories.categorize_BBW1d(bars_1d.bband_width)
+    key_arr[13] = categories.categorize_BBb1d(bars_1d.bband_b)
+    ccibb_key = ''.join(key_arr)
+    cci_key = ''.join(key_arr[0:8]
+    return ccibb_key, cci_key 
+
