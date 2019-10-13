@@ -66,31 +66,36 @@ class Algo():
                 for row1 in csv_file1:
                     print("ccibb row: ",row1[0],row1[13])
                     if ccibb_key == row1[0] and row1[13] == "Y": #13 is winrisk - whether we trade or not
-                            quantity = 2
-                            log.info("we have a match in ccibb.csv")
-                            log.info("found a match in CCIBB ".format(str(row1[0])))
-                            ccibb_trade = True
-                            if open_long or open_short:
-                                quantity = 4
-                            ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
-                            log.info("order placed, parentID: {}".format(ParentOrderID))
-                            open_long, open_short, tradenow = False, False, False
-                            status_done = self.row_results(row1,cci_trade,ccibb_trade)
-                            break
+                        quantity = 2
+                        log.info("we have a match in ccibb.csv")
+                        log.info("found a match in CCIBB ".format(str(row1[0])))
+                        ccibb_trade = True
+                        if open_long or open_short:
+                            quantity = 4
+                        ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
+                        log.info("order placed, parentID: {}".format(ParentOrderID))
+                        open_long, open_short, tradenow = False, False, False
+                        status_done = self.row_results(row1,cci_trade,ccibb_trade)
+                        break
+                    elif ccibb_key == row1[0] and row1[13] == "N":
+                        log.info("Entry found in CCIBB but not traded.  See if this changes")
                 csv_file2 = csv.reader(open('data/cci.csv', "rt"), delimiter = ",")
                 for row2 in csv_file2:
                     print("cci   row: ",row2[0],row2[13])
-                    if ccibb_key == row2[0] and row2[13] == "Y":
-                            quantity = 2
-                            log.info("we have a match in cci.csv - tradeAction".format(tradeAction))
-                            log.info("found a math in CCI {}".format(str(row2[0])))
-                            if open_long or open_short:
-                                quantity = 4
-                            ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"cci_day",stoplossprice)
-                            open_long, open_short, tradenow = False, False, False
-                            status_done = self.row_results(row2,cci_trade,ccibb_trade)
-                            break
-                log.info("did we find a match?  If true than no {match}".format(match = tradenow))
+                    if cci_key == row2[0] and row2[13] == "Y":
+                        quantity = 2
+                        log.info("we have a match in cci.csv - tradeAction".format(tradeAction))
+                        log.info("found a math in CCI {}".format(str(row2[0])))
+                        if open_long or open_short:
+                            quantity = 4
+                        ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"cci_day",stoplossprice)
+                        open_long, open_short, tradenow = False, False, False
+                        status_done = self.row_results(row2,cci_trade,ccibb_trade)
+                        break
+                    elif cci_key == row2[0] and row2[13] == "N":
+                        log.info("Entry found in CCI but not traded.  See if this changes")
+                if tradenow:
+                    log.info("we did not find a match)
                 if open_long or open_short:
                     quantity = 2
                     ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
@@ -160,14 +165,11 @@ class Algo():
             if (positions[x][1].symbol) == "ES":
                 position_qty = positions[x][2]
                 if (position_qty) > 0:
-                    position_long_tf = True
-                    position_short_tf = False
+                    position_long_tf, position_short_tf = True, False
                 elif (position_qty) < 0:
-                    position_long_tf = False
-                    position_short_tf = True
+                    position_long_tf, position_short_tf = False, True
                 else:
-                    position_long_tf = False
-                    position_short_tf = False
+                    position_long_tf, position_short_tf = False, False
                 log.info("Have a position: {position} and qty {qty} ".format(position = positions[x][1].symbol,qty=positions[x][2]))
                 break
             x += + 1
