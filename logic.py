@@ -95,7 +95,7 @@ class Algo():
                     elif cci_key == row2[0] and row2[13] == "N":
                         log.info("Entry found in CCI but not traded.  See if this changes")
                 if tradenow:
-                    log.info("we did not find a match)
+                    log.info("we did not find a match")
                 if open_long or open_short:
                     quantity = 2
                     ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
