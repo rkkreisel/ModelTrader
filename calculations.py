@@ -40,7 +40,7 @@ class Calculations():
                 csv_row_start = helpers.build_csv_bars_row("'"+str(datetime.now())+",'long'",False)
                 key_arr[0] = "long"
                 tradeAction = "BUY"
-                stoplossprice = round((`bars_period`[-1].close - (atr * 2))*4,0)/4
+                stoplossprice = round((bars_period[-1].close - (atr * 2))*4,0)/4
             elif cci < avg and cci_prior > averageh:
                 crossed, tradenow = True, True
                 csv_row_add = helpers.build_csv_bars_row("'"+str(datetime.now())+",'short'",False)
@@ -136,7 +136,7 @@ class calculate_1h(Calculations):
         self.bar_duration = "5 D"
         self.bar_size = "15 hour"
         self.timeperiod = datetime_1h
-        
+
 class calculate_15(Calculations):
     def __init__(self, ib: IB, bar_duration, bar_size, timeperiod):
         self.bar_duration = "75 D"
