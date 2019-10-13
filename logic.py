@@ -50,9 +50,12 @@ class Algo():
             #
             #start of study
             #
-            bars_15m = calculations.Calculations(dataContract,"2 D","15 mins",datetime_15m as datetime_period)
-            bars_1h = calculations.Calculations(dataContract,"5 D","1 hour",datetime_1h as datetime_period)
-            bars_1d = calculations.Calculations(dataContract,"75 D","1 day",datetime_1d as datetime_period)
+            timeperiod = "15"
+            bars_15m = calculations.Calculations()
+            timeperiod = "1h"
+            bars_1h = calculations.Calculations()
+            timeperiod = "1d"
+            bars_1d = calculations.Calculations()
             setsum = self.setupsummary(key_arr)
             log.info("tradenow: {trade}".format(trade = tradenow))
             #
