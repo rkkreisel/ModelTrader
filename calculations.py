@@ -18,11 +18,15 @@ log = logger.getLogger()
 
 
 class Calculations():
-    def __init__(self, ib: IB, bar_duration, bar_size, datetime_perior):
+    def __init__(self, ib: IB, dataContract, bar_duration, bar_size, datetime_15, datetime_1h, datetime_1d, timeperiod):
         self.ib = ib
+        self.dataContract = dataContract
         self.bar_duration = bar_duration
         self.bar_size = bar_size
-        self.datatime_period = datetime_period
+        self.datetime_15m = datetime_15
+        self.datetime_1h = datetime_1h
+        self.datetime_1d = datetime_1d
+        self.timeperiod = timeperiod
 
     def run(self):
         """ Execute the calculations """
