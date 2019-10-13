@@ -13,7 +13,7 @@ import csv
 import categories
 import helpers
 import orders
-import calculations.py
+import calculations
 
 log = logger.getLogger()
 
@@ -65,7 +65,7 @@ class Algo():
                 cci_key, ccibb_key == key_array(bars_15m, bars_1h, bars_1d)
                 for row1 in csv_file1:
                     print("ccibb row: ",row1[0],row1[13])
-                    if ccibb_key == row1[0]) and row1[13] == "Y": #13 is winrisk - whether we trade or not
+                    if ccibb_key == row1[0] and row1[13] == "Y": #13 is winrisk - whether we trade or not
                             quantity = 2
                             log.info("we have a match in ccibb.csv")
                             log.info("found a match in CCIBB ".format(str(row1[0])))
@@ -80,7 +80,7 @@ class Algo():
                 csv_file2 = csv.reader(open('data/cci.csv', "rt"), delimiter = ",")
                 for row2 in csv_file2:
                     print("cci   row: ",row2[0],row2[13])
-                    if ccibb_key == row2[0]) and row2[13] == "Y":
+                    if ccibb_key == row2[0] and row2[13] == "Y":
                             quantity = 2
                             log.info("we have a match in cci.csv - tradeAction".format(tradeAction))
                             log.info("found a math in CCI {}".format(str(row2[0])))
@@ -222,6 +222,6 @@ def key_array(bars_15m, bars_1h, bars_1d):
     key_arr[12] = categories.categorize_BBW1d(bars_1d.bband_width)
     key_arr[13] = categories.categorize_BBb1d(bars_1d.bband_b)
     ccibb_key = ''.join(key_arr)
-    cci_key = ''.join(key_arr[0:8]
+    cci_key = ''.join(key_arr[0:8])
     return ccibb_key, cci_key 
 

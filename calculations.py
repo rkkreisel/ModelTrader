@@ -17,14 +17,12 @@ import categories
 log = logger.getLogger()
 
 
-class Calculations(bar_duration, bar_size, datetime_period):
-    def __init__(self, ib: IB, bar_duration, bar_size_15m:
+class Calculations():
+    def __init__(self, ib: IB, bar_duration, bar_size, datetime_perior):
         self.ib = ib
         self.bar_duration = bar_duration
         self.bar_size = bar_size
-        self.bar_size_15m
-        #bar duration must be something like 2 D, 5 D, 75 D
-        #bar size must be something like 15 mins, 1 hour, 1 day
+        self.datatime_period = datetime_period
 
     def run(self):
         """ Execute the calculations """

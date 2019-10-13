@@ -62,10 +62,10 @@ def parseAdvisorConfig(xml):
 
 def build_csv_bars_row(csv_row,IsEOF):
     csv_row_sum += csv_row
-     csv_header = "Date,Status,Crossed,CCI15,CCIA15,CCI15P,CCIA15P,ATR15,BBw15,BBB15"
-     csv_header += ",CCI1h,CCIA1h,ATR1h,BBW1h,BBB1h"
-     csv_header += ",CCI1d,CCIA1d,ATR1d,BBB1d,BBW1d"
-     csv_header += ",CCIbbKey,CCIKey,CCI Trade,CCIbbTrade,pendingLong, pendingShort"
+    csv_header = "Date,Status,Crossed,CCI15,CCIA15,CCI15P,CCIA15P,ATR15,BBw15,BBB15"
+    csv_header += ",CCI1h,CCIA1h,ATR1h,BBW1h,BBB1h"
+    csv_header += ",CCI1d,CCIA1d,ATR1d,BBB1d,BBW1d"
+    csv_header += ",CCIbbKey,CCIKey,CCI Trade,CCIbbTrade,pendingLong, pendingShort"
     if IsEOF:
         with open('data/hist15.csv', mode='a') as hist15:
                 histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
