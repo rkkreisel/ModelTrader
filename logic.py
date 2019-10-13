@@ -50,12 +50,9 @@ class Algo():
             #
             #start of study
             #
-            timeperiod = "15"
-            bars_15m = calculations.Calculations()
-            timeperiod = "1h"
-            bars_1h = calculations.Calculations()
-            timeperiod = "1d"
-            bars_1d = calculations.Calculations()
+            bars_15m = calculations.calculate_15()
+            bars_1h = calculations.calculate_1h()
+            bars_1d = calculations.calculate_1d()
             setsum = self.setupsummary(key_arr)
             log.info("tradenow: {trade}".format(trade = tradenow))
             #
@@ -227,4 +224,3 @@ def key_array(bars_15m, bars_1h, bars_1d):
     ccibb_key = ''.join(key_arr)
     cci_key = ''.join(key_arr[0:8])
     return ccibb_key, cci_key 
-

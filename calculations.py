@@ -18,41 +18,35 @@ log = logger.getLogger()
 
 
 class Calculations():
-    def __init__(self, ib: IB, dataContract, bar_duration, bar_size, datetime_15, datetime_1h, datetime_1d, timeperiod):
+    def __init__(self, ib: IB, dataContract):
         self.ib = ib
         self.dataContract = dataContract
-        self.bar_duration = bar_duration
-        self.bar_size = bar_size
-        self.datetime_15m = datetime_15
-        self.datetime_1h = datetime_1h
-        self.datetime_1d = datetime_1d
-        self.timeperiod = timeperiod
 
     def run(self):
         """ Execute the calculations """
         
         bars_period = self.get_bars_data(dataContract,bar_duration,bar_size,datetime_period)
-        print("bar data close: ",bars_15m[-1].close)
-        x = np.array(bars_15m)
-        log.debug("bars {}".format(bar_duration,bar_size,str(bars_15m[-1])))
+        print("bar data close: ",bars_period[-1].close)
+        x = np.array(bars_period)
+        log.debug("bars {}".format(bar_duration,bar_size,str(bars_period[-1])))
         cci, ccia, cci_prior, ccia_prior = calculate_cci(bars_period)
-        atr =  calculate_atr(bars_15m)
-        bband_width, bband_b = calculate_bbands(bars_15m)
+        atr =  calculate_atr(bars_period)
+        bband_width, bband_b = calculate_bbands(bars_period)
         logged_it = self.log_value("Starting ", bar_size, cci,ccia,cci_prior, ccia_prior,atr,bband_width,bband_b)
-        print("stop loss = ",round((bars_15m[-1].close + (atr *2))*4,0)/4)
+        print("stop loss = ",round((bars_period[-1].close + (atr *2))*4,0)/4)
         if bar_size == "15 mins":
             if cci > ccia and cci_prior < ccia_prior:
                 crossed, tradenow = True, True
                 csv_row_start = helpers.build_csv_bars_row("'"+str(datetime.now())+",'long'",False)
                 key_arr[0] = "long"
                 tradeAction = "BUY"
-                stoplossprice = round((bars_15m[-1].close - (atr * 2))*4,0)/4
+                stoplossprice = round((`bars_period`[-1].close - (atr * 2))*4,0)/4
             elif cci < avg and cci_prior > averageh:
                 crossed, tradenow = True, True
                 csv_row_add = helpers.build_csv_bars_row("'"+str(datetime.now())+",'short'",False)
                 key_arr[0] = "short"
                 tradeAction = "SELL"
-                stoplossprice = round((bars_15m[-1].close + (atr * 2))*4,0)/4
+                stoplossprice = round((bars_period[-1].close + (atr * 2))*4,0)/4
             else:
                 csv_row_add = helpers.build_csv_bars_row("'"+str(datetime.now())+",'cash'",False)
                 crossed, tradenow = False, False
@@ -132,5 +126,19 @@ class Calculations():
         return width, percentb
 
 class calculate_15(Calculations):
+    def __init__(self, ib: IB, bar_duration, bar_size, timeperiod):
+        self.bar_duration = "2 D"
+        self.bar_size = "15 mins"
+        self.timeperiod = datetime_15
 
-    return
+class calculate_1h(Calculations):
+    def __init__(self, ib: IB, bar_duration, bar_size, timeperiod):
+        self.bar_duration = "5 D"
+        self.bar_size = "15 hour"
+        self.timeperiod = datetime_1h
+        
+class calculate_15(Calculations):
+    def __init__(self, ib: IB, bar_duration, bar_size, timeperiod):
+        self.bar_duration = "75 D"
+        self.bar_size = "1 day"
+        self.timeperiod = datetime_1d
