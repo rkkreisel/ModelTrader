@@ -130,3 +130,7 @@ class Calculations():
         #widthprior = (up[-2] - low[-2]) / sma[-2] * 100
         #percentbprior = (bars[-2].close - low[-2]) / (up[-2] - low[-2]) * 100
         return width, percentb
+
+class calculate_15(Calculations):
+
+    return
