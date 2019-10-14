@@ -18,9 +18,12 @@ log = logger.getLogger()
 
 
 class Calculations():
-    def __init__(self, ib: IB, dataContract):
+    def __init__(self, ib: IB, dataContract, datetime_period, bar_duration, bar_size):
         self.ib = ib
         self.dataContract = dataContract
+        self.datetime_perior = datetime_period
+        self.bar_duration = bar_duration
+        self.bar_size = bar_size
 
     def run(self):
         """ Execute the calculations """
@@ -125,20 +128,21 @@ class Calculations():
         #percentbprior = (bars[-2].close - low[-2]) / (up[-2] - low[-2]) * 100
         return width, percentb
 
-class calculate_15(Calculations):
-    def __init__(self, ib: IB, bar_duration, bar_size, timeperiod):
-        self.bar_duration = "2 D"
-        self.bar_size = "15 mins"
-        self.timeperiod = datetime_15
+#class calculate_15(Calculations):
+#    def __init__(self):
+    #def __init__(self, ib: IB, bar_duration, bar_size, timeperiod):
+#        self.bar_duration = "2 D"
+#        self.bar_size = "15 mins"
+#        self.timeperiod = datetime_15
 
-class calculate_1h(Calculations):
-    def __init__(self, ib: IB, bar_duration, bar_size, timeperiod):
-        self.bar_duration = "5 D"
-        self.bar_size = "15 hour"
-        self.timeperiod = datetime_1h
+#class calculate_1h(Calculations):
+#    def __init__(self, ib: IB, bar_duration, bar_size, timeperiod):
+#        self.bar_duration = "5 D"
+#        self.bar_size = "1 hour"
+#        self.timeperiod = datetime_1h
 
-class calculate_15(Calculations):
-    def __init__(self, ib: IB, bar_duration, bar_size, timeperiod):
-        self.bar_duration = "75 D"
-        self.bar_size = "1 day"
-        self.timeperiod = datetime_1d
+#class calculate_1d(Calculations):
+#    def __init__(self, ib: IB, bar_duration, bar_size, timeperiod):
+#        self.bar_duration = "75 D"
+#        self.bar_size = "1 day"
+#        self.timeperiod = datetime_1d

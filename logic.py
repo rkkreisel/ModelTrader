@@ -26,9 +26,8 @@ class Algo():
     def run(self):
         """ Execute the algorithm """
         key_arr = ['blank','ATR15','ATR1','ATRD','CCI15','CCIA15','CCIA1h','CCIA1d','BBW15','BBb15','BBW1h','BBb1h','BBW1d','BBb1d']
-        tradenow, not_finished, pendingShort, pendingLong = False, True, False, False
-        cci_trade = False
-        ccibb_trade = False
+        tradenow, not_finished, pendingShort, pendingLong, pendingSkip, cci_trade, ccibb_trade = False, True, False, False, False, False, False
+        pendingCnt = 0
         while not_finished:
             print ("top of algo run self*************************************************")
             #top of logic - want to check status as we enter a new bar/hour/day/contract
@@ -50,16 +49,17 @@ class Algo():
             #
             #start of study
             #
-            bars_15m = calculations.calculate_15()
-            bars_1h = calculations.calculate_1h()
-            bars_1d = calculations.calculate_1d()
+            bars_15m = calculations.Calculations(self.ib, dataContract, datetime_15,"2 D", "15 mins")
+            bars_1h = calculations.Calculations(self.ib, dataContract, datetime_1h, "5 D", "1 hour")
+            bars_1d = calculations.Calculations(self.ib, dataContract, datetime_1d, "75 D", "1 day")
             setsum = self.setupsummary(key_arr)
-            log.info("tradenow: {trade}".format(trade = tradenow))
+            pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
+            log.info("tradeNow: {trade}".format(trade = tradeNow))
             #
             # starting trade logic
             #
             # test buy
-            if bars_15m.tradenow:
+            if bars_15m.tradeNow:
                 log.info("Tradeing this bar {}".format(str(''.join(key_arr))," - ",''.join(key_arr[0:8])))
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
                 cci_key, ccibb_key == key_array(bars_15m, bars_1h, bars_1d)
@@ -94,7 +94,7 @@ class Algo():
                         break
                     elif cci_key == row2[0] and row2[13] == "N":
                         log.info("Entry found in CCI but not traded.  See if this changes")
-                if tradenow:
+                if tradeNow:
                     log.info("we did not find a match")
                 if open_long or open_short:
                     quantity = 2
@@ -191,12 +191,24 @@ class Algo():
                 log.info("Rank (0-100): {}".format(row3[21]))
                 break
         return
-    def crossoverPending(self):
-
-
-
-        return
-
+    def crossoverPending(self, bars_15,pendingLong, pendingShort, pendingSkip, pendingCnt):   # this is from excel macro.  Changes here should be changed there as well.
+        tradeNow = False
+        if (bars_15.cci < bars_15.ccia and bars_15.ccip > bars_15.cciap) or \
+                (bars_15.cci > bars_15.ccia and bars_15.ccip < bars_15.cciap):
+                tradeNow = True
+        if pendingLong and pendingCnt < config.SPREAD_COUNT and bars_15.cci - bars_15.ccia > config.SPREAD:
+            pendingLong, pendingSkip = False, False
+            pendingCnt = 0
+        elif pendingShort and pendingCnt < config.SPREAD_COUNT and abs(bars_15.cci - bars_15.ccia) > config.SPREAD:
+            pendingShort, pendingSkip = False, False
+            pendingCnt = 0
+        elif pendingLong or pendingShort and pendingCnt == config.SPREAD_COUNT:
+            pendingLong, pendingShort, pendingSkip = False, False, False
+            pendingCnt = 0
+        elif pendingLong or pendingShort:
+            pendingCnt += 1
+        return pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow 
+        
 def get_contract(client):
     contract = client.ib.reqContractDetails(
         ContFuture(symbol=config.SYMBOL, exchange=config.EXCHANGE)
