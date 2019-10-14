@@ -50,6 +50,7 @@ class Algo():
             #start of study
             #
             bars_15m = calculations.Calculations(self.ib, dataContract, datetime_15,"2 D", "15 mins")
+            print("bars_15m ",bars_15m)
             bars_1h = calculations.Calculations(self.ib, dataContract, datetime_1h, "5 D", "1 hour")
             bars_1d = calculations.Calculations(self.ib, dataContract, datetime_1d, "75 D", "1 day")
             setsum = self.setupsummary(key_arr)
@@ -191,15 +192,15 @@ class Algo():
                 log.info("Rank (0-100): {}".format(row3[21]))
                 break
         return
-    def crossoverPending(self, bars_15,pendingLong, pendingShort, pendingSkip, pendingCnt):   # this is from excel macro.  Changes here should be changed there as well.
+    def crossoverPending(self, bars_15m,pendingLong, pendingShort, pendingSkip, pendingCnt):   # this is from excel macro.  Changes here should be changed there as well.
         tradeNow = False
-        if (bars_15.cci < bars_15.ccia and bars_15.ccip > bars_15.cciap) or \
-                (bars_15.cci > bars_15.ccia and bars_15.ccip < bars_15.cciap):
+        if (bars_15m.cci < bars_15m.ccia and bars_15m.ccip > bars_15m.cciap) or \
+                (bars_15m.cci > bars_15m.ccia and bars_15m.ccip < bars_15m.cciap):
                 tradeNow = True
-        if pendingLong and pendingCnt < config.SPREAD_COUNT and bars_15.cci - bars_15.ccia > config.SPREAD:
+        if pendingLong and pendingCnt < config.SPREAD_COUNT and bars_15m.cci - bars_15m.ccia > config.SPREAD:
             pendingLong, pendingSkip = False, False
             pendingCnt = 0
-        elif pendingShort and pendingCnt < config.SPREAD_COUNT and abs(bars_15.cci - bars_15.ccia) > config.SPREAD:
+        elif pendingShort and pendingCnt < config.SPREAD_COUNT and abs(bars_15m.cci - bars_15m.ccia) > config.SPREAD:
             pendingShort, pendingSkip = False, False
             pendingCnt = 0
         elif pendingLong or pendingShort and pendingCnt == config.SPREAD_COUNT:
