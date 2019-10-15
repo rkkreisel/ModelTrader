@@ -28,9 +28,9 @@ class Calculations():
         print("bar data close: ",bars_period[-1].close)
         x = np.array(bars_period)
         log.debug("bars {}".format(bar_duration,bar_size,str(bars_period[-1])))
-        cci, ccia, cci_prior, ccia_prior = calculate_cci(bars_period)
+        cci, ccia, cci_prior, ccia_prior = self.calculate_cci(bars_period)
         atr =  calculate_atr(bars_period)
-        bband_width, bband_b = calculate_bbands(bars_period)
+        bband_width, bband_b = self.calculate_bbands(bars_period)
         logged_it = self.log_value("Starting ", bar_size, cci,ccia,cci_prior, ccia_prior,atr,bband_width,bband_b)
         print("stop loss = ",round((bars_period[-1].close + (atr *2))*4,0)/4)
         if bar_size == "15 mins":
@@ -78,7 +78,7 @@ class Calculations():
             log.info("tradenow: {trade}".format(trade = tradenow))
             
     def get_bars_data(self, dataContract, bar_duration, bar_size, datetime_period):
-        log.debug("inputs to request hist for get bars - {}".format(datetime_period))
+        log.debug("inputs to request hist for get bars - {}".format(bar_duration, bar_size, datetime_period))
         return self.ib.reqHistoricalData(
                 contract=dataContract,
                 endDateTime=datetime_period,
@@ -96,9 +96,9 @@ class Calculations():
             np.array([bar.close for bar in bars]),
             timeperiod=config.CCI_PERIODS
         )
-        average = statistics.mean(cci[-config.CCI_AVERAGE_PERIODS:])
-        averageh = statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):][:-1])
-        return cci[-1], average, cci[-2], averageh, cci[-3]
+        ccia = statistics.mean(cci[-config.CCI_AVERAGE_PERIODS:])
+        ccia_prior = statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):][:-1])
+        return cci[-1], ccia, cci[-2], ccia_pior
 
     def calculate_atr(bars):
         atr =  talib.ATR(
