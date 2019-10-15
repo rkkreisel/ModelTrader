@@ -18,16 +18,16 @@ log = logger.getLogger()
 
 
 class Calculations():
-    def __init__(self, ib: IB, dataContract, datetime_period, bar_duration, bar_size):
+    def __init__(self, ib: IB):
         self.ib = ib
         self.dataContract = dataContract
         self.datetime_perior = datetime_period
         self.bar_duration = bar_duration
         self.bar_size = bar_size
-        self.run()
+        
   
         """ Execute the calculations """
-    def run(self):    
+    def run(self, dataContract, datetime_period, bar_duration, bar_size:    
         bars_period = self.get_bars_data(self.dataContract,self.bar_duration,self.bar_size, self.datetime_period)
         print("bar data close: ",bars_period[-1].close)
         x = np.array(bars_period)

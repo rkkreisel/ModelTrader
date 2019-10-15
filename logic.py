@@ -49,10 +49,10 @@ class Algo():
             #
             #start of study
             #
-            bars_15m = calculations.Calculations(self.ib, dataContract, datetime_15,"2 D", "15 mins")
+            bars_15m = calculations.Calculations.run(self.ib, dataContract, datetime_15,"2 D", "15 mins")
             print("bars_15m ",bars_15m)
-            bars_1h = calculations.Calculations(self.ib, dataContract, datetime_1h, "5 D", "1 hour")
-            bars_1d = calculations.Calculations(self.ib, dataContract, datetime_1d, "75 D", "1 day")
+            bars_1h = calculations.Calculations.run(self.ib, dataContract, datetime_1h, "5 D", "1 hour")
+            bars_1d = calculations.Calculations.run(self.ib, dataContract, datetime_1d, "75 D", "1 day")
             setsum = self.setupsummary(key_arr)
             pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
             log.info("tradeNow: {trade}".format(trade = tradeNow))
