@@ -23,7 +23,8 @@ class Calculations():
   
         """ Execute the calculations """
     def run(self, dataContract, bar_duration, bar_size, datetime_period):    
-        bars_period = self.get_bars_data(self.dataContract, self.bar_duration, self.bar_size, self.datetime_period)
+        print("bar_duration, bar size date time ",dataContract, bar_duration, bar_size, datetime_period)
+        bars_period = self.get_bars_data(dataContract, bar_duration, bar_size, datetime_period)
         print("bar data close: ",bars_period[-1].close)
         x = np.array(bars_period)
         log.debug("bars {}".format(bar_duration,bar_size,str(bars_period[-1])))
@@ -76,13 +77,13 @@ class Calculations():
             setsum = self.setupsummary(key_arr)
             log.info("tradenow: {trade}".format(trade = tradenow))
             
-    def get_bars_data(self, contract, bardur, tframe,bar_datetime):
-        log.debug("inputs to request hist for get bars - {}".format(bar_datetime))
+    def get_bars_data(self, dataContract, bar_duration, bar_size, datetime_period):
+        log.debug("inputs to request hist for get bars - {}".format(datetime_period))
         return self.ib.reqHistoricalData(
-                contract=contract,
-                endDateTime=bar_datetime,
-                durationStr=bardur,
-                barSizeSetting=tframe,
+                contract=dataContract,
+                endDateTime=datetime_period,
+                durationStr=bar_duration,
+                barSizeSetting=bar_size,
                 whatToShow="TRADES",
                 useRTH=False,
                 keepUpToDate=False
