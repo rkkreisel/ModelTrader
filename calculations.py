@@ -20,10 +20,6 @@ log = logger.getLogger()
 class Calculations():
     def __init__(self, ib: IB):
         self.ib = ib
-        self.dataContract = dataContract
-        self.datetime_perior = datetime_period
-        self.bar_duration = bar_duration
-        self.bar_size = bar_size
   
         """ Execute the calculations """
     def run(self, dataContract, bar_duration, bar_size, datetime_period):    
