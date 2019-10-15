@@ -103,11 +103,9 @@ class Algo():
                     ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
                     open_long, open_short = False, False
             csv_row_add = helpers.build_csv_bars_row(","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort),True)
-            
-            
             tradenow, cci_trade, ccibb_trade = False, False, False
 
-     def define_times(self):
+    def define_times(self):
         current_time = datetime.now()
         current_minute = datetime.now().minute
         #print("now ",current_time)
