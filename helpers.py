@@ -39,7 +39,7 @@ def is_open_today(contracthours: Contract):
         if today_hours == row[0]:
             hours_found = True
             break
-    if hours_found == False
+    if not hours_found:
         with open('data/tradinghours.csv', mode='a') as tradehours:
             histwriter = csv.writer(tradehours, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             histwriter.writerow([today_hours])
