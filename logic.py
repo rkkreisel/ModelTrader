@@ -53,7 +53,7 @@ class Algo():
             bars_15m.run(dataContract, datetime_15,"2 D", "15 mins")
             print("bars_15m ",bars_15m)
             bars_1h = calculations.Calculations.run(self.ib, Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol), datetime_1h, "5 D", "1 hour")
-            bars_1d = calculations.Calculations.run(self.ib, dataContract, datetime_1d, "75 D", "1 day")
+            bars_1d = calculations.Calculations.run(self.ib, Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol), datetime_1d, "75 D", "1 day")
             setsum = self.setupsummary(key_arr)
             pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
             log.info("tradeNow: {trade}".format(trade = tradeNow))
