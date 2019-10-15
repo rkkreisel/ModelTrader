@@ -81,52 +81,52 @@ class Calculations():
             setsum = self.setupsummary(key_arr)
             log.info("tradenow: {trade}".format(trade = tradenow))
             
-        def get_bars_data(self, contract, bardur, tframe,bar_datetime):
-            log.debug("inputs to request hist for get bars - {}".format(bar_datetime))
-            return self.ib.reqHistoricalData(
-                    contract=contract,
-                    endDateTime=bar_datetime,
-                    durationStr=bardur,
-                    barSizeSetting=tframe,
-                    whatToShow="TRADES",
-                    useRTH=False,
-                    keepUpToDate=False
-            )
-        
-        def calculate_cci(bars: BarDataList):
-            cci = talib.CCI(
-                np.array([bar.high for bar in bars]),
-                np.array([bar.low for bar in bars]),
-                np.array([bar.close for bar in bars]),
-                timeperiod=config.CCI_PERIODS
-            )
-            average = statistics.mean(cci[-config.CCI_AVERAGE_PERIODS:])
-            averageh = statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):][:-1])
-            return cci[-1], average, cci[-2], averageh, cci[-3]
+    def get_bars_data(self, contract, bardur, tframe,bar_datetime):
+        log.debug("inputs to request hist for get bars - {}".format(bar_datetime))
+        return self.ib.reqHistoricalData(
+                contract=contract,
+                endDateTime=bar_datetime,
+                durationStr=bardur,
+                barSizeSetting=tframe,
+                whatToShow="TRADES",
+                useRTH=False,
+                keepUpToDate=False
+        )
+    
+    def calculate_cci(bars: BarDataList):
+        cci = talib.CCI(
+            np.array([bar.high for bar in bars]),
+            np.array([bar.low for bar in bars]),
+            np.array([bar.close for bar in bars]),
+            timeperiod=config.CCI_PERIODS
+        )
+        average = statistics.mean(cci[-config.CCI_AVERAGE_PERIODS:])
+        averageh = statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):][:-1])
+        return cci[-1], average, cci[-2], averageh, cci[-3]
 
-        def calculate_atr(bars):
-            atr =  talib.ATR(
-                np.array([bar.high for bar in bars]),
-                np.array([bar.low for bar in bars]),
-                np.array([bar.close for bar in bars]),
-                timeperiod=config.ATR_PERIODS
-            )
-            return atr[-1], atr[-2]
+    def calculate_atr(bars):
+        atr =  talib.ATR(
+            np.array([bar.high for bar in bars]),
+            np.array([bar.low for bar in bars]),
+            np.array([bar.close for bar in bars]),
+            timeperiod=config.ATR_PERIODS
+        )
+        return atr[-1], atr[-2]
 
-        def calculate_bbands(bars):
-            up, mid, low = talib.BBANDS(
-                np.array([bar.close for bar in bars]),
-                timeperiod=config.BBAND_PERIODS,
-                nbdevup=config.BBAND_STDDEV,
-                nbdevdn=config.BBAND_STDDEV,
-                matype=talib.MA_Type.SMA # Wilder Moving Average
-            )
-            sma = talib.SMA(np.array([bar.close for bar in bars]), timeperiod=config.SMA_PERIODS)
-            width = (up[-1] - low[-1]) / sma[-1] * 100
-            percentb = (bars[-1].close - low[-1]) / (up[-1] - low[-1]) * 100
-            #widthprior = (up[-2] - low[-2]) / sma[-2] * 100
-            #percentbprior = (bars[-2].close - low[-2]) / (up[-2] - low[-2]) * 100
-            return width, percentb
+    def calculate_bbands(bars):
+        up, mid, low = talib.BBANDS(
+            np.array([bar.close for bar in bars]),
+            timeperiod=config.BBAND_PERIODS,
+            nbdevup=config.BBAND_STDDEV,
+            nbdevdn=config.BBAND_STDDEV,
+            matype=talib.MA_Type.SMA # Wilder Moving Average
+        )
+        sma = talib.SMA(np.array([bar.close for bar in bars]), timeperiod=config.SMA_PERIODS)
+        width = (up[-1] - low[-1]) / sma[-1] * 100
+        percentb = (bars[-1].close - low[-1]) / (up[-1] - low[-1]) * 100
+        #widthprior = (up[-2] - low[-2]) / sma[-2] * 100
+        #percentbprior = (bars[-2].close - low[-2]) / (up[-2] - low[-2]) * 100
+        return width, percentb
 
 #class calculate_15(Calculations):
 #    def __init__(self):
