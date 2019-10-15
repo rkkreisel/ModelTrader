@@ -24,10 +24,9 @@ class Calculations():
         self.datetime_perior = datetime_period
         self.bar_duration = bar_duration
         self.bar_size = bar_size
-
   
         """ Execute the calculations """
-    def run(self, dataContract, datetime_period, bar_duration, bar_size):    
+    def run(self, dataContract, bar_duration, bar_size, datetime_period):    
         bars_period = self.get_bars_data(self.dataContract, self.bar_duration, self.bar_size, self.datetime_period)
         print("bar data close: ",bars_period[-1].close)
         x = np.array(bars_period)
