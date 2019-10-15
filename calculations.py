@@ -24,7 +24,7 @@ class Calculations():
         self.datetime_perior = datetime_period
         self.bar_duration = bar_duration
         self.bar_size = bar_size
-
+        self.run
   
         """ Execute the calculations """
     def run(self):    
