@@ -27,11 +27,11 @@ class Calculations():
         bars_period = self.get_bars_data(dataContract, bar_duration, bar_size, datetime_period)
         print("bar data close: ",bars_period[-1].close)
         x = np.array(bars_period)
-        log.debug("bars {}".format(bar_duration,bar_size,str(bars_period[-1])))
+        log.debug("bars {bars} ".format(bars=bars_period))
         cci, ccia, cci_prior, ccia_prior = self.calculate_cci(bars_period)
-        atr =  calculate_atr(bars_period)
+        atr =  self.calculate_atr(bars_period)
         bband_width, bband_b = self.calculate_bbands(bars_period)
-        logged_it = self.log_value("Starting ", bar_size, cci,ccia,cci_prior, ccia_prior,atr,bband_width,bband_b)
+        logged_it = self.log_value("Starting ", bar_size, cci, ccia, cci_prior, ccia_prior, atr, bband_width,bband_b)
         print("stop loss = ",round((bars_period[-1].close + (atr *2))*4,0)/4)
         if bar_size == "15 mins":
             if cci > ccia and cci_prior < ccia_prior:
@@ -89,7 +89,7 @@ class Calculations():
                 keepUpToDate=False
         )
     
-    def calculate_cci(bars: BarDataList):
+    def calculate_cci(self, bars):
         cci = talib.CCI(
             np.array([bar.high for bar in bars]),
             np.array([bar.low for bar in bars]),
@@ -98,9 +98,9 @@ class Calculations():
         )
         ccia = statistics.mean(cci[-config.CCI_AVERAGE_PERIODS:])
         ccia_prior = statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):][:-1])
-        return cci[-1], ccia, cci[-2], ccia_pior
+        return cci[-1], ccia, cci[-2], ccia_prior
 
-    def calculate_atr(bars):
+    def calculate_atr(self, bars):
         atr =  talib.ATR(
             np.array([bar.high for bar in bars]),
             np.array([bar.low for bar in bars]),
@@ -109,7 +109,7 @@ class Calculations():
         )
         return atr[-1], atr[-2]
 
-    def calculate_bbands(bars):
+    def calculate_bbands(self, bars):
         up, mid, low = talib.BBANDS(
             np.array([bar.close for bar in bars]),
             timeperiod=config.BBAND_PERIODS,
@@ -124,21 +124,3 @@ class Calculations():
         #percentbprior = (bars[-2].close - low[-2]) / (up[-2] - low[-2]) * 100
         return width, percentb
 
-#class calculate_15(Calculations):
-#    def __init__(self):
-    #def __init__(self, ib: IB, bar_duration, bar_size, timeperiod):
-#        self.bar_duration = "2 D"
-#        self.bar_size = "15 mins"
-#        self.timeperiod = datetime_15
-
-#class calculate_1h(Calculations):
-#    def __init__(self, ib: IB, bar_duration, bar_size, timeperiod):
-#        self.bar_duration = "5 D"
-#        self.bar_size = "1 hour"
-#        self.timeperiod = datetime_1h
-
-#class calculate_1d(Calculations):
-#    def __init__(self, ib: IB, bar_duration, bar_size, timeperiod):
-#        self.bar_duration = "75 D"
-#        self.bar_size = "1 day"
-#        self.timeperiod = datetime_1d
