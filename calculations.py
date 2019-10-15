@@ -31,7 +31,7 @@ class Calculations():
         cci, ccia, cci_prior, ccia_prior = self.calculate_cci(bars_period)
         atr =  self.calculate_atr(bars_period)
         bband_width, bband_b = self.calculate_bbands(bars_period)
-        logged_it = self.log_value("Starting ", bar_size, cci, ccia, cci_prior, ccia_prior, atr, bband_width,bband_b)
+        logged_it = self.log_value("Starting ", cci, ccia, cci_prior, ccia_prior, atr, bband_width, bband_b)
         print("stop loss = ",round((bars_period[-1].close + (atr *2))*4,0)/4)
         if bar_size == "15 mins":
             if cci > ccia and cci_prior < ccia_prior:
@@ -124,3 +124,13 @@ class Calculations():
         #percentbprior = (bars[-2].close - low[-2]) / (up[-2] - low[-2]) * 100
         return width, percentb
 
+    def log_value(self, label, cci, ccia, cci_prior, ccia_prior, atr, bband_width, bband_b):
+        log.info(label.format(datetime.now()))
+        log.info("CCI:      {} ".format(cci))
+        log.info("CCIA      {} ".format(avg))
+        log.info("CCIP      {} ".format(cci_prior))
+        log.info("CCIPA:    {} ".format(averageh))
+        log.info("ATR:      {} ".format(atr))
+        log.info("bband w:  {} ".format(bband_width))
+        log.info("bband p:  {} ".format(bband_b))
+        return True

@@ -107,18 +107,7 @@ class Algo():
             
             tradenow, cci_trade, ccibb_trade = False, False, False
 
-    def log_value(self, label,cci,avg,cci_prior, averageh,atr,bband_width,bband_b):
-        log.info(label.format(datetime.now()))
-        log.info("CCI:      {} ".format(cci))
-        log.info("CCIA      {} ".format(avg))
-        log.info("CCIP      {} ".format(cci_prior))
-        log.info("CCIPA:    {} ".format(averageh))
-        log.info("ATR:      {} ".format(atr))
-        log.info("bband w:  {} ".format(bband_width))
-        log.info("bband p:  {} ".format(bband_b))
-        return True
-
-    def define_times(self):
+     def define_times(self):
         current_time = datetime.now()
         current_minute = datetime.now().minute
         #print("now ",current_time)
