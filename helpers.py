@@ -34,16 +34,16 @@ def is_open_today(contracthours: Contract):
     print("todays trading hours are: ",today_hours)
 
     csv_file = csv.reader(open('data/tradinghours.csv', "rt"), delimiter = ",")
-        hours_found = False
-        for row in csv_file:
-            if today_hours == row[0]:
-                hours_found = True
-                break
-        if hours_found == False
-            with open('data/tradinghours.csv', mode='a') as tradehours:
-                histwriter = csv.writer(tradehours, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                histwriter.writerow([today_hours])
-         
+    hours_found = False
+    for row in csv_file:
+        if today_hours == row[0]:
+            hours_found = True
+            break
+    if hours_found == False
+        with open('data/tradinghours.csv', mode='a') as tradehours:
+            histwriter = csv.writer(tradehours, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            histwriter.writerow([today_hours])
+        
     if today_hours == config.NORMAL_TRADING_HOURS:
         return True
     return False
