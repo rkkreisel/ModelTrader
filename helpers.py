@@ -87,4 +87,4 @@ def build_csv_bars_row(csv_row,IsEOF, IsBOF):
                 histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 histwriter.writerow([csv_header])
                 histwriter.writerow([csv_row])
-    return
+    return csv_row_sum
