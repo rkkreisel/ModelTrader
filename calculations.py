@@ -32,7 +32,6 @@ class Calculations():
         atr =  self.calculate_atr(bars_period)
         bband_width, bband_b = self.calculate_bbands(bars_period)
         logged_it = self.log_value("Starting ", cci, ccia, cci_prior, ccia_prior, atr, bband_width, bband_b)
-        print("stop loss = ",round((bars_period[-1].close + (atr *2))*4,0)/4)
         if bar_size == "15 mins":
             if cci > ccia and cci_prior < ccia_prior:
                 crossed, tradenow = True, True
@@ -55,6 +54,7 @@ class Calculations():
                 log.info("Pending ".format(cci-ccia))
                 pendinglong = True
                 pendingshort = True
+            log.info("Stop loss set > ".format(stoplossprice))
             csv_row_add = helpers.build_csv_bars_row(",'"+str(crossed)+"',"+str(cci)+","+str(ccia)+","+str(cci_prior)+","+str(ccia_prior)+","+str(atr)+","+str(bband_width)+","+str(bband_b),False)
             key_arr[1] = categories.categorize_atr15(atr)
             key_arr[4] = categories.categorize_cci_15(cci)
