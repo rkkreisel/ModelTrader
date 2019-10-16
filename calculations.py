@@ -37,7 +37,7 @@ class Calculations():
     def run(self):    
         csv_row_sum = ""
         print("bar_duration, bar size date time ",dataContract, bar_duration, bar_size, datetime_period)
-        bars_period = self.get_bars_data(dataContract, bar_duration, bar_size, datetime_period)
+        bars_period = self.get_bars_data()
         print("bar data close: ",bars_period[-1].close)
         x = np.array(bars_period)
         log.debug("bars {bars} ".format(bars=bars_period))
@@ -70,13 +70,13 @@ class Calculations():
                 pendingshort = True
             log.info("Stop loss set > ".format(stoplossprice))
             
-    def get_bars_data(self, dataContract, bar_duration, bar_size, datetime_period):
-        log.debug("inputs to request hist for get bars - {}".format(bar_duration, bar_size, datetime_period))
+    def get_bars_data(self):
+        #log.debug("inputs to request hist for get bars - {}".format(bar_duration, bar_size, datetime_period))
         return self.ib.reqHistoricalData(
-                contract=dataContract,
-                endDateTime=datetime_period,
-                durationStr=bar_duration,
-                barSizeSetting=bar_size,
+                contract=self.dataContract,
+                endDateTime=self.datetime_period,
+                durationStr=self.bar_duration,
+                barSizeSetting=self.bar_size,
                 whatToShow="TRADES",
                 useRTH=False,
                 keepUpToDate=False
