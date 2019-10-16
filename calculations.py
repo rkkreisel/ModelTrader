@@ -40,7 +40,7 @@ class Calculations():
                 key_arr[0] = "long"
                 tradeAction = "BUY"
                 stoplossprice = round((bars_period[-1].close - (atr * 2))*4,0)/4
-            elif cci < avg and cci_prior > averageh:
+            elif cci < ccia and cci_prior > ccia_prior:
                 crossed, tradenow = True, True
                 csv_row_add = helpers.build_csv_bars_row("'"+str(datetime.now())+",'short'",False)
                 key_arr[0] = "short"
@@ -51,26 +51,26 @@ class Calculations():
                 crossed, tradenow = False, False
                 stoplossprice = 0
                 stoploss = 0
-            if abs(cci - avg) > config.SPREAD:
-                log.info("Pending ".format(cci-avg))
+            if abs(cci - ccia) > config.SPREAD:
+                log.info("Pending ".format(cci-ccia))
                 pendinglong = True
                 pendingshort = True
-            csv_row_add = helpers.build_csv_bars_row(",'"+str(crossed)+"',"+str(cci)+","+str(avg)+","+str(cci_prior)+","+str(averageh)+","+str(atr)+","+str(bband_width)+","+str(bband_b),False)
+            csv_row_add = helpers.build_csv_bars_row(",'"+str(crossed)+"',"+str(cci)+","+str(ccia)+","+str(cci_prior)+","+str(ccia_prior)+","+str(atr)+","+str(bband_width)+","+str(bband_b),False)
             key_arr[1] = categories.categorize_atr15(atr)
             key_arr[4] = categories.categorize_cci_15(cci)
-            key_arr[5] = categories.categorize_cci_15_avg(avg)
+            key_arr[5] = categories.categorize_cci_15_ccia(ccia)
             key_arr[8] = categories.categorize_BBW15(bband_width)
             key_arr[9] = categories.categorize_BBb15(bband_b)
         elif bar_size == "1 hour":
-            csv_row_add = helpers.build_csv_bars_row(","+str(cci)+","+str(avg)+","+str(atr)+","+str(bband_width)+","+str(bband_b),False)
+            csv_row_add = helpers.build_csv_bars_row(","+str(cci)+","+str(ccia)+","+str(atr)+","+str(bband_width)+","+str(bband_b),False)
             key_arr[2] = categories.categorize_atr1h(atr)
-            key_arr[6] = categories.categorize_cci_1h(avg)
+            key_arr[6] = categories.categorize_cci_1h(ccia)
             key_arr[10] = categories.categorize_BBW1h(bband_width)
             key_arr[11] = categories.categorize_BBb1h(bband_b)
         elif bar_size == "1 day":            
-            csv_row_add = helpers.build_csv_bars_row(","+str(cci)+","+str(avg)+","+str(atr)+","+str(bband_width)+","+str(bband_b),False)
+            csv_row_add = helpers.build_csv_bars_row(","+str(cci)+","+str(ccia)+","+str(atr)+","+str(bband_width)+","+str(bband_b),False)
             key_arr[3] = categories.categorize_atr1d(atr)
-            key_arr[7] = categories.categorize_cci_1d(avg)
+            key_arr[7] = categories.categorize_cci_1d(ccia)
             key_arr[12] = categories.categorize_BBW1d(bband_width)
             key_arr[13] = categories.categorize_BBb1d(bband_b)
             qtrtime = datetime.now()
