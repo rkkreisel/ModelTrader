@@ -72,7 +72,7 @@ def parseAdvisorConfig(xml):
                  amount += int(float(attrib.text))
     return amount
 
-def build_csv_bars_row(csv_row,IsEOF, IsBOF):
+def build_csv_bars_row(csv_row,IsEOF, IsBOF, csv_row_sum):
     print("csv row, iseof, is bof ",csv_row,IsEOF,IsBOF)
     if IsBOF:
         csv_row_sum = csv_row
