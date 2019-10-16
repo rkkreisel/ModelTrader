@@ -51,9 +51,7 @@ class Algo():
             #
             bars_15m = calculations.Calculations(self.ib)
             bars_15m.run(dataContract, "2 D", "15 mins", datetime_15)
-            print("vars 15",vars(bars_15m))
-            print ("vars 15 run",vars(bars_15m.run))
-            print("bars_15m from logic >>> ",bars_15m)
+            print("bars_15.cci ",bars_15m.cci)
             bars_1h = calculations.Calculations(self.ib)
             bars_1h.run(dataContract, "5 D", "1 hour", datetime_1h)
             bars_1d = calculations.Calculations(self.ib)
