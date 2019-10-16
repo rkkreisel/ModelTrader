@@ -20,13 +20,13 @@ log = logger.getLogger()
 class Calculations():
     def __init__(self, ib: IB, dataContract, bar_size, bar_duration, datetime_period):
         self.ib = ib
-        self.cci = cci
-        self.ccia = ccia
-        self.cci_prior = ccia_prior
-        self.ccia_prior = ccia_prior
-        self.atr = atr
-        self.bband_width = bband_width
-        self.bband_b = bband_b
+#        self.cci = cci
+ #       self.ccia = ccia
+  #      self.cci_prior = ccia_prior
+   #     self.ccia_prior = ccia_prior
+    #    self.atr = atr
+     #   self.bband_width = bband_width
+      #  self.bband_b = bband_b
         self.run()
   
         """ Execute the calculations """
@@ -37,9 +37,9 @@ class Calculations():
         print("bar data close: ",bars_period[-1].close)
         x = np.array(bars_period)
         log.debug("bars {bars} ".format(bars=bars_period))
-        cci, ccia, cci_prior, ccia_prior = self.calculate_cci(bars_period)
-        atr =  self.calculate_atr(bars_period)
-        bband_width, bband_b = self.calculate_bbands(bars_period)
+        self.cci, self.ccia, self.cci_prior, self.ccia_prior = self.calculate_cci(bars_period)
+        self.atr =  self.calculate_atr(bars_period)
+        self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
         logged_it = self.log_value("Starting ", cci, ccia, cci_prior, ccia_prior, atr, bband_width, bband_b)
         print("atr and bar size",atr,bar_size)
         if bar_size == "15 mins":
