@@ -20,6 +20,10 @@ log = logger.getLogger()
 class Calculations():
     def __init__(self, ib: IB, dataContract, bar_size, bar_duration, datetime_period):
         self.ib = ib
+        self.dataContract = dataContract
+        self.bar_size = bar_size
+        self.bar_duration = bar_duration
+        self.datetime_period = datetime_period
 #        self.cci = cci
  #       self.ccia = ccia
   #      self.cci_prior = ccia_prior
@@ -32,14 +36,14 @@ class Calculations():
         """ Execute the calculations """
     def run(self):    
         csv_row_sum = ""
-        print("bar_duration, bar size date time ",dataContract, bar_duration, bar_size, datetime_period)
-        bars_period = self.get_bars_data(dataContract, bar_duration, bar_size, datetime_period)
+        print("bar_duration, bar size date time ",self.dataContract, self.bar_duration, self.bar_size, self.datetime_period)
+        bars_period = self.get_bars_data(self.dataContract, self.bar_duration, self.bar_size, self.datetime_period)
         print("bar data close: ",bars_period[-1].close)
         x = np.array(bars_period)
         log.debug("bars {bars} ".format(bars=bars_period))
         self.cci, self.ccia, self.cci_prior, self.ccia_prior = self.calculate_cci(bars_period)
         self.atr =  self.calculate_atr(bars_period)
-        self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
+        self.bband_width, self.Rbband_b = self.calculate_bbands(bars_period)
         logged_it = self.log_value("Starting ", cci, ccia, cci_prior, ccia_prior, atr, bband_width, bband_b)
         print("atr and bar size",atr,bar_size)
         if bar_size == "15 mins":
