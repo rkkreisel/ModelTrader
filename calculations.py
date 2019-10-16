@@ -23,6 +23,7 @@ class Calculations():
   
         """ Execute the calculations """
     def run(self, dataContract, bar_duration, bar_size, datetime_period):    
+        csv_row_sum = ""
         print("bar_duration, bar size date time ",dataContract, bar_duration, bar_size, datetime_period)
         bars_period = self.get_bars_data(dataContract, bar_duration, bar_size, datetime_period)
         print("bar data close: ",bars_period[-1].close)
