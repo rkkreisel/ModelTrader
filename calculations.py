@@ -32,6 +32,8 @@ class Calculations():
         atr =  self.calculate_atr(bars_period)
         bband_width, bband_b = self.calculate_bbands(bars_period)
         logged_it = self.log_value("Starting ", cci, ccia, cci_prior, ccia_prior, atr, bband_width, bband_b)
+        log.debug("bars period close ".format(bars_period[-1].close))
+        log.debug("atr ".format(atr))
         if bar_size == "15 mins":
             if cci > ccia and cci_prior < ccia_prior:
                 crossed, tradenow = True, True
