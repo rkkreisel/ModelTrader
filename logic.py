@@ -210,7 +210,7 @@ def get_contract(client):
 def key_array(bars_15m, bars_1h, bars_1d):
     #15m
     key_arr[0] = "long"
-    if bars_15m == "SELL":
+    if bars_15m.tradeAction == "SELL":
         key_arr[0] = "short"
     key_arr[1] = categories.categorize_atr15(bars_15m.atr)
     key_arr[4] = categories.categorize_cci_15(bars_15m.cci)
