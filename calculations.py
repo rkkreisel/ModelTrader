@@ -18,7 +18,7 @@ log = logger.getLogger()
 
 
 class Calculations():
-    def __init__(self, ib: IB, cci, ccia, cci_prior, ccia_prior, atr, bband_width, bband_b):
+    def __init__(self, ib: IB, dataContract, bar_size, bar_duration, datetime_period):
         self.ib = ib
         self.cci = cci
         self.ccia = ccia
