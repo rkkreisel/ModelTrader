@@ -127,9 +127,9 @@ class Calculations():
     def log_value(self, label, cci, ccia, cci_prior, ccia_prior, atr, bband_width, bband_b):
         log.info(label.format(datetime.now()))
         log.info("CCI:      {} ".format(cci))
-        log.info("CCIA      {} ".format(avg))
+        log.info("CCIA      {} ".format(ccia))
         log.info("CCIP      {} ".format(cci_prior))
-        log.info("CCIPA:    {} ".format(averageh))
+        log.info("CCIPA:    {} ".format(ccia_prior))
         log.info("ATR:      {} ".format(atr))
         log.info("bband w:  {} ".format(bband_width))
         log.info("bband p:  {} ".format(bband_b))
