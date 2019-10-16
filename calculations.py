@@ -35,18 +35,18 @@ class Calculations():
         if bar_size == "15 mins":
             if cci > ccia and cci_prior < ccia_prior:
                 crossed, tradenow = True, True
-                csv_row_start = helpers.build_csv_bars_row("'"+str(datetime.now())+",'long'",False)
-                key_arr[0] = "long"
+                csv_row_start = helpers.build_csv_bars_row("'"+str(datetime.now())+",'long'",False, True)
+                #key_arr[0] = "long"
                 tradeAction = "BUY"
                 stoplossprice = round((bars_period[-1].close - (atr * 2))*4,0)/4
             elif cci < ccia and cci_prior > ccia_prior:
                 crossed, tradenow = True, True
-                csv_row_add = helpers.build_csv_bars_row("'"+str(datetime.now())+",'short'",False)
-                key_arr[0] = "short"
+                csv_row_add = helpers.build_csv_bars_row("'"+str(datetime.now())+",'short'",False, False)
+                #key_arr[0] = "short"
                 tradeAction = "SELL"
                 stoplossprice = round((bars_period[-1].close + (atr * 2))*4,0)/4
             else:
-                csv_row_add = helpers.build_csv_bars_row("'"+str(datetime.now())+",'cash'",False)
+                csv_row_add = helpers.build_csv_bars_row("'"+str(datetime.now())+",'cash'",False, False)
                 crossed, tradenow = False, False
                 stoplossprice = 0
                 stoploss = 0
@@ -55,27 +55,6 @@ class Calculations():
                 pendinglong = True
                 pendingshort = True
             log.info("Stop loss set > ".format(stoplossprice))
-            csv_row_add = helpers.build_csv_bars_row(",'"+str(crossed)+"',"+str(cci)+","+str(ccia)+","+str(cci_prior)+","+str(ccia_prior)+","+str(atr)+","+str(bband_width)+","+str(bband_b),False)
-            key_arr[1] = categories.categorize_atr15(atr)
-            key_arr[4] = categories.categorize_cci_15(cci)
-            key_arr[5] = categories.categorize_cci_15_ccia(ccia)
-            key_arr[8] = categories.categorize_BBW15(bband_width)
-            key_arr[9] = categories.categorize_BBb15(bband_b)
-        elif bar_size == "1 hour":
-            csv_row_add = helpers.build_csv_bars_row(","+str(cci)+","+str(ccia)+","+str(atr)+","+str(bband_width)+","+str(bband_b),False)
-            key_arr[2] = categories.categorize_atr1h(atr)
-            key_arr[6] = categories.categorize_cci_1h(ccia)
-            key_arr[10] = categories.categorize_BBW1h(bband_width)
-            key_arr[11] = categories.categorize_BBb1h(bband_b)
-        elif bar_size == "1 day":            
-            csv_row_add = helpers.build_csv_bars_row(","+str(cci)+","+str(ccia)+","+str(atr)+","+str(bband_width)+","+str(bband_b),False)
-            key_arr[3] = categories.categorize_atr1d(atr)
-            key_arr[7] = categories.categorize_cci_1d(ccia)
-            key_arr[12] = categories.categorize_BBW1d(bband_width)
-            key_arr[13] = categories.categorize_BBb1d(bband_b)
-            qtrtime = datetime.now()
-            setsum = self.setupsummary(key_arr)
-            log.info("tradenow: {trade}".format(trade = tradenow))
             
     def get_bars_data(self, dataContract, bar_duration, bar_size, datetime_period):
         log.debug("inputs to request hist for get bars - {}".format(bar_duration, bar_size, datetime_period))

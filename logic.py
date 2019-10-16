@@ -52,8 +52,8 @@ class Algo():
             bars_15m = calculations.Calculations(self.ib)
             bars_15m.run(dataContract, "2 D", "15 mins", datetime_15)
             print("bars_15m ",bars_15m)
-            bars_1h = calculations.Calculations.run(self.ib, Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol), "5 D", "1 hour", datetime_1h)
-            bars_1d = calculations.Calculations.run(self.ib, Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol), "75 D", "1 day", datetime_1d)
+            bars_1h = calculations.Calculations.run(self.ib, dataContract, "5 D", "1 hour", datetime_1h)
+            bars_1d = calculations.Calculations.run(self.ib, dataContract, "75 D", "1 day", datetime_1d)
             setsum = self.setupsummary(key_arr)
             pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
             log.info("tradeNow: {trade}".format(trade = tradeNow))
@@ -209,6 +209,9 @@ def get_contract(client):
 
 def key_array(bars_15m, bars_1h, bars_1d):
     #15m
+    key_arr[0] = "long"
+    if bars_15m == "SELL":
+        key_arr[0] = "short"
     key_arr[1] = categories.categorize_atr15(bars_15m.atr)
     key_arr[4] = categories.categorize_cci_15(bars_15m.cci)
     key_arr[5] = categories.categorize_cci_15_avg(bars_15m.ccia)
