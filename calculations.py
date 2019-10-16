@@ -11,7 +11,7 @@ import config
 import logger
 #import csv
 import categories
-#import helpers
+import helpers
 #import orders
 
 log = logger.getLogger()
