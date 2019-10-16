@@ -18,11 +18,19 @@ log = logger.getLogger()
 
 
 class Calculations():
-    def __init__(self, ib: IB):
+    def __init__(self, ib: IB, cci, ccia, cci_prior, ccia_prior, atr, bband_width, bband_b):
         self.ib = ib
+        self.cci = cci
+        self.ccia = ccia
+        self.cci_prior = ccia_prior
+        self.ccia_prior = ccia_prior
+        self.atr = atr
+        self.bband_width = bband_width
+        self.bband_b = bband_b
+        self.run()
   
         """ Execute the calculations """
-    def run(self, dataContract, bar_duration, bar_size, datetime_period):    
+    def run(self):    
         csv_row_sum = ""
         print("bar_duration, bar size date time ",dataContract, bar_duration, bar_size, datetime_period)
         bars_period = self.get_bars_data(dataContract, bar_duration, bar_size, datetime_period)
