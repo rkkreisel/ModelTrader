@@ -70,7 +70,7 @@ class Algo():
             if tradeNow:
                 log.info("Tradeing this bar {}".format(str(''.join(key_arr))," - ",''.join(key_arr[0:8])))
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
-                cci_key, ccibb_key == key_array(bars_15m, bars_1h, bars_1d)
+                cci_key, ccibb_key == key_array(self, bars_15m, bars_1h, bars_1d)
                 for row1 in csv_file1:
                     print("ccibb row: ",row1[0],row1[13])
                     if ccibb_key == row1[0] and row1[13] == "Y": #13 is winrisk - whether we trade or not
