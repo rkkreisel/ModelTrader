@@ -75,12 +75,12 @@ class Calculations():
         print("getting bars contract >>>>>>>>>>>>>>>>>>>>>> ", self.dataContract)
         print("getting bars datetime >>>>>>>>>>>>>>>>>>>>>> ", self.datetime_period)
         print("getting bars bar dur  >>>>>>>>>>>>>>>>>>>>>> ", self.bar_duration)
-        print("getting bars bar size >>>>>>>>>>>>>>>>>>>>>> ", self.bar_size
+        print("getting bars bar size >>>>>>>>>>>>>>>>>>>>>> ", self.bar_size)
         return self.ib.reqHistoricalData(
                 contract=self.dataContract,
                 endDateTime=self.datetime_period,
-                durationStr=self.bar_duration,
-                barSizeSetting=self.bar_size,
+                durationStr=self.bar_size,
+                barSizeSetting=self.bar_duration,
                 whatToShow="TRADES",
                 useRTH=False,
                 keepUpToDate=False
