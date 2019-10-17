@@ -36,7 +36,7 @@ class Algo():
             open_long, open_short, position_qty = self.have_position(self.ib.positions())   # do we have an open position?
             open_today = helpers.is_open_today(contracthours)
             self.dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
-            log.debug("Got Contract: {}".format(dataContract.localSymbol))
+            log.debug("Got Contract: {}".format(self.dataContract.localSymbol))
             #pnl = self.ib.pnl()
             #log.debug("account names: {}".format(self.ib.managedAccounts()))
             #log.info("PNL : {PNL} ".format(PNL=self.ib.pnl("all")))
