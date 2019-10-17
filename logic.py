@@ -189,8 +189,8 @@ class Algo():
         return
     def crossoverPending(self, bars_15m,pendingLong, pendingShort, pendingSkip, pendingCnt):   # this is from excel macro.  Changes here should be changed there as well.
         tradeNow = False
-        if (bars_15m.cci < bars_15m.ccia and bars_15m.ccip > bars_15m.cciap) or \
-                (bars_15m.cci > bars_15m.ccia and bars_15m.ccip < bars_15m.cciap):
+        if (bars_15m.cci < bars_15m.ccia and bars_15m.cci_prior > bars_15m.ccia_prior) or \
+                (bars_15m.cci > bars_15m.ccia and bars_15m.cci_prior < bars_15m.ccia_prior):
                 tradeNow = True
         if pendingLong and pendingCnt < config.SPREAD_COUNT and bars_15m.cci - bars_15m.ccia > config.SPREAD:
             pendingLong, pendingSkip = False, False
