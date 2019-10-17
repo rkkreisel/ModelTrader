@@ -24,7 +24,7 @@ class Calculations():
         self.bar_size = bar_size
         self.bar_duration = bar_duration
         self.datetime_period = datetime_period
-#        self.cci = cci
+#        self.self.cci = cci
  #       self.ccia = ccia
   #      self.cci_prior = ccia_prior
    #     self.ccia_prior = ccia_prior
@@ -44,27 +44,27 @@ class Calculations():
         self.cci, self.ccia, self.cci_prior, self.ccia_prior = self.calculate_cci(bars_period)
         self.atr =  self.calculate_atr(bars_period)
         self.bband_width, self.Rbband_b = self.calculate_bbands(bars_period)
-        logged_it = self.log_value("Starting ", cci, ccia, cci_prior, ccia_prior, atr, bband_width, bband_b)
-        print("atr and bar size",atr,bar_size)
+        logged_it = self.log_value("Starting ", self.cci, self.ccia, self.cci_prior, self.ccia_prior, self.atr, self.bband_width, self.bband_b)
+        print("atr and bar size", self.atr, self.bar_size)
         if bar_size == "15 mins":
-            if cci > ccia and cci_prior < ccia_prior:
+            if self.self.cci > self.ccia and self.cci_prior < self.ccia_prior:
                 crossed, tradenow = True, True
                 #csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'long'",False, True, csv_row_sum)
                 #key_arr[0] = "long"
                 tradeAction = "BUY"
-                stoplossprice = round((bars_period[-1].close - (atr * 2))*4,0)/4
-            elif cci < ccia and cci_prior > ccia_prior:
+                stoplossprice = round((bars_period[-1].close - (self.atr * 2))*4,0)/4
+            elif self.cci <self.ccia and self.cci_prior > self.ccia_prior:
                 crossed, tradenow = True, True
                 #csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'short'",False, False, csv_row_sum)
                 #key_arr[0] = "short"
                 tradeAction = "SELL"
-                stoplossprice = round((bars_period[-1].close + (atr * 2))*4,0)/4
+                stoplossprice = round((bars_period[-1].close + (self.atr * 2))*4,0)/4
             else:
                 #csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'cash'",False, False, csv_row_sum)
                 crossed, tradenow = False, False
                 stoplossprice = 0
                 stoploss = 0
-            if abs(cci - ccia) > config.SPREAD:
+            if abs(self.cci - self.ccia) > config.SPREAD:
                 log.info("Pending ".format(cci-ccia))
                 pendinglong = True
                 pendingshort = True
@@ -121,13 +121,13 @@ class Calculations():
         #percentbprior = (bars[-2].close - low[-2]) / (up[-2] - low[-2]) * 100
         return width, percentb
 
-    def log_value(self, label, cci, ccia, cci_prior, ccia_prior, atr, bband_width, bband_b):
+    def log_value(self, label, cci, ccia, self.cci_prior, ccia_prior, atr, bband_width, bband_b):
         log.info(label.format(datetime.now()))
-        log.info("CCI:      {} ".format(cci))
-        log.info("CCIA      {} ".format(ccia))
-        log.info("CCIP      {} ".format(cci_prior))
-        log.info("CCIPA:    {} ".format(ccia_prior))
-        log.info("ATR:      {} ".format(atr))
-        log.info("bband w:  {} ".format(bband_width))
-        log.info("bband p:  {} ".format(bband_b))
+        log.info("CCI:      {} ".format(self.cci))
+        log.info("CCIA      {} ".format(self.ccia))
+        log.info("CCIP      {} ".format(self.cci_prior))
+        log.info("CCIPA:    {} ".format(self.ccia_prior))
+        log.info("ATR:      {} ".format(self.atr))
+        log.info("bband w:  {} ".format(self.bband_width))
+        log.info("bband p:  {} ".format(self.bband_b))
         return True
