@@ -28,7 +28,6 @@ class Algo():
         key_arr = ['blank','ATR15','ATR1','ATRD','CCI15','CCIA15','CCIA1h','CCIA1d','BBW15','BBb15','BBW1h','BBb1h','BBW1d','BBb1d']
         tradenow, not_finished, pendingShort, pendingLong, pendingSkip, cci_trade, ccibb_trade = False, True, False, False, False, False, False
         pendingCnt = 0
-        tradeAction = "CASH"
         # any variable that is used within the class will be defined with self
         while not_finished:
             print ("top of algo run self*************************************************")
@@ -190,6 +189,7 @@ class Algo():
         return
     def crossoverPending(self, bars_15m,pendingLong, pendingShort, pendingSkip, pendingCnt):   # this is from excel macro.  Changes here should be changed there as well.
         tradeNow = False
+        tradeAction = "CASH"
         if (bars_15m.cci < bars_15m.ccia and bars_15m.cci_prior > bars_15m.ccia_prior) or \
                 (bars_15m.cci > bars_15m.ccia and bars_15m.cci_prior < bars_15m.ccia_prior):
                 tradeNow = True
