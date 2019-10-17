@@ -71,11 +71,7 @@ class Calculations():
             log.info("Stop loss set > ".format(stoplossprice))
             
     def get_bars_data(self):
-        #log.debug("inputs to request hist for get bars - {}".format(bar_duration, bar_size, datetime_period))
-        print("getting bars contract >>>>>>>>>>>>>>>>>>>>>> ", self.dataContract)
-        print("getting bars datetime >>>>>>>>>>>>>>>>>>>>>> ", self.datetime_period)
-        print("getting bars bar dur  >>>>>>>>>>>>>>>>>>>>>> ", self.bar_duration)
-        print("getting bars bar size >>>>>>>>>>>>>>>>>>>>>> ", self.bar_size)
+        log.debug("inputs to request hist for get bars - {}".format(self.bar_duration, self.bar_size, self.datetime_period))
         return self.ib.reqHistoricalData(
                 contract=self.dataContract,
                 endDateTime=self.datetime_period,

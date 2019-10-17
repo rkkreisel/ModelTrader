@@ -47,8 +47,8 @@ class Algo():
             log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
             #
             # debug 
-            #current_time = datetime.now()
-            #wait_time = wait_time = current_time.replace(minute = 1,second=0)
+            current_time = datetime.now()
+            wait_time = wait_time = current_time.replace(minute = 1,second=0)
             #
             self.ib.waitUntil(wait_time)
             log.debug("requesting info for the following timeframe today: {} ".format(wait_time))
@@ -239,4 +239,4 @@ def key_array(self):
     key_arr[13] = categories.categorize_BBb1d(self.bars_1d.bband_b)
     ccibb_key = ''.join(key_arr)
     cci_key = ''.join(key_arr[0:8])
-    return ccibb_key, cci_key 
+    return cci_key, ccibb_key 
