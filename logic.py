@@ -218,7 +218,7 @@ def get_contract(client):
 
 def key_array(self,bars_15m, bars_1h, bars_1d):
     #15m
-    key_arr = []
+    key_arr = [13]
     key_arr[0] = "long"
     log.debug("bars15m tradeAction".format(bars_15m.tradeAction))
     if bars_15m.tradeAction == "SELL":
