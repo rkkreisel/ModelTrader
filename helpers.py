@@ -73,13 +73,19 @@ def parseAdvisorConfig(xml):
     return amount
 
 def build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow):
-    #csv_header = "Date,Status,Crossed,CCI15,CCIA15,CCI15P,CCIA15P,ATR15,BBw15,BBB15"
-    #csv_header += ",CCI1h,CCIA1h,ATR1h,BBW1h,BBB1h"
-    #csv_header += ",CCI1d,CCIA1d,ATR1d,BBB1d,BBW1d"
-    #csv_header += ",CCIbbKey,CCIKey,CCI Trade,CCIbbTrade,pendingLong, pendingShort"
-    csv_row = "'"+str(wait_time) + ',' + tradeAction + ',' + str(bars_15m.cci)
+    #csv_header = "Time,Status,Crossed,CCI15,CCIA15,CCI15P,CCIA15P,ATR15,BBw15,BBB15"
+    csv_header = 'wait_time,tradeAction,'
+    csv_header += 'bars_15m.cci,bars_15m.ccia,bars_15m.atr,bars_15m.bband_width,bars_15m.bband_b,'
+    csv_header += 'bars_1h.cci,bars_1h.ccia,bars_1h.atr,bars_1h.bband_width,bars_1h.bband_b,'
+    csv_header += 'bars_1d.cci,bars_1d.ccia,bars_1d.atr,bars_1d.bband_width,bars_1d.bband_b,'
+    csv_header += 'tradeAction,tradeNow,pendingLong,pendingShort,pendingCnt'
+    csv_row = "'"+str(wait_time) + ',' + tradeAction + ','
+    csv_row += str(bars_15m.cci) + ',' + str(bars_15m.ccia) + ',' + str(bars_15m.atr + ','+str(bars_15m.bband_width) +','+str(bars_15m.bband_b) + ','
+    csv_row += str(bars_1h.cci) + ',' + str(bars_1h.ccia) + ',' + str(bars_1h.atr + ','+str(bars_1h.bband_width) +','+str(bars_1h.bband_b) + ','
+    csv_row += str(bars_1d.cci) + ',' + str(bars_1d.ccia) + ',' + str(bars_1d.atr + ','+str(bars_1d.bband_width) +','+str(bars_1d.bband_b) + ','
+    csv_row += tradeAction + ',' + tradeNow +','+ str(pendingLong) +','+ str(pendingShort) +','+ str(pendingCnt)
     with open('data/hist15.csv', mode='a') as hist15:
             histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-    #       histwriter.writerow([csv_header])
+            histwriter.writerow([csv_header])
             histwriter.writerow([csv_row])
     return True

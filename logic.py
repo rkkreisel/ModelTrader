@@ -57,9 +57,11 @@ class Algo():
             #start of study
             #
             bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15)
-            print("bars_15.cci ",bars_15m.cci)
+            log.debug("15 min bars {}".format(bars_15m[-1]))
             bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h)
+            log.debug("1H min bars {}".format(bars_1h[-1]))
             bars_1d = calculations.Calculations(self.ib, dataContract, "75 D", "1 day", self.datetime_1d)
+            log.debug("1d min bars {}".format(bars_1d[-1]))
             setsum = self.setupsummary(key_arr)
             pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
             log.info("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
