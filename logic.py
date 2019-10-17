@@ -48,6 +48,7 @@ class Algo():
             log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
             #
             # debug 
+            current_time = datetime.now()
             wait_time = wait_time = current_time.replace(minute = 1,second=0)
             #
             self.ib.waitUntil(wait_time)
