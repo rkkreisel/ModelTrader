@@ -17,7 +17,6 @@ import calculations
 
 log = logger.getLogger()
 
-
 class Algo():
     def __init__(self, ib: IB, app):
         self.ib = ib
