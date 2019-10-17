@@ -112,22 +112,22 @@ class Algo():
         #print("minute ",current_minute)
         if current_minute < 15:
             wait_time = current_time.replace(minute = 15,second=0) 
-           self.datetime_15 = current_time.replace(minute = 30, second = 0)
+            self.datetime_15 = current_time.replace(minute = 30, second = 0)
         elif current_minute < 30:
             wait_time = current_time.replace(minute = 30,second=0) 
-           self.datetime_15 = current_time.replace(minute = 45, second=0)
+            self.datetime_15 = current_time.replace(minute = 45, second=0)
         elif current_minute < 45:
             wait_time = current_time.replace(minute = 45,second=0) 
-           self.datetime_15 = current_time + timedelta(minutes=(45-current_minute+15))
-           self.datetime_15 =self.datetime_15.replace(second=0)
+            self.datetime_15 = current_time + timedelta(minutes=(45-current_minute+15))
+            self.datetime_15 =self.datetime_15.replace(second=0)
         else:
             wait_time = current_time + timedelta(minutes=(60-current_minute))
             wait_time = wait_time.replace(second=0)
-           self.datetime_15 = current_time + timedelta(minutes=(60-current_minute+15))
-           self.datetime_15 =self.datetime_15.replace(second=0)
-       self.datetime_1h = wait_time.replace(minute=0)
-       self.datetime_1d = current_time -  timedelta(days = 1)
-       self.datetime_1d =self.datetime_1d.replace(hour = 0, minute=0, second=0)
+            self.datetime_15 = current_time + timedelta(minutes=(60-current_minute+15))
+            self.datetime_15 =self.datetime_15.replace(second=0)
+        self.datetime_1h = wait_time.replace(minute=0)
+        self.datetime_1d = current_time -  timedelta(days = 1)
+        self.datetime_1d =self.datetime_1d.replace(hour = 0, minute=0, second=0)
         return wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d
 
     def row_results(self, row, cci_trade, ccibb_trade):
