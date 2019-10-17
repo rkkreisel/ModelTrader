@@ -49,18 +49,18 @@ class Calculations():
         if bar_size == "15 mins":
             if cci > ccia and cci_prior < ccia_prior:
                 crossed, tradenow = True, True
-                csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'long'",False, True, csv_row_sum)
+                #csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'long'",False, True, csv_row_sum)
                 #key_arr[0] = "long"
                 tradeAction = "BUY"
                 stoplossprice = round((bars_period[-1].close - (atr * 2))*4,0)/4
             elif cci < ccia and cci_prior > ccia_prior:
                 crossed, tradenow = True, True
-                csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'short'",False, False, csv_row_sum)
+                #csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'short'",False, False, csv_row_sum)
                 #key_arr[0] = "short"
                 tradeAction = "SELL"
                 stoplossprice = round((bars_period[-1].close + (atr * 2))*4,0)/4
             else:
-                csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'cash'",False, False, csv_row_sum)
+                #csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'cash'",False, False, csv_row_sum)
                 crossed, tradenow = False, False
                 stoplossprice = 0
                 stoploss = 0

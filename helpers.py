@@ -72,19 +72,14 @@ def parseAdvisorConfig(xml):
                  amount += int(float(attrib.text))
     return amount
 
-def build_csv_bars_row(csv_row,IsEOF, IsBOF, csv_row_sum):
-    print("csv row, iseof, is bof ",csv_row,IsEOF,IsBOF)
-    if IsBOF:
-        csv_row_sum = csv_row
-    else:
-        csv_row_sum += csv_row
-    csv_header = "Date,Status,Crossed,CCI15,CCIA15,CCI15P,CCIA15P,ATR15,BBw15,BBB15"
-    csv_header += ",CCI1h,CCIA1h,ATR1h,BBW1h,BBB1h"
-    csv_header += ",CCI1d,CCIA1d,ATR1d,BBB1d,BBW1d"
-    csv_header += ",CCIbbKey,CCIKey,CCI Trade,CCIbbTrade,pendingLong, pendingShort"
-    if IsEOF:
-        with open('data/hist15.csv', mode='a') as hist15:
-                histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                histwriter.writerow([csv_header])
-                histwriter.writerow([csv_row])
-    return csv_row_sum
+def build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingStatus, pendingCnt, tradeNow):
+    #csv_header = "Date,Status,Crossed,CCI15,CCIA15,CCI15P,CCIA15P,ATR15,BBw15,BBB15"
+    #csv_header += ",CCI1h,CCIA1h,ATR1h,BBW1h,BBB1h"
+    #csv_header += ",CCI1d,CCIA1d,ATR1d,BBB1d,BBW1d"
+    #csv_header += ",CCIbbKey,CCIKey,CCI Trade,CCIbbTrade,pendingLong, pendingShort"
+    csv_row = "'"+wait_time+','+tradeAction+','+bars_15m.cci
+    with open('data/hist15.csv', mode='a') as hist15:
+            histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    #       histwriter.writerow([csv_header])
+            histwriter.writerow([csv_row])
+    return True

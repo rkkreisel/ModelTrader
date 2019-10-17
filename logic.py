@@ -34,18 +34,23 @@ class Algo():
             #top of logic - want to check status as we enter a new bar/hour/day/contract
             contContract, contracthours = get_contract(self) #basic information on continuious contact
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
+            print("trade contract ",tradeContract)
             open_long, open_short, position_qty = self.have_position(self.ib.positions())   # do we have an open position?
             open_today = helpers.is_open_today(contracthours)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.debug("Got Contract: {}".format(dataContract.localSymbol))
+            print("tradeContract",tradeContract)
             #pnl = self.ib.pnl()
             #log.debug("account names: {}".format(self.ib.managedAccounts()))
             #log.info("PNL : {PNL} ".format(PNL=self.ib.pnl("all")))
             self.app.contract.update(dataContract.localSymbol)
             wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d = self.define_times()
             log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
+            #
+            # debug 
+            wait_time = wait_time = current_time.replace(minute = 1,second=0)
+            #
             self.ib.waitUntil(wait_time)
-            self.app.qtrhour.update(wait_time)
             log.debug("requesting info for the following timeframe today: {} ".format(wait_time))
             #
             #start of study
@@ -102,7 +107,8 @@ class Algo():
                     quantity = 2
                     ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
                     open_long, open_short = False, False
-            csv_row_add = helpers.build_csv_bars_row(","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort),True)
+            #csv_row_add = helpers.build_csv_bars_row(","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort),True)
+            wrote_bar_to_csv = helpers.build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingStatus, pendingCnt, tradeNow)
             tradenow, cci_trade, ccibb_trade = False, False, False
 
     def define_times(self):
