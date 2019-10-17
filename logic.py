@@ -47,8 +47,8 @@ class Algo():
             log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
             #
             # debug 
-            current_time = datetime.now()
-            wait_time = wait_time = current_time.replace(minute = 1,second=0)
+            #current_time = datetime.now()
+            #wait_time = wait_time = current_time.replace(minute = 1,second=0)
             #
             self.ib.waitUntil(wait_time)
             log.debug("requesting info for the following timeframe today: {} ".format(wait_time))
@@ -218,6 +218,7 @@ def get_contract(client):
 
 def key_array(self,bars_15m, bars_1h, bars_1d):
     #15m
+    key_arr = []
     key_arr[0] = "long"
     log.debug("bars15m tradeAction".format(bars_15m.tradeAction))
     if bars_15m.tradeAction == "SELL":
