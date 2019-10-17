@@ -18,8 +18,8 @@ log = logger.getLogger()
 
 
 class Calculations():
-    def __init__(self, ib: IB, dataContract, bar_size, bar_duration, datetime_period):
-        self.ib = ib
+    def __init__(self, dataContract, bar_size, bar_duration, datetime_period):
+#        self.ib = ib
         self.dataContract = dataContract
         self.bar_size = bar_size
         self.bar_duration = bar_duration
