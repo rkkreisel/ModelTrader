@@ -1,7 +1,7 @@
 import statistics
 from sys import exit as sysexit
 
-from ib_insync import IB
+#from ib_insync import IB
 from ib_insync.contract import ContFuture, Contract 
 from ib_insync.objects import BarDataList
 import talib
