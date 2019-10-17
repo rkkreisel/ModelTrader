@@ -43,10 +43,10 @@ class Calculations():
         log.debug("bars {bars} ".format(bars=bars_period))
         self.cci, self.ccia, self.cci_prior, self.ccia_prior = self.calculate_cci(bars_period)
         self.atr =  self.calculate_atr(bars_period)
-        self.bband_width, self.Rbband_b = self.calculate_bbands(bars_period)
-        logged_it = self.log_value("Starting ", self.cci, self.ccia, self.cci_prior, self.ccia_prior, self.atr, self.bband_width, self.bband_b)
+        self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
+        logged_it = self.log_value("Starting ")
         print("atr and bar size", self.atr, self.bar_size)
-        if bar_size == "15 mins":
+        if self.bar_size == "15 mins":
             if self.self.cci > self.ccia and self.cci_prior < self.ccia_prior:
                 crossed, tradenow = True, True
                 #csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'long'",False, True, csv_row_sum)
@@ -121,7 +121,7 @@ class Calculations():
         #percentbprior = (bars[-2].close - low[-2]) / (up[-2] - low[-2]) * 100
         return width, percentb
 
-    def log_value(self, label, cci, ccia, self.cci_prior, ccia_prior, atr, bband_width, bband_b):
+    def log_value(self, label):
         log.info(label.format(datetime.now()))
         log.info("CCI:      {} ".format(self.cci))
         log.info("CCIA      {} ".format(self.ccia))
