@@ -77,7 +77,7 @@ def build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendi
     #csv_header += ",CCI1h,CCIA1h,ATR1h,BBW1h,BBB1h"
     #csv_header += ",CCI1d,CCIA1d,ATR1d,BBB1d,BBW1d"
     #csv_header += ",CCIbbKey,CCIKey,CCI Trade,CCIbbTrade,pendingLong, pendingShort"
-    csv_row = "'"+wait_time+','+tradeAction+','+bars_15m.cci
+    csv_row = "'"+str(wait_time) + ',' + tradeAction + ',' + bars_15m.cci
     with open('data/hist15.csv', mode='a') as hist15:
             histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     #       histwriter.writerow([csv_header])
