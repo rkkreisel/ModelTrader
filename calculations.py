@@ -36,7 +36,7 @@ class Calculations():
         """ Execute the calculations """
     def run(self):    
         csv_row_sum = ""
-        print("bar_duration, bar size date time ",dataContract, bar_duration, bar_size, datetime_period)
+        print("bar_duration, bar size date time ",self.dataContract, self.bar_duration, self.bar_size, self.datetime_period)
         bars_period = self.get_bars_data()
         print("bar data close: ",bars_period[-1].close)
         x = np.array(bars_period)
