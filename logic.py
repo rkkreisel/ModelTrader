@@ -57,11 +57,8 @@ class Algo():
             #start of study
             #
             bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15)
-            log.debug("15 min bars {}".format(bars_15m[-1]))
             bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h)
-            log.debug("1H min bars {}".format(bars_1h[-1]))
             bars_1d = calculations.Calculations(self.ib, dataContract, "75 D", "1 day", self.datetime_1d)
-            log.debug("1d min bars {}".format(bars_1d[-1]))
             setsum = self.setupsummary(key_arr)
             pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
             log.info("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
@@ -220,27 +217,27 @@ def get_contract(client):
         sysexit()
     return contract[0].contract, contract[0].tradingHours
 
-def key_array(bars_15m, bars_1h, bars_1d):
+def key_array(self):
     #15m
     key_arr[0] = "long"
-    log.debug("bars15m tradeAction".format(bars_15m.tradeAction))
-    if bars_15m.tradeAction == "SELL":
+    log.debug("bars15m tradeAction".format(self.bars_15m.tradeAction))
+    if self.bars_15m.tradeAction == "SELL":
         key_arr[0] = "short"
-    key_arr[1] = categories.categorize_atr15(bars_15m.atr)
-    key_arr[4] = categories.categorize_cci_15(bars_15m.cci)
-    key_arr[5] = categories.categorize_cci_15_avg(bars_15m.ccia)
-    key_arr[8] = categories.categorize_BBW15(bars_15m.bband_width)
-    key_arr[9] = categories.categorize_BBb15(bars_15m.bband_b)
+    key_arr[1] = categories.categorize_atr15(self.bars_15m.atr)
+    key_arr[4] = categories.categorize_cci_15(self.bars_15m.cci)
+    key_arr[5] = categories.categorize_cci_15_avg(self.bars_15m.ccia)
+    key_arr[8] = categories.categorize_BBW15(self.bars_15m.bband_width)
+    key_arr[9] = categories.categorize_BBb15(self.bars_15m.bband_b)
     #hour
-    key_arr[2] = categories.categorize_atr1h(bars_1h.atr)
-    key_arr[6] = categories.categorize_cci_1h(bars_1h.ccia)
-    key_arr[10] = categories.categorize_BBW1h(bars_1h.bband_width)
-    key_arr[11] = categories.categorize_BBb1h(bars_1h.bband_b)
+    key_arr[2] = categories.categorize_atr1h(self.bars_1h.atr)
+    key_arr[6] = categories.categorize_cci_1h(self.bars_1h.ccia)
+    key_arr[10] = categories.categorize_BBW1h(self.bars_1h.bband_width)
+    key_arr[11] = categories.categorize_BBb1h(self.bars_1h.bband_b)
     #day
-    key_arr[3] = categories.categorize_atr1d(bars_1d.atr)
-    key_arr[7] = categories.categorize_cci_1d(bars_1d.ccia)
-    key_arr[12] = categories.categorize_BBW1d(bars_1d.bband_width)
-    key_arr[13] = categories.categorize_BBb1d(bars_1d.bband_b)
+    key_arr[3] = categories.categorize_atr1d(self.bars_1d.atr)
+    key_arr[7] = categories.categorize_cci_1d(self.bars_1d.ccia)
+    key_arr[12] = categories.categorize_BBW1d(self.bars_1d.bband_width)
+    key_arr[13] = categories.categorize_BBb1d(self.bars_1d.bband_b)
     ccibb_key = ''.join(key_arr)
     cci_key = ''.join(key_arr[0:8])
     return ccibb_key, cci_key 
