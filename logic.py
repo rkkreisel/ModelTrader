@@ -40,7 +40,7 @@ class Algo():
             #pnl = self.ib.pnl()
             #log.debug("account names: {}".format(self.ib.managedAccounts()))
             #log.info("PNL : {PNL} ".format(PNL=self.ib.pnl("all")))
-            self.app.contract.update(dataContract.localSymbol)
+            self.app.contract.update(self.dataContract.localSymbol)
             wait_time, datetime_15, datetime_1h, datetime_1d = self.define_times()
             log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
             self.ib.waitUntil(wait_time)
