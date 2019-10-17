@@ -28,6 +28,7 @@ class Algo():
         key_arr = ['blank','ATR15','ATR1','ATRD','CCI15','CCIA15','CCIA1h','CCIA1d','BBW15','BBb15','BBW1h','BBb1h','BBW1d','BBb1d']
         tradenow, not_finished, pendingShort, pendingLong, pendingSkip, cci_trade, ccibb_trade = False, True, False, False, False, False, False
         pendingCnt = 0
+        # any variable that is used within the class will be defined with self
         while not_finished:
             print ("top of algo run self*************************************************")
             #top of logic - want to check status as we enter a new bar/hour/day/contract
@@ -35,13 +36,13 @@ class Algo():
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
             open_long, open_short, position_qty = self.have_position(self.ib.positions())   # do we have an open position?
             open_today = helpers.is_open_today(contracthours)
-            self.dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
-            log.debug("Got Contract: {}".format(self.dataContract.localSymbol))
+            dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
+            log.debug("Got Contract: {}".format(dataContract.localSymbol))
             #pnl = self.ib.pnl()
             #log.debug("account names: {}".format(self.ib.managedAccounts()))
             #log.info("PNL : {PNL} ".format(PNL=self.ib.pnl("all")))
-            self.app.contract.update(self.dataContract.localSymbol)
-            wait_time, datetime_15, datetime_1h, datetime_1d = self.define_times()
+            self.app.contract.update(dataContract.localSymbol)
+            wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d = self.define_times()
             log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
             self.ib.waitUntil(wait_time)
             self.app.qtrhour.update(wait_time)
@@ -49,10 +50,10 @@ class Algo():
             #
             #start of study
             #
-            bars_15m = calculations.Calculations(self.ib, self.dataContract, "2 D", "15 mins", self.datetime_15)
+            bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15)
             print("bars_15.cci ",bars_15m.cci)
-            bars_1h = calculations.Calculations(self.ib, self.dataContract, "5 D", "1 hour", self.datetime_1h)
-            bars_1d = calculations.Calculations(self.ib, self.dataContract, "75 D", "1 day", self.datetime_1d)
+            bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h)
+            bars_1d = calculations.Calculations(self.ib, dataContract, "75 D", "1 day", self.datetime_1d)
             setsum = self.setupsummary(key_arr)
             pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
             log.info("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
@@ -111,23 +112,23 @@ class Algo():
         #print("minute ",current_minute)
         if current_minute < 15:
             wait_time = current_time.replace(minute = 15,second=0) 
-            datetime_15 = current_time.replace(minute = 30, second = 0)
+           self.datetime_15 = current_time.replace(minute = 30, second = 0)
         elif current_minute < 30:
             wait_time = current_time.replace(minute = 30,second=0) 
-            datetime_15 = current_time.replace(minute = 45, second=0)
+           self.datetime_15 = current_time.replace(minute = 45, second=0)
         elif current_minute < 45:
             wait_time = current_time.replace(minute = 45,second=0) 
-            datetime_15 = current_time + timedelta(minutes=(45-current_minute+15))
-            datetime_15 = datetime_15.replace(second=0)
+           self.datetime_15 = current_time + timedelta(minutes=(45-current_minute+15))
+           self.datetime_15 =self.datetime_15.replace(second=0)
         else:
             wait_time = current_time + timedelta(minutes=(60-current_minute))
             wait_time = wait_time.replace(second=0)
-            datetime_15 = current_time + timedelta(minutes=(60-current_minute+15))
-            datetime_15 = datetime_15.replace(second=0)
-        datetime_1h = wait_time.replace(minute=0)
-        datetime_1d = current_time -  timedelta(days = 1)
-        datetime_1d = datetime_1d.replace(hour = 0, minute=0, second=0)
-        return wait_time, datetime_15, datetime_1h, datetime_1d
+           self.datetime_15 = current_time + timedelta(minutes=(60-current_minute+15))
+           self.datetime_15 =self.datetime_15.replace(second=0)
+       self.datetime_1h = wait_time.replace(minute=0)
+       self.datetime_1d = current_time -  timedelta(days = 1)
+       self.datetime_1d =self.datetime_1d.replace(hour = 0, minute=0, second=0)
+        return wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d
 
     def row_results(self, row, cci_trade, ccibb_trade):
         log.info("************************************************")
