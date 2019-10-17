@@ -192,6 +192,9 @@ class Algo():
         if (bars_15m.cci < bars_15m.ccia and bars_15m.cci_prior > bars_15m.ccia_prior) or \
                 (bars_15m.cci > bars_15m.ccia and bars_15m.cci_prior < bars_15m.ccia_prior):
                 tradeNow = True
+                tradeAction = "BUY"
+                if bars_15m.cci < bars_15m.ccia:
+                    tradeAction = "SELL"
         if pendingLong and pendingCnt < config.SPREAD_COUNT and bars_15m.cci - bars_15m.ccia > config.SPREAD:
             pendingLong, pendingSkip = False, False
             pendingCnt = 0
@@ -203,7 +206,7 @@ class Algo():
             pendingCnt = 0
         elif pendingLong or pendingShort:
             pendingCnt += 1
-        return pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow 
+        return pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction
         
 def get_contract(client):
     contract = client.ib.reqContractDetails(
