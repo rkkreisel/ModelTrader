@@ -67,7 +67,7 @@ class Algo():
             # starting trade logic
             #
             # test buy
-            if bars_15m.tradeNow:
+            if tradeNow:
                 log.info("Tradeing this bar {}".format(str(''.join(key_arr))," - ",''.join(key_arr[0:8])))
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
                 cci_key, ccibb_key == key_array(bars_15m, bars_1h, bars_1d)
