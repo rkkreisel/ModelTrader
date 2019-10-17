@@ -72,7 +72,7 @@ def parseAdvisorConfig(xml):
                  amount += int(float(attrib.text))
     return amount
 
-def build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingStatus, pendingCnt, tradeNow):
+def build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow):
     #csv_header = "Date,Status,Crossed,CCI15,CCIA15,CCI15P,CCIA15P,ATR15,BBw15,BBB15"
     #csv_header += ",CCI1h,CCIA1h,ATR1h,BBW1h,BBB1h"
     #csv_header += ",CCI1d,CCIA1d,ATR1d,BBB1d,BBW1d"
