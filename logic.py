@@ -45,8 +45,8 @@ class Algo():
             log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
             #
             # debug 
-            #current_time = datetime.now()
-            #wait_time = wait_time = current_time.replace(minute = 1,second=0)
+            current_time = datetime.now()
+            wait_time = wait_time = current_time.replace(minute = 1,second=0)
             #
             self.ib.waitUntil(wait_time)
             log.debug("requesting info for the following timeframe today: {} ".format(wait_time))
@@ -152,7 +152,7 @@ class Algo():
         position_short_tf = False
         x = 0
         position_qty = 0
-        print("positions: ",positions)
+        info.debug("positions: ".format(positions))
         while x < len(positions):
             if (positions[x][1].symbol) == "ES":
                 position_qty = positions[x][2]
@@ -236,6 +236,7 @@ def key_array(self,tradeAction, bars_15m, bars_1h, bars_1d):
     key_arr[0] = "long"
     if tradeAction == "SELL":
         key_arr[0] = "short"
+    print("in key array.  what is bars_15m.atr?",bars_15m.atr,type(bars_15m.atr))
     key_arr[1] = categories.categorize_atr15(bars_15m.atr)
     key_arr[4] = categories.categorize_cci_15(bars_15m.cci)
     key_arr[5] = categories.categorize_cci_15_avg(bars_15m.ccia)
