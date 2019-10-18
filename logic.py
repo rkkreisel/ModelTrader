@@ -185,15 +185,24 @@ class Algo():
                 log.info("Rank (0-100): {}".format(row3[21]))
                 break
         return
-    def crossoverPending(self, bars_15m,pendingLong, pendingShort, pendingSkip, pendingCnt):   # this is from excel macro.  Changes here should be changed there as well.
+    def crossoverPending(self, bars_15m, pendingLong, pendingShort, pendingSkip, pendingCnt):   # this is from excel macro.  Changes here should be changed there as well.
         tradeNow = False
         tradeAction = "CASH"
         if (bars_15m.cci < bars_15m.ccia and bars_15m.cci_prior > bars_15m.ccia_prior) or \
                 (bars_15m.cci > bars_15m.ccia and bars_15m.cci_prior < bars_15m.ccia_prior):
-                tradeNow = True
-                tradeAction = "BUY"
-                if bars_15m.cci < bars_15m.ccia:
-                    tradeAction = "SELL"
+                if abs(bars_15m.cci - bars_15m.ccia) > config.SPREAD:
+                    tradeNow = True
+                    tradeAction = "BUY"
+                    if bars_15m.cci < bars_15m.ccia:
+                        tradeAction = "SELL"
+                else:
+                    if bars_15m.cci < bars_15m.ccia:
+                        pendingShort, pendingLong = True, False
+                    else:
+                        pendingShort, pendingLong = False, True   
+                    pendingCnt = 1
+                    pendingSkip = True
+        # deal with existing pending
         if pendingLong and pendingCnt < config.SPREAD_COUNT and bars_15m.cci - bars_15m.ccia > config.SPREAD:
             pendingLong, pendingSkip = False, False
             pendingCnt = 0
@@ -220,8 +229,7 @@ def key_array(self,tradeAction, bars_15m, bars_1h, bars_1d):
     #15m
     key_arr = [13]
     key_arr[0] = "long"
-    #Rlog.debug("bars15m tradeAction".format(bars_15m.tradeAction))
-    if bars_15m.tradeAction == "SELL":
+    if tradeAction == "SELL":
         key_arr[0] = "short"
     key_arr[1] = categories.categorize_atr15(bars_15m.atr)
     key_arr[4] = categories.categorize_cci_15(bars_15m.cci)

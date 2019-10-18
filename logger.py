@@ -24,8 +24,8 @@ def setup():
         handlers.append(logging.FileHandler(filename=config.LOGFILE))
 
     logger = logging.getLogger(LOGGER_NAME)
-    #logger.setLevel(logging.INFO)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
+    #logger.setLevel(logging.DEBUG)
     logger.propagate = False
 
     for handler in handlers:
