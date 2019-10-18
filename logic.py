@@ -33,7 +33,6 @@ class Algo():
             #top of logic - want to check status as we enter a new bar/hour/day/contract
             contContract, contracthours = get_contract(self) #basic information on continuious contact
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
-            print("trade contract ",tradeContract)
             open_long, open_short, position_qty = self.have_position(self.ib.positions())   # do we have an open position?
             open_today = helpers.is_open_today(contracthours)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
