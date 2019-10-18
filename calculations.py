@@ -100,7 +100,7 @@ class Calculations():
             np.array([bar.close for bar in bars]),
             timeperiod=config.ATR_PERIODS
         )
-        return atr[-1], atr[-2]
+        return atr[-1]
 
     def calculate_bbands(self, bars):
         up, mid, low = talib.BBANDS(
