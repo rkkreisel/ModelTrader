@@ -38,7 +38,6 @@ class Algo():
             open_today = helpers.is_open_today(contracthours)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.debug("Got Contract: {}".format(dataContract.localSymbol))
-            print("tradeContract",tradeContract)
             #pnl = self.ib.pnl()
             #log.debug("account names: {}".format(self.ib.managedAccounts()))
             #log.info("PNL : {PNL} ".format(PNL=self.ib.pnl("all")))
@@ -66,7 +65,7 @@ class Algo():
             #
             # test buy
             if tradeNow:
-                log.info("Tradeing this bar {}".format(str(''.join(key_arr))," - ",''.join(key_arr[0:8])))
+                log.info("tradeNow - Tradeing this bar {}".format(str(''.join(key_arr))," - ",''.join(key_arr[0:8])))
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
                 cci_key, ccibb_key = key_array(self, tradeAction, bars_15m, bars_1h, bars_1d)
                 for row1 in csv_file1:
@@ -190,12 +189,15 @@ class Algo():
         tradeAction = "CASH"
         if (bars_15m.cci < bars_15m.ccia and bars_15m.cci_prior > bars_15m.ccia_prior) or \
                 (bars_15m.cci > bars_15m.ccia and bars_15m.cci_prior < bars_15m.ccia_prior):
+                log.info("We have crossed ----------^v")
                 if abs(bars_15m.cci - bars_15m.ccia) > config.SPREAD:
+                    log.info("crossed and outside spread")
                     tradeNow = True
                     tradeAction = "BUY"
                     if bars_15m.cci < bars_15m.ccia:
                         tradeAction = "SELL"
                 else:
+                    log.info("crossed but not meet spread requirement")
                     if bars_15m.cci < bars_15m.ccia:
                         pendingShort, pendingLong = True, False
                     else:
@@ -204,15 +206,19 @@ class Algo():
                     pendingSkip = True
         # deal with existing pending
         if pendingLong and pendingCnt < config.SPREAD_COUNT and bars_15m.cci - bars_15m.ccia > config.SPREAD:
+            log.info("pending long cnt < 3 and > spread")
             pendingLong, pendingSkip = False, False
             pendingCnt = 0
         elif pendingShort and pendingCnt < config.SPREAD_COUNT and abs(bars_15m.cci - bars_15m.ccia) > config.SPREAD:
+            log.info("pending short cnt < 3 and > spread")
             pendingShort, pendingSkip = False, False
             pendingCnt = 0
         elif pendingLong or pendingShort and pendingCnt == config.SPREAD_COUNT:
+            log.info("pending long or short and cnt = 3 stop pending")
             pendingLong, pendingShort, pendingSkip = False, False, False
             pendingCnt = 0
         elif pendingLong or pendingShort:
+            log.info("pending continues cnt: ".format(pendingCnt + 1))
             pendingCnt += 1
         return pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction
         
