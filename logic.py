@@ -220,7 +220,7 @@ def key_array(self,bars_15m, bars_1h, bars_1d):
     #15m
     key_arr = [13]
     key_arr[0] = "long"
-    log.debug("bars15m tradeAction".format(bars_15m.tradeAction))
+    #log.debug("bars15m tradeAction".format(bars_15m.tradeAction))
     if bars_15m.tradeAction == "SELL":
         key_arr[0] = "short"
     key_arr[1] = categories.categorize_atr15(bars_15m.atr)
