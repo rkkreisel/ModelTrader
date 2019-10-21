@@ -56,8 +56,9 @@ class Algo():
             bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15)
             bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h)
             bars_1d = calculations.Calculations(self.ib, dataContract, "75 D", "1 day", self.datetime_1d)
-            setsum = self.setupsummary(key_arr)
             pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
+            key_array = build_key_array(tradeAction, bars_15m, bars_1h, bars_1d)
+            setsum = self.setupsummary(key_array)
             log.info("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
             #
             # starting trade logic
@@ -229,7 +230,7 @@ def get_contract(client):
         sysexit()
     return contract[0].contract, contract[0].tradingHours
 
-def key_array(self,tradeAction, bars_15m, bars_1h, bars_1d):
+def build_key_array(self,tradeAction, bars_15m, bars_1h, bars_1d):
     #15m
     key_arr = [13]
     key_arr[0] = "long"
