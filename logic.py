@@ -230,7 +230,7 @@ def get_contract(client):
         sysexit()
     return contract[0].contract, contract[0].tradingHours
 
-def build_key_array(self,tradeAction, bars_15m, bars_1h, bars_1d):
+def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
     #15m
     key_arr = [13]
     key_arr[0] = "long"
