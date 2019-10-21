@@ -232,27 +232,15 @@ def get_contract(client):
 
 def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
     #These has to be in sequential order since insert adds rather than replace.
-    key_arr = [13]
+    cci_key = "long"
     if tradeAction == "SELL":
-        key_arr[0] = "short"
-    else:
-        key_arr[0] = "long"
-    print("key array so far",key_arr)
-    key_arr.insert[1,"test"] 
-    print("atr",categories.categorize_atr1h(bars_1h.atr))
-    key_arr.insert[2,categories.categorize_atr1h(bars_1h.atr)]
-    key_arr.insert[3,categories.categorize_atr1d(bars_1d.atr)]
-    key_arr.insert[4,categories.categorize_cci_15(bars_15m.cci)]
-    key_arr.insert[5,categories.categorize_cci_15_avg(bars_15m.ccia)]
-    key_arr.insert[6,categories.categorize_cci_1h(bars_1h.ccia)]
-    key_arr.insert[7,categories.categorize_cci_1d(bars_1d.ccia)]
-    key_arr.insert[8,categories.categorize_BBW15(bars_15m.bband_width)]
-    key_arr.insert[9,categories.categorize_BBb15(bars_15m.bband_b)]
-    key_arr.insert[10,categories.categorize_BBW1h(bars_1h.bband_width)]
-    key_arr.insert[11,categories.categorize_BBb1h(bars_1h.bband_b)]
-    key_arr.insert[12,categories.categorize_BBW1d(bars_1d.bband_width)]
-    key_arr.insert[13,categories.categorize_BBb1d(bars_1d.bband_b)]
-
-    ccibb_key = ''.join(key_arr[0:13])
-    cci_key = ''.join(key_arr[0:8])
+        cci_key = "short"
+    print("key array so far",cci_key)
+    #key_arr.append[1,"test"] 
+    cci_key += categories.categorize_atr1h(bars_1h.atr)) + categories.categorize_atr1h(bars_1h.atr) + categories.categorize_atr1d(bars_1d.atr) + \
+        categories.categorize_cci_15(bars_15m.cci) + categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + \
+        categories.categorize_cci_1d(bars_1d.ccia)
+    ccibb_key = cci_key + categories.categorize_BBW15(bars_15m.bband_width) + categories.categorize_BBb15(bars_15m.bband_b) + categories.categorize_BBW1h(bars_1h.bband_width) + \
+        categories.categorize_BBb1h(bars_1h.bband_b) + categories.categorize_BBW1d(bars_1d.bband_width) + categories.categorize_BBb1d(bars_1d.bband_b)
+    print("cci and ccibb key",cci_key, ccibb_key)
     return cci_key, ccibb_key 
