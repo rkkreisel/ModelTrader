@@ -172,8 +172,8 @@ class Algo():
         log.debug("key setupsummary: ".format(summ_key))
         for row3 in csv_file3:
             #print("setupsummary   row: ",row3[4])
-            if (summ_key) == row3[4]):
-                log.info("join key: {}".format(''.join(key_arr[5:8])))
+            if summ_key == row3[4]:
+                log.info("join key:     {}".format(summ_key))
                 log.info("CCI Long %  : {}".format(row3[7]))
                 log.info("CCI Profit  : {}".format(row3[9]))
                 log.info("CCI Win%    : {}".format(row3[12]))
@@ -183,7 +183,7 @@ class Algo():
                 log.info("Rank (0-100): {}".format(row3[21]))
                 break
         return
-        
+
     def crossoverPending(self, bars_15m, pendingLong, pendingShort, pendingSkip, pendingCnt):   # this is from excel macro.  Changes here should be changed there as well.
         tradeNow = False
         tradeAction = "CASH"
@@ -197,13 +197,15 @@ class Algo():
                     if bars_15m.cci < bars_15m.ccia:
                         tradeAction = "SELL"
                 else:
-                    log.info("crossed but not meet spread requirement")
+                    
                     if bars_15m.cci < bars_15m.ccia:
                         pendingShort, pendingLong = True, False
                     else:
                         pendingShort, pendingLong = False, True   
                     pendingCnt = 1
                     pendingSkip = True
+                    log.info("crossed but not meet spread requirement, pendingSkip, pendingCnt".format(pendingSkip, pendingCnt))
+        print("check cross and we have tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt",tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt)
         # deal with existing pending
         if pendingLong and pendingCnt < config.SPREAD_COUNT and bars_15m.cci - bars_15m.ccia > config.SPREAD:
             log.info("pending long cnt < 3 and > spread")
