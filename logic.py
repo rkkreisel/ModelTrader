@@ -45,8 +45,8 @@ class Algo():
             log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
             #
             # debug 
-            current_time = datetime.now()
-            wait_time = wait_time = current_time.replace(minute = 1,second=0)
+            #current_time = datetime.now()
+            #wait_time = wait_time = current_time.replace(minute = 1,second=0)
             #
             self.ib.waitUntil(wait_time)
             log.debug("requesting info for the following timeframe today: {} ".format(wait_time))
@@ -237,7 +237,7 @@ def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
         cci_key = "short"
     print("key array so far",cci_key)
     #key_arr.append[1,"test"] 
-    cci_key += categories.categorize_atr1h(bars_1h.atr)) + categories.categorize_atr1h(bars_1h.atr) + categories.categorize_atr1d(bars_1d.atr) + \
+    cci_key += categories.categorize_atr1h(bars_1h.atr) + categories.categorize_atr1h(bars_1h.atr) + categories.categorize_atr1d(bars_1d.atr) + \
         categories.categorize_cci_15(bars_15m.cci) + categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + \
         categories.categorize_cci_1d(bars_1d.ccia)
     ccibb_key = cci_key + categories.categorize_BBW15(bars_15m.bband_width) + categories.categorize_BBb15(bars_15m.bband_b) + categories.categorize_BBW1h(bars_1h.bband_width) + \
