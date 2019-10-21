@@ -4,10 +4,7 @@ import config
 import constants
 
 def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice):
-
     parentId = ib.client.getReqId()
-
-
     #Entry Order
     print("tradeContract ",tradeContract)
     print("action: ",action)
@@ -91,7 +88,7 @@ def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice):
     #    transmit = True
     #)
 
-    return [MktOrder]
+    return [MktOrder], [stoplossOrder], parentId
 
 def coverOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice):
 

@@ -57,8 +57,8 @@ class Algo():
             bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h)
             bars_1d = calculations.Calculations(self.ib, dataContract, "75 D", "1 day", self.datetime_1d)
             pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
-            key_array = build_key_array(tradeAction, bars_15m, bars_1h, bars_1d)
-            setsum = self.setupsummary(key_array)
+            cci_key, ccibb_key, summ_key = build_key_array(tradeAction, bars_15m, bars_1h, bars_1d)
+            setsum = self.setupsummary(summ_key)
             log.info("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
             #
             # starting trade logic
@@ -67,7 +67,7 @@ class Algo():
             if tradeNow:
                 log.info("tradeNow - Tradeing this bar {}".format(str(''.join(key_arr))," - ",''.join(key_arr[0:8])))
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
-                cci_key, ccibb_key = build_key_array(self, tradeAction, bars_15m, bars_1h, bars_1d)
+                #cci_key, ccibb_key = build_key_array(self, tradeAction, bars_15m, bars_1h, bars_1d)
                 for row1 in csv_file1:
                     print("ccibb row: ",row1[0],row1[13])
                     if ccibb_key == row1[0] and row1[13] == "Y": #13 is winrisk - whether we trade or not
@@ -77,7 +77,7 @@ class Algo():
                         ccibb_trade = True
                         if open_long or open_short:
                             quantity = 4
-                        ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
+                        MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
                         log.info("order placed, parentID: {}".format(ParentOrderID))
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row1,cci_trade,ccibb_trade)
@@ -93,7 +93,7 @@ class Algo():
                         log.info("found a math in CCI {}".format(str(row2[0])))
                         if open_long or open_short:
                             quantity = 4
-                        ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"cci_day",stoplossprice)
+                        MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"cci_day",stoplossprice)
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row2,cci_trade,ccibb_trade)
                         break
@@ -103,7 +103,7 @@ class Algo():
                     log.info("we did not find a match")
                 if open_long or open_short:
                     quantity = 2
-                    ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
+                    MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
                     open_long, open_short = False, False
             #csv_row_add = helpers.build_csv_bars_row(","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort),True)
             wrote_bar_to_csv = helpers.build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow)
@@ -167,12 +167,12 @@ class Algo():
             x += + 1
         return position_long_tf, position_short_tf, position_qty 
 
-    def setupsummary(self,key_arr):
+    def setupsummary(self,summ_key):
         csv_file3 = csv.reader(open('data/setupsummary.csv', "rt"), delimiter = ",")
-        log.debug("key setupsummary: ".format(str(''.join(key_arr[5:8]))))
+        log.debug("key setupsummary: ".format(summ_key))
         for row3 in csv_file3:
             #print("setupsummary   row: ",row3[4])
-            if ((''.join(key_arr[5:8])) == row3[4]):
+            if (summ_key) == row3[4]):
                 log.info("join key: {}".format(''.join(key_arr[5:8])))
                 log.info("CCI Long %  : {}".format(row3[7]))
                 log.info("CCI Profit  : {}".format(row3[9]))
@@ -183,6 +183,7 @@ class Algo():
                 log.info("Rank (0-100): {}".format(row3[21]))
                 break
         return
+        
     def crossoverPending(self, bars_15m, pendingLong, pendingShort, pendingSkip, pendingCnt):   # this is from excel macro.  Changes here should be changed there as well.
         tradeNow = False
         tradeAction = "CASH"
@@ -241,5 +242,6 @@ def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
         categories.categorize_cci_1d(bars_1d.ccia)
     ccibb_key = cci_key + categories.categorize_BBW15(bars_15m.bband_width) + categories.categorize_BBb15(bars_15m.bband_b) + categories.categorize_BBW1h(bars_1h.bband_width) + \
         categories.categorize_BBb1h(bars_1h.bband_b) + categories.categorize_BBW1d(bars_1d.bband_width) + categories.categorize_BBb1d(bars_1d.bband_b)
+    summ_key = categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + categories.categorize_cci_1d(bars_1d.ccia)
     print("cci and ccibb key",cci_key, ccibb_key)
-    return cci_key, ccibb_key 
+    return cci_key, ccibb_key, summ_key
