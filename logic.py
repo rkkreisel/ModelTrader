@@ -233,9 +233,10 @@ def get_contract(client):
 def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
     #15m
     #key_arr = [13]
-    key_arr[0] = "long"
     if tradeAction == "SELL":
         key_arr[0] = "short"
+    else:
+        key_arr[0] = long
     key_arr.insert[1,categories.categorize_atr15(bars_15m.atr)] 
     key_arr.insert[2,categories.categorize_atr1h(bars_1h.atr)]
     key_arr.insert[3,categories.categorize_atr1d(bars_1d.atr)]
@@ -249,7 +250,7 @@ def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
     key_arr.insert[11,categories.categorize_BBb1h(bars_1h.bband_b)]
     key_arr.insert[12,categories.categorize_BBW1d(bars_1d.bband_width)]
     key_arr.insert[13,categories.categorize_BBb1d(bars_1d.bband_b)]
-    
+
     ccibb_key = ''.join(key_arr)
     cci_key = ''.join(key_arr[0:8])
     return cci_key, ccibb_key 
