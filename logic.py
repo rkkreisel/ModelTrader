@@ -197,7 +197,6 @@ class Algo():
                     if bars_15m.cci < bars_15m.ccia:
                         tradeAction = "SELL"
                 else:
-                    
                     if bars_15m.cci < bars_15m.ccia:
                         pendingShort, pendingLong = True, False
                     else:
@@ -216,12 +215,12 @@ class Algo():
             pendingShort, pendingSkip = False, False
             pendingCnt = 0
         elif pendingLong or pendingShort and pendingCnt == config.SPREAD_COUNT:
-            log.info("pending long or short and cnt = 3 stop pending")
+            print"pending long or short and cnt = 3 stop pending ",pendingCnt, config.SPREAD_COUNT)
             pendingLong, pendingShort, pendingSkip = False, False, False
             pendingCnt = 0
         elif pendingLong or pendingShort:
-            log.info("pending continues cnt: ".format(pendingCnt + 1))
             pendingCnt += 1
+            log.info("pending continues cnt: ".format(pendingCnt))
         print("check post cross and we have tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt",tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt)
         return pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction
         
