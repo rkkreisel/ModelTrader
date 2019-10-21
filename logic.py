@@ -222,6 +222,7 @@ class Algo():
         elif pendingLong or pendingShort:
             log.info("pending continues cnt: ".format(pendingCnt + 1))
             pendingCnt += 1
+        print("check post cross and we have tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt",tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt)
         return pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction
         
 def get_contract(client):
