@@ -45,8 +45,8 @@ class Algo():
             log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
             #
             # debug 
-            #current_time = datetime.now()
-            #wait_time = wait_time = current_time.replace(minute = 1,second=0)
+            current_time = datetime.now()
+            wait_time = wait_time = current_time.replace(minute = 1,second=0)
             #
             self.ib.waitUntil(wait_time)
             log.debug("requesting info for the following timeframe today: {} ".format(wait_time))
@@ -232,12 +232,14 @@ def get_contract(client):
 
 def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
     #These has to be in sequential order since insert adds rather than replace.
-    #key_arr = [13]
+    key_arr = [13]
     if tradeAction == "SELL":
         key_arr[0] = "short"
     else:
         key_arr[0] = "long"
-    key_arr.insert[1,categories.categorize_atr15(bars_15m.atr)] 
+    print("key array so far",key_arr)
+    key_arr.insert[1,"test"] 
+    print("atr",categories.categorize_atr1h(bars_1h.atr))
     key_arr.insert[2,categories.categorize_atr1h(bars_1h.atr)]
     key_arr.insert[3,categories.categorize_atr1d(bars_1d.atr)]
     key_arr.insert[4,categories.categorize_cci_15(bars_15m.cci)]
