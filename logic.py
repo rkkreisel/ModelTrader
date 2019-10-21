@@ -236,21 +236,20 @@ def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
     key_arr[0] = "long"
     if tradeAction == "SELL":
         key_arr[0] = "short"
-    key_arr.append[1] = categories.categorize_atr15(bars_15m.atr)
-    key_arr.append[4] = categories.categorize_cci_15(bars_15m.cci)
-    key_arr.append[5] = categories.categorize_cci_15_avg(bars_15m.ccia)
-    key_arr.append[8] = categories.categorize_BBW15(bars_15m.bband_width)
-    key_arr.append[9] = categories.categorize_BBb15(bars_15m.bband_b)
-    #hour
-    key_arr.append[2] = categories.categorize_atr1h(bars_1h.atr)
-    key_arr.append[6] = categories.categorize_cci_1h(bars_1h.ccia)
-    key_arr.append[10] = categories.categorize_BBW1h(bars_1h.bband_width)
-    key_arr.append[11] = categories.categorize_BBb1h(bars_1h.bband_b)
-    #day
-    key_arr.append[3] = categories.categorize_atr1d(bars_1d.atr)
-    key_arr.append[7] = categories.categorize_cci_1d(bars_1d.ccia)
-    key_arr.append[12] = categories.categorize_BBW1d(bars_1d.bband_width)
-    key_arr.append[13] = categories.categorize_BBb1d(bars_1d.bband_b)
+    key_arr.insert[1,categories.categorize_atr15(bars_15m.atr)] 
+    key_arr.insert[2,categories.categorize_atr1h(bars_1h.atr)]
+    key_arr.insert[3,categories.categorize_atr1d(bars_1d.atr)]
+    key_arr.insert[4,categories.categorize_cci_15(bars_15m.cci)]
+    key_arr.insert[5,categories.categorize_cci_15_avg(bars_15m.ccia)]
+    key_arr.insert[6,categories.categorize_cci_1h(bars_1h.ccia)]
+    key_arr.insert[7,categories.categorize_cci_1d(bars_1d.ccia)]
+    key_arr.insert[8,categories.categorize_BBW15(bars_15m.bband_width)]
+    key_arr.insert[9,categories.categorize_BBb15(bars_15m.bband_b)]
+    key_arr.insert[10,categories.categorize_BBW1h(bars_1h.bband_width)]
+    key_arr.insert[11,categories.categorize_BBb1h(bars_1h.bband_b)]
+    key_arr.insert[12,categories.categorize_BBW1d(bars_1d.bband_width)]
+    key_arr.insert[13,categories.categorize_BBb1d(bars_1d.bband_b)]
+    
     ccibb_key = ''.join(key_arr)
     cci_key = ''.join(key_arr[0:8])
     return cci_key, ccibb_key 
