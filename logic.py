@@ -201,7 +201,7 @@ class Algo():
                         pendingShort, pendingLong = True, False
                     else:
                         pendingShort, pendingLong = False, True   
-                    pendingCnt = 1
+                    pendingCnt = 0
                     pendingSkip = True
                     log.info("crossed but not meet spread requirement, pendingSkip, pendingCnt".format(pendingSkip, pendingCnt))
         print("check cross and we have tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt",tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt)
