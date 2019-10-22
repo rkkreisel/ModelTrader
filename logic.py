@@ -103,6 +103,7 @@ class Algo():
                     log.info("we did not find a match")
                 if open_long or open_short:
                     quantity = 2
+                    print("stop loss price",bars_15m.stoplossprice)
                     MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",bars_15m.stoplossprice)
                     open_long, open_short = False, False
             #csv_row_add = helpers.build_csv_bars_row(","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort),True)
