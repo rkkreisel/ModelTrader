@@ -30,7 +30,7 @@ class Algo():
         # any variable that is used within the class will be defined with self
         while not_finished:
             print ("top of algo run self*************************************************")
-            stpSell = self.findOpenOrders()
+            stpSell, stpBuy = self.findOpenOrders()
             print("open orders - qty ??????????",stpSell)
             #top of logic - want to check status as we enter a new bar/hour/day/contract
             contContract, contracthours = get_contract(self) #basic information on continuious contact
@@ -169,12 +169,14 @@ class Algo():
     
     def findOpenOrders(self):
         openOrders = self.ib.reqAllOpenOrders()
-        x, stpSell = 0, 0
+        x, stpSell, stpBuy = 0, 0, 0
         while x < len(openOrders):
             if openOrders[x].orderType == "STP" and openOrders[x].action == "SELL":
                 stpSell += openOrders[x].totalQuantity
-
-        return stpSell
+            elif openOrders[x].orderType == "STP" and openOrders[x].action == "BUY":
+                stpBuy += openOrders[x].totalQuantity
+            x += 1
+        return stpSell, stpBuy
 
     def setupsummary(self,summ_key):
         csv_file3 = csv.reader(open('data/setupsummary.csv', "rt"), delimiter = ",")
