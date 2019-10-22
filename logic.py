@@ -215,7 +215,7 @@ class Algo():
             pendingShort, pendingSkip, tradeNow = False, False, True
             pendingCnt = 0
         elif pendingLong or pendingShort and pendingCnt == config.SPREAD_COUNT:
-            print"pending long or short and cnt = 3 stop pending ",pendingCnt, config.SPREAD_COUNT)
+            print("pending long or short and cnt = 3 stop pending ",pendingCnt, config.SPREAD_COUNT)
             pendingLong, pendingShort, pendingSkip, tradeNow = False, False, False, True
             pendingCnt = 0
         elif pendingLong or pendingShort:

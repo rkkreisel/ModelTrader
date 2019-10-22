@@ -52,23 +52,24 @@ class Calculations():
                 #csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'long'",False, True, csv_row_sum)
                 #key_arr[0] = "long"
                 tradeAction = "BUY"
-                stoplossprice = round((bars_period[-1].close - (self.atr * 2))*4,0)/4
+                self.stoplossprice = round((bars_period[-1].close - (self.atr * 2))*4,0)/4
             elif self.cci <self.ccia and self.cci_prior > self.ccia_prior:
                 crossed, tradenow = True, True
                 #csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'short'",False, False, csv_row_sum)
                 #key_arr[0] = "short"
                 tradeAction = "SELL"
-                stoplossprice = round((bars_period[-1].close + (self.atr * 2))*4,0)/4
+                self.stoplossprice = round((bars_period[-1].close + (self.atr * 2))*4,0)/4
             else:
                 #csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'cash'",False, False, csv_row_sum)
                 crossed, tradenow = False, False
-                stoplossprice = 0
+                self.stoplossprice = 0
                 stoploss = 0
             if abs(self.cci - self.ccia) > config.SPREAD:
                 log.info("Pending ".format(cci-ccia))
                 pendinglong = True
                 pendingshort = True
-            log.info("Stop loss set > ".format(stoplossprice))
+            log.info("Stop loss set > ".format(self.stoplossprice))
+            
             
     def get_bars_data(self):
         #log.debug("inputs to request hist for get bars - {}".format(self.bar_duration, self.bar_size, self.datetime_period))
