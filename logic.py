@@ -77,7 +77,7 @@ class Algo():
                         ccibb_trade = True
                         if open_long or open_short:
                             quantity = 4
-                        MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
+                        MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",bars_15m.stoplossprice)
                         log.info("order placed, parentID: {}".format(ParentOrderID))
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row1,cci_trade,ccibb_trade)
@@ -93,7 +93,7 @@ class Algo():
                         log.info("found a math in CCI {}".format(str(row2[0])))
                         if open_long or open_short:
                             quantity = 4
-                        MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"cci_day",stoplossprice)
+                        MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"cci_day",bars_15m.stoplossprice)
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row2,cci_trade,ccibb_trade)
                         break
@@ -103,7 +103,7 @@ class Algo():
                     log.info("we did not find a match")
                 if open_long or open_short:
                     quantity = 2
-                    MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",stoplossprice)
+                    MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",bars_15m.stoplossprice)
                     open_long, open_short = False, False
             #csv_row_add = helpers.build_csv_bars_row(","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort),True)
             wrote_bar_to_csv = helpers.build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow)
@@ -208,15 +208,15 @@ class Algo():
         # deal with existing pending
         if pendingLong and pendingCnt < config.SPREAD_COUNT and bars_15m.cci - bars_15m.ccia > config.SPREAD:
             log.info("pending long cnt < 3 and > spread")
-            pendingLong, pendingSkip = False, False
+            pendingLong, pendingSkip, tradeNow = False, False, True
             pendingCnt = 0
         elif pendingShort and pendingCnt < config.SPREAD_COUNT and abs(bars_15m.cci - bars_15m.ccia) > config.SPREAD:
             log.info("pending short cnt < 3 and > spread")
-            pendingShort, pendingSkip = False, False
+            pendingShort, pendingSkip, tradeNow = False, False, True
             pendingCnt = 0
         elif pendingLong or pendingShort and pendingCnt == config.SPREAD_COUNT:
             print"pending long or short and cnt = 3 stop pending ",pendingCnt, config.SPREAD_COUNT)
-            pendingLong, pendingShort, pendingSkip = False, False, False
+            pendingLong, pendingShort, pendingSkip, tradeNow = False, False, False, True
             pendingCnt = 0
         elif pendingLong or pendingShort:
             pendingCnt += 1
