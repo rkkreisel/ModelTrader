@@ -111,3 +111,8 @@ def coverOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice):
     trademkt = ib.placeOrder(tradeContract,MktOrder)
     #Stop Loss Order
     return [MktOrder]
+def openOrder(ib):
+    
+
+
+    return

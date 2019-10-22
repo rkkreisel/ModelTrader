@@ -30,6 +30,8 @@ class Algo():
         # any variable that is used within the class will be defined with self
         while not_finished:
             print ("top of algo run self*************************************************")
+            openOrders = self.ib.OrderStatus(clientId=6)
+            print("open orders",openOrders)
             #top of logic - want to check status as we enter a new bar/hour/day/contract
             contContract, contracthours = get_contract(self) #basic information on continuious contact
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
@@ -37,9 +39,6 @@ class Algo():
             open_today = helpers.is_open_today(contracthours)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.debug("Got Contract: {}".format(dataContract.localSymbol))
-            #pnl = self.ib.pnl()
-            #log.debug("account names: {}".format(self.ib.managedAccounts()))
-            #log.info("PNL : {PNL} ".format(PNL=self.ib.pnl("all")))
             self.app.contract.update(dataContract.localSymbol)
             wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d = self.define_times()
             log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
@@ -246,5 +245,5 @@ def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
     ccibb_key = cci_key + categories.categorize_BBW15(bars_15m.bband_width) + categories.categorize_BBb15(bars_15m.bband_b) + categories.categorize_BBW1h(bars_1h.bband_width) + \
         categories.categorize_BBb1h(bars_1h.bband_b) + categories.categorize_BBW1d(bars_1d.bband_width) + categories.categorize_BBb1d(bars_1d.bband_b)
     summ_key = categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + categories.categorize_cci_1d(bars_1d.ccia)
-    print("cci and ccibb key",cci_key, ccibb_key)
+    #print("cci and ccibb key",cci_key, ccibb_key)
     return cci_key, ccibb_key, summ_key

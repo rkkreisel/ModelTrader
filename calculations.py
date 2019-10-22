@@ -25,43 +25,29 @@ class Calculations():
         self.bar_duration = bar_duration
         self.datetime_period = datetime_period
         self.stoplossprice = 0
-#        self.self.cci = cci
- #       self.ccia = ccia
-  #      self.cci_prior = ccia_prior
-   #     self.ccia_prior = ccia_prior
-    #    self.atr = atr
-     #   self.bband_width = bband_width
-      #  self.bband_b = bband_b
         self.run()
   
         """ Execute the calculations """
     def run(self):    
-        csv_row_sum = ""
-        print("bar_duration, bar size date time ",self.dataContract, self.bar_duration, self.bar_size, self.datetime_period)
+        #print("bar_duration, bar size date time ",self.dataContract, self.bar_duration, self.bar_size, self.datetime_period)
         bars_period = self.get_bars_data()
-        print("bar data close: ",bars_period[-1].close)
+        #print("bar data close: ",bars_period[-1].close)
         #x = np.array(bars_period)
         #log.debug("bars {bars} ".format(bars=bars_period))
         self.cci, self.ccia, self.cci_prior, self.ccia_prior = self.calculate_cci(bars_period)
         self.atr =  self.calculate_atr(bars_period)
         self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
-        logged_it = self.log_value("Starting ")
-        print("atr and bar size", self.atr, self.bar_size)
+        #logged_it = self.log_value("Starting ")
         if self.bar_size == "15 mins":
             if self.self.cci > self.ccia and self.cci_prior < self.ccia_prior:
                 crossed, tradenow = True, True
-                #csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'long'",False, True, csv_row_sum)
-                #key_arr[0] = "long"
                 tradeAction = "BUY"
                 self.stoplossprice = round((bars_period[-1].close - (self.atr * 2))*4,0)/4
             elif self.cci <self.ccia and self.cci_prior > self.ccia_prior:
                 crossed, tradenow = True, True
-                #csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'short'",False, False, csv_row_sum)
-                #key_arr[0] = "short"
                 tradeAction = "SELL"
                 self.stoplossprice = round((bars_period[-1].close + (self.atr * 2))*4,0)/4
             else:
-                #csv_row_sum = helpers.build_csv_bars_row("'"+str(datetime.now())+",'cash'",False, False, csv_row_sum)
                 crossed, tradenow = False, False
                 self.stoplossprice = 0
                 stoploss = 0
@@ -115,8 +101,6 @@ class Calculations():
         sma = talib.SMA(np.array([bar.close for bar in bars]), timeperiod=config.SMA_PERIODS)
         width = (up[-1] - low[-1]) / sma[-1] * 100
         percentb = (bars[-1].close - low[-1]) / (up[-1] - low[-1]) * 100
-        #widthprior = (up[-2] - low[-2]) / sma[-2] * 100
-        #percentbprior = (bars[-2].close - low[-2]) / (up[-2] - low[-2]) * 100
         return width, percentb
 
     def log_value(self, label):
