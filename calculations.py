@@ -24,6 +24,7 @@ class Calculations():
         self.bar_size = bar_size
         self.bar_duration = bar_duration
         self.datetime_period = datetime_period
+        self.stoplossprice = 0
 #        self.self.cci = cci
  #       self.ccia = ccia
   #      self.cci_prior = ccia_prior
@@ -69,7 +70,7 @@ class Calculations():
                 pendinglong = True
                 pendingshort = True
             log.info("Stop loss set > ".format(self.stoplossprice))
-            
+
             
     def get_bars_data(self):
         #log.debug("inputs to request hist for get bars - {}".format(self.bar_duration, self.bar_size, self.datetime_period))
