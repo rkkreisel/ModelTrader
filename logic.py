@@ -31,7 +31,7 @@ class Algo():
         while not_finished:
             print ("top of algo run self*************************************************")
             stpSell, stpBuy = self.findOpenOrders()
-            print("open orders - qty ??????????",stpSell)
+            log.info("we have the follow number of open stp orders for Sell and Buy ",stpSell, stpBuy)
             #top of logic - want to check status as we enter a new bar/hour/day/contract
             contContract, contracthours = get_contract(self) #basic information on continuious contact
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
