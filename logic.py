@@ -69,7 +69,7 @@ class Algo():
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
                 #cci_key, ccibb_key = build_key_array(self, tradeAction, bars_15m, bars_1h, bars_1d)
                 for row1 in csv_file1:
-                    print("ccibb row: ",row1[0],row1[13])
+                    #print("ccibb row: ",row1[0],row1[13])
                     if ccibb_key == row1[0] and row1[13] == "Y": #13 is winrisk - whether we trade or not
                         quantity = 2
                         log.info("we have a match in ccibb.csv")
@@ -86,7 +86,7 @@ class Algo():
                         log.info("Entry found in CCIBB but not traded.  See if this changes")
                 csv_file2 = csv.reader(open('data/cci.csv', "rt"), delimiter = ",")
                 for row2 in csv_file2:
-                    print("cci   row: ",row2[0],row2[13])
+                    #print("cci   row: ",row2[0],row2[13])
                     if cci_key == row2[0] and row2[13] == "Y":
                         quantity = 2
                         log.info("we have a match in cci.csv - tradeAction".format(tradeAction))
