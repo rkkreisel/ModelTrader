@@ -31,11 +31,11 @@ class Algo():
         while not_finished:
             print ("top of algo run self*************************************************")
             stpSell, stpBuy = self.findOpenOrders()
-            log.info("we have the follow number of open stp orders for Sell: {sell} and Buy: {buy} "format(sell=stpSell, buy=stpBuy)
+            log.info("we have the follow number of open stp orders for Sell: {sell} and Buy: {buy} ".format(sell=stpSell, buy=stpBuy))
             #top of logic - want to check status as we enter a new bar/hour/day/contract
             contContract, contracthours = get_contract(self) #basic information on continuious contact
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
-            open_long, open_short, position_qty = self.have_position(self.ib.positions())   # do we have an open position?
+            open_long, open_short, long_position_qty, short_position_qty = self.have_position(self.ib.positions())   # do we have an open position?
             open_today = helpers.is_open_today(contracthours)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.debug("Got Contract: {}".format(dataContract.localSymbol))
@@ -64,18 +64,18 @@ class Algo():
             #
             # test buy
             if tradeNow:
-                log.info("tradeNow - Tradeing this bar {}".format(str(''.join(key_arr))," - ",''.join(key_arr[0:8])))
+                log.info("tradeNow - Tradeing this bar {cci} - {ccibb}".format(cci=cci_key,ccibb=ccibb_key))
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
                 #cci_key, ccibb_key = build_key_array(self, tradeAction, bars_15m, bars_1h, bars_1d)
                 for row1 in csv_file1:
                     #print("ccibb row: ",row1[0],row1[13])
                     if ccibb_key == row1[0] and row1[13] == "Y": #13 is winrisk - whether we trade or not
-                        quantity = 2
                         log.info("we have a match in ccibb.csv")
                         log.info("found a match in CCIBB ".format(str(row1[0])))
                         ccibb_trade = True
-                        if open_long or open_short:
-                            quantity = 4
+                        quantity = 2
+                        # do we need to close out current order
+                        # do we need to close out current stop loss orders?
                         MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",bars_15m.stoplossprice)
                         log.info("order placed, parentID: {}".format(ParentOrderID))
                         open_long, open_short, tradenow = False, False, False
@@ -87,11 +87,9 @@ class Algo():
                 for row2 in csv_file2:
                     #print("cci   row: ",row2[0],row2[13])
                     if cci_key == row2[0] and row2[13] == "Y":
-                        quantity = 2
                         log.info("we have a match in cci.csv - tradeAction".format(tradeAction))
                         #log.info("found a match in CCI {}".format(str(row2[0])))
-                        if open_long or open_short:
-                            quantity = 4
+                        quantity = 2
                         MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"cci_day",bars_15m.stoplossprice)
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row2,cci_trade,ccibb_trade)
@@ -100,11 +98,14 @@ class Algo():
                         log.info("Entry found in CCI but not traded.  See if this changes")
                 if tradeNow:
                     log.info("we did not find a match in either CCI or CCI BB")
-                if open_long or open_short:
+                if tradeAction == "BUY" and open_short:
                     quantity = 2
-                    print("stop loss price",bars_15m.stoplossprice)
-                    MarketOrderId, StopLossId, ParentOrderID = orders.coverOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day")
-                    open_long, open_short = False, False
+                    MarketOrderId = orders.coverOrders(self.ib,tradeContract,"BUY",quantity,"cci_day")
+                    open_short = False
+                elif tradeAction == "SELL" and open_long:
+                    quantity = 2
+                    MarketOrderId = orders.coverOrders(self.ib,tradeContract,"SELL",quantity,"cci_day")
+                    open_long = False
             #csv_row_add = helpers.build_csv_bars_row(","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort),True)
             wrote_bar_to_csv = helpers.build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow)
             tradenow, cci_trade, ccibb_trade = False, False, False
@@ -152,20 +153,20 @@ class Algo():
         position_long_tf = False
         position_short_tf = False
         x = 0
-        position_qty = 0
+        long_position_qty, short_position_qty = 0, 0
         while x < len(positions):
             if (positions[x][1].symbol) == "ES":
-                position_qty = positions[x][2]
                 if (position_qty) > 0:
+                    long_position_qty += positions[x][2]
                     position_long_tf, position_short_tf = True, False
                 elif (position_qty) < 0:
+                    short_position_qty += positions[x][2]
                     position_long_tf, position_short_tf = False, True
                 else:
                     position_long_tf, position_short_tf = False, False
-                log.info("Have a position: {position} and qty {qty} ".format(position = positions[x][1].symbol,qty=positions[x][2]))
-                break
+                log.info("Have a position: {position} and long qty: {lqty} and short qty: {sqty} ".format(position = positions[x][1].symbol,lqty = long_position_qty,sqty = short_position_qty))
             x += + 1
-        return position_long_tf, position_short_tf, position_qty 
+        return position_long_tf, position_short_tf, long_position_qty, short_position_qty 
     
     def findOpenOrders(self):
         openOrders = self.ib.reqAllOpenOrders()
@@ -184,6 +185,7 @@ class Algo():
         for row3 in csv_file3:
             #print("setupsummary   row: ",row3[4])
             if summ_key == row3[4]:
+                log.info("++++++++++++++++++++++++++++++++++++")
                 log.info("join key:     {}".format(summ_key))
                 log.info("CCI Long %  : {}".format(row3[7]))
                 log.info("CCI Profit  : {}".format(row3[9]))
@@ -192,6 +194,7 @@ class Algo():
                 log.info("CCIbb Profit: {}".format(row3[17]))
                 log.info("CCIbb Win%  : {}".format(row3[20]))
                 log.info("Rank (0-100): {}".format(row3[21]))
+                log.info("-------------------------------------")
                 break
         return
 
@@ -231,7 +234,7 @@ class Algo():
             pendingCnt = 0
         elif pendingLong or pendingShort:
             pendingCnt += 1
-            log.info("pending continues cnt: ".format(pendingCnt))
+            log.info("pending continues cnt: {cnt}".format(cnt = pendingCnt))
         print("check post cross and we have tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt",tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt)
         return pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction
         

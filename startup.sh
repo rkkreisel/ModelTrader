@@ -8,3 +8,5 @@ while ! netstat -tna | grep 'LISTEN\>' | grep -q ':55555\>'; do
 done
 cd /home/ubuntu/ModelTrader
 DISPLAY=:0 python3 main.py
+cd ~/Jts/972
+DISPLAY=:0 ./tws
