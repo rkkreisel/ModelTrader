@@ -31,26 +31,24 @@ class Calculations():
     def run(self):    
         #print("bar_duration, bar size date time ",self.dataContract, self.bar_duration, self.bar_size, self.datetime_period)
         bars_period = self.get_bars_data()
-        #print("bar data close: ",bars_period[-1].close)
+        print("bar data close - this is what stoplossprice comes from: ",bars_period[-1].close)
         #x = np.array(bars_period)
         #log.debug("bars {bars} ".format(bars=bars_period))
         self.cci, self.ccia, self.cci_prior, self.ccia_prior = self.calculate_cci(bars_period)
         self.atr =  self.calculate_atr(bars_period)
         self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
         #logged_it = self.log_value("Starting ")
+        self.stoplossprice = round((bars_period[-1].close - (self.atr * 2))*4,0)/4
         if self.bar_size == "15 mins":
             if self.self.cci > self.ccia and self.cci_prior < self.ccia_prior:
                 crossed, tradenow = True, True
                 tradeAction = "BUY"
-                self.stoplossprice = round((bars_period[-1].close - (self.atr * 2))*4,0)/4
             elif self.cci <self.ccia and self.cci_prior > self.ccia_prior:
                 crossed, tradenow = True, True
                 tradeAction = "SELL"
-                self.stoplossprice = round((bars_period[-1].close + (self.atr * 2))*4,0)/4
             else:
                 crossed, tradenow = False, False
                 self.stoplossprice = 0
-                stoploss = 0
             if abs(self.cci - self.ccia) > config.SPREAD:
                 log.info("Pending ".format(cci-ccia))
                 pendinglong = True

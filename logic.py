@@ -31,7 +31,7 @@ class Algo():
         while not_finished:
             print ("top of algo run self*************************************************")
             stpSell, stpBuy = self.findOpenOrders()
-            log.info("we have the follow number of open stp orders for Sell and Buy ",stpSell, stpBuy)
+            log.info("we have the follow number of open stp orders for Sell: {sell} and Buy: {buy} "format(sell=stpSell, buy=stpBuy)
             #top of logic - want to check status as we enter a new bar/hour/day/contract
             contContract, contracthours = get_contract(self) #basic information on continuious contact
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
@@ -89,7 +89,7 @@ class Algo():
                     if cci_key == row2[0] and row2[13] == "Y":
                         quantity = 2
                         log.info("we have a match in cci.csv - tradeAction".format(tradeAction))
-                        log.info("found a math in CCI {}".format(str(row2[0])))
+                        #log.info("found a match in CCI {}".format(str(row2[0])))
                         if open_long or open_short:
                             quantity = 4
                         MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"cci_day",bars_15m.stoplossprice)
@@ -99,11 +99,11 @@ class Algo():
                     elif cci_key == row2[0] and row2[13] == "N":
                         log.info("Entry found in CCI but not traded.  See if this changes")
                 if tradeNow:
-                    log.info("we did not find a match")
+                    log.info("we did not find a match in either CCI or CCI BB")
                 if open_long or open_short:
                     quantity = 2
                     print("stop loss price",bars_15m.stoplossprice)
-                    MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",bars_15m.stoplossprice)
+                    MarketOrderId, StopLossId, ParentOrderID = orders.coverOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day")
                     open_long, open_short = False, False
             #csv_row_add = helpers.build_csv_bars_row(","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort),True)
             wrote_bar_to_csv = helpers.build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow)

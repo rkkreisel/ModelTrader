@@ -90,7 +90,7 @@ def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice):
 
     return [MktOrder], [stoplossOrder], parentId
 
-def coverOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice):
+def coverOrders(ib, tradeContract, action, quantity, cciProfile):
 
     parentId = ib.client.getReqId()
 
