@@ -156,14 +156,12 @@ class Algo():
         long_position_qty, short_position_qty = 0, 0
         while x < len(positions):
             if (positions[x][1].symbol) == "ES":
-                if (position_qty) > 0:
+                if positions[x][2] > 0:
                     long_position_qty += positions[x][2]
-                    position_long_tf, position_short_tf = True, False
-                elif (position_qty) < 0:
+                    position_long_tf = True
+                elif positions[x][2] < 0:
                     short_position_qty += positions[x][2]
-                    position_long_tf, position_short_tf = False, True
-                else:
-                    position_long_tf, position_short_tf = False, False
+                    position_short_tf = True
                 log.info("Have a position: {position} and long qty: {lqty} and short qty: {sqty} ".format(position = positions[x][1].symbol,lqty = long_position_qty,sqty = short_position_qty))
             x += + 1
         return position_long_tf, position_short_tf, long_position_qty, short_position_qty 
