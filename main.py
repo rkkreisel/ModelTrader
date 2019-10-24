@@ -60,8 +60,12 @@ class App:
     def run(self):
         self._onTimeout()
         # check for command line arguments
-        log.info("number of arguments ".format(len(sys.argv)))
-        log.info("argument list".format(str(sys.argv)))
+        print("number of arguments ",len(sys.argv))
+        print("argument list",str(sys.argv))
+        commandParam = sys.argv
+        print(commandParam)
+        print(commandParam[0],commandParam[1])
+        print("argument is: ",commandParam[1]
         logic.Algo(self.ib, self).run()
         self.loop.run_forever()
 
