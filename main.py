@@ -1,5 +1,6 @@
 import asyncio
 from sys import exit as sys_exit
+import sys
 from ib_insync import IB, util, objects, Ticker
 from datetime import *
 import tkinter as tk
@@ -57,6 +58,9 @@ class App:
 
     def run(self):
         self._onTimeout()
+        # check for command line arguments
+        log.info("number of arguments ".format(len(sys.argv)))
+        log.info("argument list".format(str(sys.argv)))
         logic.Algo(self.ib, self).run()
         self.loop.run_forever()
 
@@ -76,7 +80,7 @@ class App:
         logger.getLogger().info("Disconnected.")
 
     def profitandloss(self):
-        pandl = elf.objects.PnL()
+        pandl = self.objects.PnL()
         logger.getLogger().info("PNL",pandl)
 
     
