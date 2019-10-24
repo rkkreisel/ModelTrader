@@ -67,6 +67,14 @@ class Algo():
             #
             # test buy
             if tradeNow:
+                if tradeAction == "BUY" and open_short:
+                    quantity = 2
+                    MarketOrderId = orders.coverOrders(self.ib,tradeContract,"BUY",quantity,"cci_day")
+                    open_short = False
+                elif tradeAction == "SELL" and open_long:
+                    quantity = 2
+                    MarketOrderId = orders.coverOrders(self.ib,tradeContract,"SELL",quantity,"cci_day")
+                    open_long = False
                 log.info("tradeNow - Tradeing this bar {cci} - {ccibb}".format(cci=cci_key,ccibb=ccibb_key))
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
                 #cci_key, ccibb_key = build_key_array(self, tradeAction, bars_15m, bars_1h, bars_1d)
@@ -101,14 +109,6 @@ class Algo():
                         log.info("Entry found in CCI but not traded.  See if this changes")
                 if tradeNow:
                     log.info("we did not find a match in either CCI or CCI BB")
-                if tradeAction == "BUY" and open_short:
-                    quantity = 2
-                    MarketOrderId = orders.coverOrders(self.ib,tradeContract,"BUY",quantity,"cci_day")
-                    open_short = False
-                elif tradeAction == "SELL" and open_long:
-                    quantity = 2
-                    MarketOrderId = orders.coverOrders(self.ib,tradeContract,"SELL",quantity,"cci_day")
-                    open_long = False
             #csv_row_add = helpers.build_csv_bars_row(","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort),True)
             wrote_bar_to_csv = helpers.build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow)
             tradenow, cci_trade, ccibb_trade = False, False, False

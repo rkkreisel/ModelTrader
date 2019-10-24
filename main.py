@@ -62,10 +62,10 @@ class App:
         # check for command line arguments
         if len(sys.argv) > 1:
             backTest = True
-            print("number of arguments ",len(sys.argv))
-            print("argument list",str(sys.argv))
+            #print("number of arguments ",len(sys.argv))
+            #print("argument list",str(sys.argv))
             commandParam = sys.argv[1]
-            print(commandParam)
+            #print(commandParam)
         else:
             commandParam = ""
             backTest = False
