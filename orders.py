@@ -2,6 +2,10 @@
 from ib_insync.order import Order
 import config
 import constants
+import logger
+
+log = logger.getLogger()
+
 # build orders has to handle outstanding STP orders, open positions and execute new position
 def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice):
     #STP order
