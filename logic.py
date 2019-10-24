@@ -68,12 +68,12 @@ class Algo():
             # test buy
             if tradeNow:
                 if tradeAction == "BUY" and open_short:
-                    quantity = 2
-                    MarketOrderId = orders.coverOrders(self.ib,tradeContract,"BUY",quantity,"cci_day")
+                    #quantity = 2
+                    MarketOrderId = orders.coverOrders(self.ib,tradeContract,"BUY",short_position_qty,"cci_day")
                     open_short = False
                 elif tradeAction == "SELL" and open_long:
-                    quantity = 2
-                    MarketOrderId = orders.coverOrders(self.ib,tradeContract,"SELL",quantity,"cci_day")
+                    #quantity = 2
+                    MarketOrderId = orders.coverOrders(self.ib,tradeContract,"SELL",long_position_qty,"cci_day")
                     open_long = False
                 log.info("tradeNow - Tradeing this bar {cci} - {ccibb}".format(cci=cci_key,ccibb=ccibb_key))
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")

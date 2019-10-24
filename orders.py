@@ -9,7 +9,7 @@ log = logger.getLogger()
 # build orders has to handle outstanding STP orders, open positions and execute new position
 def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice):
     #STP order
-    orders.findOpenOrder(self.ib, True)
+    closeOpen.findOpenOrder(self.ib, True)
     # parentId = ib.client.getReqId()
     #Entry Order
     print("tradeContract ",tradeContract)
@@ -48,6 +48,7 @@ def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice):
     return [MktOrder], [stoplossOrder], parentId
 
 def coverOrders(ib, tradeContract, action, quantity, cciProfile):
+    closeOpen = findOpenOrders(self.ib,True)
     parentId = ib.client.getReqId()
     #Entry Order
     print("tradeContract ",tradeContract)
