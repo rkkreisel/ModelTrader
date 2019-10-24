@@ -18,9 +18,11 @@ import calculations
 log = logger.getLogger()
 
 class Algo():
-    def __init__(self, ib: IB, app):
+    def __init__(self, ib: IB, app, backTest, backTestStartDate):
         self.ib = ib
         self.app = app
+        self.backTest = backTest
+        self.backTestStartDate = backTestStartDate
 
     def run(self):
         """ Execute the algorithm """
