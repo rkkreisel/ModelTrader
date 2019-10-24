@@ -162,8 +162,8 @@ class Algo():
                 elif positions[x][2] < 0:
                     short_position_qty += positions[x][2]
                     position_short_tf = True
-            log.info("Have a position: {position} and long qty: {lqty} and short qty: {sqty} ".format(position = positions[x][1].symbol,lqty = long_position_qty,sqty = short_position_qty))
             x += + 1
+        log.info("Have a position: {position} and long qty: {lqty} and short qty: {sqty} ".format(position = positions[x][1].symbol,lqty = long_position_qty,sqty = short_position_qty))    
         return position_long_tf, position_short_tf, long_position_qty, short_position_qty 
     
     def findOpenOrders(self):
