@@ -5,7 +5,7 @@ import constants
 # build orders has to handle outstanding STP orders, open positions and execute new position
 def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice):
     #STP order
-    #orders.findOpenOrder(True)
+    orders.findOpenOrder(self.ib, True)
     # parentId = ib.client.getReqId()
     #Entry Order
     print("tradeContract ",tradeContract)
@@ -66,14 +66,20 @@ def openOrder(ib):
     openOrders = self.ib.reqAllOpenOrders()
     return
 
-def findOpenOrders(ib, execute, action):
-        openOrders = self.ib.reqAllOpenOrders()
+def findOpenOrders(ib, execute):
+        openOrders = ib.reqAllOpenOrders()
         x, stpSell, stpBuy = 0, 0, 0
-        print("openOrders are ----> ",openOrders)
+        log.info("openOrders are ---->  ".format(openOrders))
+        # if we are to execute, we need to create closing orders for each order we scroll through
         while x < len(openOrders):
+            log.info("order type: {type} with ID: {id}".format(type=openOrders[x].orderType,id=openOrders[x].permId))
             if openOrders[x].orderType == "STP" and openOrders[x].action == "SELL":
                 stpSell += openOrders[x].totalQuantity
+                if execute:
+                    ib.cancelOrder(openOrders[x].permId)
             elif openOrders[x].orderType == "STP" and openOrders[x].action == "BUY":
                 stpBuy += openOrders[x].totalQuantity
+                if execute:
+                    ib.cancelOrder(openOrders[x].permId)
             x += 1
         return stpSell, stpBuy
