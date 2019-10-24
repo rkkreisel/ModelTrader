@@ -2,9 +2,11 @@
 from ib_insync.order import Order
 import config
 import constants
-
+# build orders has to handle outstanding STP orders, open positions and execute new position
 def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice):
-    parentId = ib.client.getReqId()
+    #STP order
+    #orders.findOpenOrder(True)
+    # parentId = ib.client.getReqId()
     #Entry Order
     print("tradeContract ",tradeContract)
     print("action: ",action)
@@ -31,70 +33,18 @@ def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice):
         parentId = parentId,
         transmit = True
     )
-
-    #Stop Loss Order
-    #profitOrder = Order(
-    #    action = bracketAction,
-    #    orderType = "LMT",
-    #    auxPrice = 0,
-    #    lmtPrice = profitPrice,
-    #    faProfile = config.ALLOCATION_PROFILE,
-    #    totalQuantity = quantity,
-    #    orderId = ib.client.getReqId(),
-    #    parentId = parentId,
-    #    transmit = False
-    #)
-
-    #Stop Loss Order
-    #order = ib.MarketOrder(action,quantity)
     trademkt = ib.placeOrder(tradeContract,MktOrder)
     tradestp = ib.placeOrder(tradeContract,stoplossOrder)
     print("Order placed  ",action,quantity)
     print("")
-    #print("trade  ",MktOrder)
-    #trade = ib.placeOrder(tradeContract, MktOrder)
-    #for trade in ib.trades():
-    #    while not trade.isDone():
-    #        ib.waitOnUpdate()
+    
     print("did place order",trademkt)
     print("")
     print("placed stop order ",tradestp)
-    
-    #ib.sleep(5)
-    #print(trade.log)
-    #Profit Order
-    #profitOrder = Order(
-    #    action = bracketAction,
-    #    orderType = "LMT",
-    #    auxPrice = 0,
-    #    lmtPrice = profitPrice,
-    #    faProfile = config.ALLOCATION_PROFILE,
-    #    totalQuantity = quantity,
-    #    orderId = ib.client.getReqId(),
-    #    parentId = parentId,
-    #    transmit = False
-    #)
-
-    #Stop Loss Order
-    #lossOrder = Order(
-    #    action = bracketAction,
-    #    orderType = "STP",
-    #    auxPrice = lossPrice,
-    #    lmtPrice = 0,
-    #    faProfile = config.ALLOCATION_PROFILE,
-    #    totalQuantity = quantity,
-    #    orderId = ib.client.getReqId(),
-    #    parentId = parentId,
-    #    transmit = True
-    #)
-
     return [MktOrder], [stoplossOrder], parentId
 
 def coverOrders(ib, tradeContract, action, quantity, cciProfile):
-
     parentId = ib.client.getReqId()
-
-
     #Entry Order
     print("tradeContract ",tradeContract)
     print("action: ",action)
@@ -111,9 +61,19 @@ def coverOrders(ib, tradeContract, action, quantity, cciProfile):
     trademkt = ib.placeOrder(tradeContract,MktOrder)
     #Stop Loss Order
     return [MktOrder]
-    
+
 def openOrder(ib):
     openOrders = self.ib.reqAllOpenOrders()
-
-
     return
+
+def findOpenOrders(self, execute):
+        openOrders = self.ib.reqAllOpenOrders()
+        x, stpSell, stpBuy = 0, 0, 0
+        print("openOrders are ----> ",openOrders)
+        while x < len(openOrders):
+            if openOrders[x].orderType == "STP" and openOrders[x].action == "SELL":
+                stpSell += openOrders[x].totalQuantity
+            elif openOrders[x].orderType == "STP" and openOrders[x].action == "BUY":
+                stpBuy += openOrders[x].totalQuantity
+            x += 1
+        return stpSell, stpBuy

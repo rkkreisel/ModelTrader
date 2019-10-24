@@ -24,13 +24,13 @@ class Algo():
 
     def run(self):
         """ Execute the algorithm """
-        key_arr = ['blank','ATR15','ATR1','ATRD','CCI15','CCIA15','CCIA1h','CCIA1d','BBW15','BBb15','BBW1h','BBb1h','BBW1d','BBb1d']
-        tradenow, not_finished, pendingShort, pendingLong, pendingSkip, cci_trade, ccibb_trade = False, True, False, False, False, False, False
+        #key_arr = ['blank','ATR15','ATR1','ATRD','CCI15','CCIA15','CCIA1h','CCIA1d','BBW15','BBb15','BBW1h','BBb1h','BBW1d','BBb1d']
+        tradeNow, not_finished, pendingShort, pendingLong, pendingSkip, cci_trade, ccibb_trade = False, True, False, False, False, False, False
         pendingCnt = 0
         # any variable that is used within the class will be defined with self
         while not_finished:
             print ("top of algo run self*************************************************")
-            stpSell, stpBuy = self.findOpenOrders()
+            stpSell, stpBuy = orders.findOpenOrders(False,"","") # don't want to execute covering
             log.info("we have the follow number of open stp orders for Sell: {sell} and Buy: {buy} ".format(sell=stpSell, buy=stpBuy))
             #top of logic - want to check status as we enter a new bar/hour/day/contract
             contContract, contracthours = get_contract(self) #basic information on continuious contact
@@ -166,16 +166,16 @@ class Algo():
         log.info("Have a position: long qty: {lqty} and short qty: {sqty} ".format(lqty = long_position_qty,sqty = short_position_qty))    
         return position_long_tf, position_short_tf, long_position_qty, short_position_qty 
     
-    def findOpenOrders(self):
-        openOrders = self.ib.reqAllOpenOrders()
-        x, stpSell, stpBuy = 0, 0, 0
-        while x < len(openOrders):
-            if openOrders[x].orderType == "STP" and openOrders[x].action == "SELL":
-                stpSell += openOrders[x].totalQuantity
-            elif openOrders[x].orderType == "STP" and openOrders[x].action == "BUY":
-                stpBuy += openOrders[x].totalQuantity
-            x += 1
-        return stpSell, stpBuy
+    #def findOpenOrders(self):
+    #    openOrders = self.ib.reqAllOpenOrders()
+    #    x, stpSell, stpBuy = 0, 0, 0
+    #    while x < len(openOrders):
+    #       if openOrders[x].orderType == "STP" and openOrders[x].action == "SELL":
+    #            stpSell += openOrders[x].totalQuantity
+    #        elif openOrders[x].orderType == "STP" and openOrders[x].action == "BUY":
+    #            stpBuy += openOrders[x].totalQuantity
+    #        x += 1
+    #    return stpSell, stpBuy
 
     def setupsummary(self,summ_key):
         csv_file3 = csv.reader(open('data/setupsummary.csv', "rt"), delimiter = ",")
