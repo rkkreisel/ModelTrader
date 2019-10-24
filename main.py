@@ -12,6 +12,7 @@ import logger
 import logic
 from indicator import Indicator
 
+log = logger.getLogger()
 
 class App:
     def __init__(self, ib: IB):
