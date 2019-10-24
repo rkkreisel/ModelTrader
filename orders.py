@@ -66,7 +66,7 @@ def openOrder(ib):
     openOrders = self.ib.reqAllOpenOrders()
     return
 
-def findOpenOrders(self, execute):
+def findOpenOrders(ib, execute, action):
         openOrders = self.ib.reqAllOpenOrders()
         x, stpSell, stpBuy = 0, 0, 0
         print("openOrders are ----> ",openOrders)

@@ -30,7 +30,7 @@ class Algo():
         # any variable that is used within the class will be defined with self
         while not_finished:
             print ("top of algo run self*************************************************")
-            stpSell, stpBuy = orders.findOpenOrders(False,"","") # don't want to execute covering
+            stpSell, stpBuy = orders.findOpenOrders(self.ib,False,"") # don't want to execute covering
             log.info("we have the follow number of open stp orders for Sell: {sell} and Buy: {buy} ".format(sell=stpSell, buy=stpBuy))
             #top of logic - want to check status as we enter a new bar/hour/day/contract
             contContract, contracthours = get_contract(self) #basic information on continuious contact
