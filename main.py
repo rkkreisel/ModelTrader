@@ -64,14 +64,12 @@ class App:
             backTest = True
             print("number of arguments ",len(sys.argv))
             print("argument list",str(sys.argv))
-            commandParam = sys.argv
+            commandParam = sys.argv[1]
             print(commandParam)
-            print(commandParam[0],commandParam[1])
-            print("argument is: ",commandParam[1])
         else:
             commandParam = ""
             backTest = False
-        logic.Algo(self.ib, self,backTest,commandParam[1]).run()
+        logic.Algo(self.ib, self,backTest,commandParam).run()
         self.loop.run_forever()
 
     def _onTimeout(self):
