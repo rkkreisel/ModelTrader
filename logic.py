@@ -218,8 +218,8 @@ class Algo():
                         pendingShort, pendingLong = False, True   
                     pendingCnt = 0
                     pendingSkip = True
-                    log.info("crossed but not meet spread requirement, pendingSkip, pendingCnt".format(pendingSkip, pendingCnt))
-        print("check cross and we have tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt",tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt)
+                    log.info("crossed but not meet spread requirement, pendingSkip: {skip}, pendingCnt: {cnt}".format(skip = pendingSkip, cnt = pendingCnt))
+        log.info("crossed, pendingSkip: {skip}, pendingCnt: {cnt}".format(skip = pendingSkip, cnt = pendingCnt))
         # deal with existing pending
         if pendingLong and pendingCnt < config.SPREAD_COUNT and bars_15m.cci - bars_15m.ccia > config.SPREAD:
             log.info("pending long cnt < 3 and > spread")
@@ -229,7 +229,7 @@ class Algo():
             log.info("pending short cnt < 3 and > spread")
             pendingShort, pendingSkip, tradeNow = False, False, True
             pendingCnt = 0
-        elif pendingLong or pendingShort and pendingCnt == config.SPREAD_COUNT:
+        elif (pendingLong or pendingShort) and pendingCnt == config.SPREAD_COUNT:
             print("pending long or short and cnt = 3 stop pending ",pendingCnt, config.SPREAD_COUNT)
             pendingLong, pendingShort, pendingSkip, tradeNow = False, False, False, True
             pendingCnt = 0
