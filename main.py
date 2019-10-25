@@ -60,10 +60,11 @@ class App:
     def run(self):
         self._onTimeout()
         # check for command line arguments
-        if len(sys.argv) > 1:
-            backTest = True
+        
+        if len(sys.argv) > 1 and isinstance(sys.argv[1],datetime.datetime)
             #print("number of arguments ",len(sys.argv))
             #print("argument list",str(sys.argv))
+            backTest = True
             commandParam = sys.argv[1]
             #print(commandParam)
         else:

@@ -18,11 +18,11 @@ import calculations
 log = logger.getLogger()
 
 class Algo():
-    def __init__(self, ib: IB, app, backTest, backTestStartDate):
+    def __init__(self, ib: IB, app, backTest, backTestStartDateTime):
         self.ib = ib
         self.app = app
         self.backTest = backTest
-        self.backTestStartDate = backTestStartDate
+        self.backTestStartDateTime = backTestStartDateTime
 
     def run(self):
         """ Execute the algorithm """
@@ -114,8 +114,13 @@ class Algo():
             tradenow, cci_trade, ccibb_trade = False, False, False
 
     def define_times(self):
-        current_time = datetime.now()
-        current_minute = datetime.now().minute
+        if self.backTest:   # added for backtest
+            current_time = self.backTestStartDateTime
+            current_minute = self.backTest.minute
+            self.backTestStartDateTime = current_time + timedelta(minutes=15)
+        else:    
+            current_time = datetime.now()
+            current_minute = datetime.now().minute
         #print("now ",current_time)
         #print("minute ",current_minute)
         if current_minute < 15:
@@ -133,6 +138,8 @@ class Algo():
             wait_time = wait_time.replace(second=0)
             self.datetime_15 = current_time + timedelta(minutes=(60-current_minute+15))
             self.datetime_15 =self.datetime_15.replace(second=0)
+        if self.backTest:    #added for backtest
+            wait_time = datetime.now() + timedelta(minutes=1)
         self.datetime_1h = wait_time.replace(minute=0)
         self.datetime_1d = current_time -  timedelta(days = 1)
         self.datetime_1d =self.datetime_1d.replace(hour = 0, minute=0, second=0)
