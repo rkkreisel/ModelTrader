@@ -73,12 +73,6 @@ class App:
             else:
                 backTest = False
         else:
-            print("INVALID number of arguments ",len(sys.argv))
-            print(type(sys.argv[1]) is datetime)
-            print(type(datetime.now()) is datetime)
-            print("datetime", datetime.now())
-            print("argument list",str(sys.argv))
-            print("argument items",str(sys.argv[0]),str(sys.argv[1]))
             commandParam = ""
             backTest = False
         logic.Algo(self.ib, self,backTest,commandParam).run()
