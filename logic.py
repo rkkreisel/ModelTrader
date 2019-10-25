@@ -118,6 +118,7 @@ class Algo():
             current_time = self.backTestStartDateTime
             current_minute = self.backTestStartDateTime.minute
             self.backTestStartDateTime = current_time + timedelta(minutes=15)
+            print("current time, backteststartdatetime",current_time,self.backTestStartDateTime)
         else:    
             current_time = datetime.now()
             current_minute = datetime.now().minute
@@ -140,6 +141,7 @@ class Algo():
             self.datetime_15 =self.datetime_15.replace(second=0)
         if self.backTest:    #added for backtest
             wait_time = datetime.now() + timedelta(minutes=1)
+        print("wait time -> ",wait_time)
         self.datetime_1h = wait_time.replace(minute=0)
         self.datetime_1d = current_time -  timedelta(days = 1)
         self.datetime_1d =self.datetime_1d.replace(hour = 0, minute=0, second=0)
