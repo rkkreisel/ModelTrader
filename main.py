@@ -61,13 +61,17 @@ class App:
         self._onTimeout()
         # check for command line arguments
         
-        if len(sys.argv) > 1 and isinstance("'"+sys.argv[1]+"'",datetime):
-            print("VALID number of arguments ",len(sys.argv))
-            print("argument list",str(sys.argv))
-            print("datetime", datetime.now())
-            backTest = True
-            commandParam = sys.argv[1]
-            print(commandParam)
+        if len(sys.argv) > 1:
+            dt = datetime(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],0,0) 
+            if isinstance(dt,datetime):
+                print("VALID number of arguments ",len(sys.argv))
+                print("argument list",str(sys.argv))
+                print("datetime", datetime.now())
+                backTest = True
+                commandParam = sys.argv[1]
+                print(commandParam)
+            else:
+                backTest = False
         else:
             print("INVALID number of arguments ",len(sys.argv))
             print(type(sys.argv[1]) is datetime)
