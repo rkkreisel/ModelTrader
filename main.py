@@ -5,7 +5,7 @@ from ib_insync import IB, util, objects, Ticker
 from datetime import *
 import tkinter as tk
 import pytz
-
+from datetime import datetime, timedelta
 import categories
 import config
 import logger
@@ -61,13 +61,15 @@ class App:
         self._onTimeout()
         # check for command line arguments
         
-        if len(sys.argv) > 1 and isinstance(sys.argv[1],datetime.datetime)
-            #print("number of arguments ",len(sys.argv))
-            #print("argument list",str(sys.argv))
+        if len(sys.argv) > 1 and isinstance(sys.argv[1],datetime):
+            print("number of arguments ",len(sys.argv))
+            print("argument list",str(sys.argv))
             backTest = True
             commandParam = sys.argv[1]
-            #print(commandParam)
+            print(commandParam)
         else:
+            print("number of arguments ",len(sys.argv))
+            print("argument list",str(sys.argv))
             commandParam = ""
             backTest = False
         logic.Algo(self.ib, self,backTest,commandParam).run()
