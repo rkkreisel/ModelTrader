@@ -97,7 +97,6 @@ class App:
         pandl = self.objects.PnL()
         logger.getLogger().info("PNL",pandl)
 
-    
     #def barupdateEvent_15m(self, bars: objects.BarDataList, hasNewBar: bool):
         #logger.getLogger().info(f"Got 15m Bars.")
         #cci, avg = logic.calculate_cci(bars)
@@ -122,7 +121,6 @@ def main(ib: IB):
 
     app = App(ib)
     app.run()
-
 
 if __name__ == '__main__':
     logger.setup()

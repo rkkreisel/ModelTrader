@@ -43,7 +43,7 @@ class Algo():
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.debug("Got Contract: {}".format(dataContract.localSymbol))
             self.app.contract.update(dataContract.localSymbol)
-            wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d = self.define_times()
+            wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d, self.log_time = self.define_times()
             log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
             #
             # debug 
@@ -110,7 +110,7 @@ class Algo():
                 if tradeNow:
                     log.info("we did not find a match in either CCI or CCI BB")
             #csv_row_add = helpers.build_csv_bars_row(","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort),True)
-            wrote_bar_to_csv = helpers.build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow)
+            wrote_bar_to_csv = helpers.build_csv_bars_row(self.log_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow)
             tradenow, cci_trade, ccibb_trade = False, False, False
 
     def define_times(self):
@@ -141,11 +141,14 @@ class Algo():
             self.datetime_15 =self.datetime_15.replace(second=0)
         if self.backTest:    #added for backtest
             wait_time = datetime.now() + timedelta(minutes=1)
+            self.log_time = self.backTestStartDateTime
+        else:
+            self.log_time = wait_time
         print("wait time -> ",wait_time)
         self.datetime_1h = wait_time.replace(minute=0)
         self.datetime_1d = current_time -  timedelta(days = 1)
         self.datetime_1d =self.datetime_1d.replace(hour = 0, minute=0, second=0)
-        return wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d
+        return wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d,self.log_time
 
     def row_results(self, row, cci_trade, ccibb_trade):
         log.info("************************************************")

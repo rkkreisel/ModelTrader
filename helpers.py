@@ -8,7 +8,6 @@ from ib_insync.contract import Contract
 import csv
 import config
 
-
 def is_open_today(contracthours: Contract):
     # a return of NONE is when the market is not opern for the given day
     """ Parse contract Trading Hours to Check if Valid Trading Day"""
