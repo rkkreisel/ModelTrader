@@ -61,15 +61,20 @@ class App:
         self._onTimeout()
         # check for command line arguments
         
-        if len(sys.argv) > 1 and isinstance(sys.argv[1],datetime):
-            print("number of arguments ",len(sys.argv))
+        if len(sys.argv) > 1 and isinstance("'"+sys.argv[1]+"'",datetime):
+            print("VALID number of arguments ",len(sys.argv))
             print("argument list",str(sys.argv))
+            print("datetime", datetime.now())
             backTest = True
             commandParam = sys.argv[1]
             print(commandParam)
         else:
-            print("number of arguments ",len(sys.argv))
+            print("INVALID number of arguments ",len(sys.argv))
+            print(type(sys.argv[1]) is datetime)
+            print(type(datetime.now()) is datetime)
+            print("datetime", datetime.now())
             print("argument list",str(sys.argv))
+            print("argument items",str(sys.argv[0]),str(sys.argv[1]))
             commandParam = ""
             backTest = False
         logic.Algo(self.ib, self,backTest,commandParam).run()
