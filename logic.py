@@ -116,7 +116,7 @@ class Algo():
     def define_times(self):
         if self.backTest:   # added for backtest
             current_time = self.backTestStartDateTime
-            current_minute = self.backTest.minute
+            current_minute = self.backTestStartDateTime.minute
             self.backTestStartDateTime = current_time + timedelta(minutes=15)
         else:    
             current_time = datetime.now()
