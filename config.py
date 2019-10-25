@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from constants import MarketDataTypes
 
 VERSION = "0.1"
