@@ -62,13 +62,13 @@ class App:
         # check for command line arguments
         
         if len(sys.argv) > 1:
-            dt = datetime(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],0,0) 
+            dt = datetime(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]),int(sys.argv[4]),0,0) 
             if isinstance(dt,datetime):
                 print("VALID number of arguments ",len(sys.argv))
                 print("argument list",str(sys.argv))
                 print("datetime", datetime.now())
                 backTest = True
-                commandParam = sys.argv[1]
+                commandParam = dt
                 print(commandParam)
             else:
                 backTest = False
