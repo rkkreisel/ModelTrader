@@ -47,8 +47,8 @@ def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice):
     print("placed stop order ",tradestp)
     return [MktOrder], [stoplossOrder], parentId
 
-def coverOrders(self.ib, tradeContract, action, quantity, cciProfile):
-    closeOpen = findOpenOrders(self.ib,True)
+def coverOrders(ib, tradeContract, action, quantity, cciProfile):
+    closeOpen = findOpenOrders(ib,True)
     parentId = ib.client.getReqId()
     #Entry Order
     print("tradeContract ",tradeContract)
