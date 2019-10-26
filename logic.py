@@ -33,9 +33,10 @@ class Algo():
         # any variable that is used within the class will be defined with self
         while not_finished:
             print ("top of algo run self*************************************************")
-            stpSell, stpBuy = orders.findOpenOrders(self.ib,False) # don't want to execute covering
-            log.info("we have the follow number of open stp orders for Sell: {sell} and Buy: {buy} ".format(sell=stpSell, buy=stpBuy))
-            #top of logic - want to check status as we enter a new bar/hour/day/contract
+            if not self.backTest:
+                stpSell, stpBuy = orders.findOpenOrders(self.ib,False) # don't want to execute covering
+                log.info("we have the follow number of open stp orders for Sell: {sell} and Buy: {buy} ".format(sell=stpSell, buy=stpBuy))
+                #top of logic - want to check status as we enter a new bar/hour/day/contract
             contContract, contracthours = get_contract(self) #basic information on continuious contact
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
             open_long, open_short, long_position_qty, short_position_qty = self.have_position(self.ib.positions())   # do we have an open position?
@@ -66,7 +67,7 @@ class Algo():
             # starting trade logic
             #
             # test buy
-            if tradeNow:
+            if tradeNow and not self.backTest:
                 if tradeAction == "BUY" and open_short:
                     #quantity = 2
                     MarketOrderId = orders.coverOrders(self.ib,tradeContract,"BUY",short_position_qty,"cci_day")
@@ -87,8 +88,9 @@ class Algo():
                         quantity = 2
                         # do we need to close out current order
                         # do we need to close out current stop loss orders?
-                        MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",bars_15m.stoplossprice)
-                        log.info("order placed, parentID: {}".format(ParentOrderID))
+                        if not backTest:
+                            MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",bars_15m.stoplossprice)
+                            log.info("order placed, parentID: {}".format(ParentOrderID))
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row1,cci_trade,ccibb_trade)
                         break
@@ -101,7 +103,8 @@ class Algo():
                         log.info("we have a match in cci.csv - tradeAction".format(tradeAction))
                         #log.info("found a match in CCI {}".format(str(row2[0])))
                         quantity = 2
-                        MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"cci_day",bars_15m.stoplossprice)
+                        if not backTest:
+                            MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"cci_day",bars_15m.stoplossprice)
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row2,cci_trade,ccibb_trade)
                         break
@@ -140,7 +143,7 @@ class Algo():
             self.datetime_15 = current_time + timedelta(minutes=(60-current_minute+15))
             self.datetime_15 =self.datetime_15.replace(second=0)
         if self.backTest:    #added for backtest
-            wait_time = datetime.now() + timedelta(minutes=1)
+            wait_time = datetime.now() + timedelta(seconds=5)
             self.log_time = self.backTestStartDateTime
         else:
             self.log_time = wait_time

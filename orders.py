@@ -67,11 +67,11 @@ def coverOrders(ib, tradeContract, action, quantity, cciProfile):
     #Stop Loss Order
     return [MktOrder]
 
-def openOrder(self.ib):
+def openOrder(ib):
     openOrders = self.ib.reqAllOpenOrders()
     return
 
-def findOpenOrders(self.ib, execute):
+def findOpenOrders(ib, execute):
         openOrders = ib.reqAllOpenOrders()
         x, stpSell, stpBuy = 0, 0, 0
         log.info("openOrders are ---->  ".format(openOrders))
