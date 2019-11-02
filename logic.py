@@ -28,7 +28,7 @@ class Algo():
         """ Execute the algorithm """
         # check for command line arguments
         # key_arr = ['blank','ATR15','ATR1','ATRD','CCI15','CCIA15','CCIA1h','CCIA1d','BBW15','BBb15','BBW1h','BBb1h','BBW1d','BBb1d']
-        tradeNow, not_finished, pendingShort, pendingLong, pendingSkip, cci_trade, ccibb_trade = False, True, False, False, False, False, False
+        tradeNow, not_finished, pendingShort, pendingLong, pendingSkip, cci_trade, ccibb_trade, crossed = False, True, False, False, False, False, False, False
         pendingCnt = 0
         # any variable that is used within the class will be defined with self
         while not_finished:
@@ -59,7 +59,7 @@ class Algo():
             bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15)
             bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h)
             bars_1d = calculations.Calculations(self.ib, dataContract, "75 D", "1 day", self.datetime_1d)
-            pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
+            pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction, crossed = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
             cci_key, ccibb_key, summ_key = build_key_array(tradeAction, bars_15m, bars_1h, bars_1d)
             setsum = self.setupsummary(summ_key)
             log.info("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
@@ -67,12 +67,15 @@ class Algo():
             # starting trade logic
             #
             # test buy
-            if tradeNow and not self.backTest:
-                if tradeAction == "BUY" and open_short:
+            print("going into tradenow, backtest, open long and short",tradeNow, self.backTest, open_short,open_long)
+            if crossed and (open_long or open_short) and not tradeNow:    # need to close stp and open positions
+                log.info("crossed but not tradeNow so lets close stp and open positions")
+            if tradeNow:
+                if tradeAction == "BUY" and open_short and not self.backTest:
                     #quantity = 2
                     MarketOrderId = orders.coverOrders(self.ib,tradeContract,"BUY",short_position_qty,"cci_day")
                     open_short = False
-                elif tradeAction == "SELL" and open_long:
+                elif tradeAction == "SELL" and open_long and not self.backTest:
                     #quantity = 2
                     MarketOrderId = orders.coverOrders(self.ib,tradeContract,"SELL",long_position_qty,"cci_day")
                     open_long = False
@@ -96,24 +99,27 @@ class Algo():
                         break
                     elif ccibb_key == row1[0] and row1[13] == "N":
                         log.info("Entry found in CCIBB but not traded.  See if this changes")
+                        ccibb_trade = False
                 csv_file2 = csv.reader(open('data/cci.csv', "rt"), delimiter = ",")
                 for row2 in csv_file2:
                     #print("cci   row: ",row2[0],row2[13])
                     if cci_key == row2[0] and row2[13] == "Y":
                         log.info("we have a match in cci.csv - tradeAction".format(tradeAction))
                         #log.info("found a match in CCI {}".format(str(row2[0])))
+                        cci_trade = True
                         quantity = 2
-                        if not backTest:
+                        if not self.backTest:
                             MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"cci_day",bars_15m.stoplossprice)
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row2,cci_trade,ccibb_trade)
                         break
                     elif cci_key == row2[0] and row2[13] == "N":
                         log.info("Entry found in CCI but not traded.  See if this changes")
+                        cci_trade = True
                 if tradeNow:
                     log.info("we did not find a match in either CCI or CCI BB")
             #csv_row_add = helpers.build_csv_bars_row(","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort),True)
-            wrote_bar_to_csv = helpers.build_csv_bars_row(self.log_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow)
+            wrote_bar_to_csv = helpers.build_csv_bars_row(self.log_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow, ccibb_trade, cci_trade,ccibb_key, cci_key)
             tradenow, cci_trade, ccibb_trade = False, False, False
 
     def define_times(self):
@@ -143,12 +149,12 @@ class Algo():
             self.datetime_15 = current_time + timedelta(minutes=(60-current_minute+15))
             self.datetime_15 =self.datetime_15.replace(second=0)
         if self.backTest:    #added for backtest
-            wait_time = datetime.now() + timedelta(seconds=5)
+            wait_time = datetime.now() + timedelta(seconds=3)
             self.log_time = self.backTestStartDateTime
         else:
             self.log_time = wait_time
         print("wait time -> ",wait_time)
-        self.datetime_1h = wait_time.replace(minute=0)
+        self.datetime_1h = self.log_time.replace(minute=0)
         self.datetime_1d = current_time -  timedelta(days = 1)
         self.datetime_1d =self.datetime_1d.replace(hour = 0, minute=0, second=0)
         return wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d,self.log_time
@@ -183,17 +189,6 @@ class Algo():
             x += + 1
         log.info("Have a position: long qty: {lqty} and short qty: {sqty} ".format(lqty = long_position_qty,sqty = short_position_qty))    
         return position_long_tf, position_short_tf, long_position_qty, short_position_qty 
-    
-    #def findOpenOrders(self):
-    #    openOrders = self.ib.reqAllOpenOrders()
-    #    x, stpSell, stpBuy = 0, 0, 0
-    #    while x < len(openOrders):
-    #       if openOrders[x].orderType == "STP" and openOrders[x].action == "SELL":
-    #            stpSell += openOrders[x].totalQuantity
-    #        elif openOrders[x].orderType == "STP" and openOrders[x].action == "BUY":
-    #            stpBuy += openOrders[x].totalQuantity
-    #        x += 1
-    #    return stpSell, stpBuy
 
     def setupsummary(self,summ_key):
         csv_file3 = csv.reader(open('data/setupsummary.csv', "rt"), delimiter = ",")
@@ -215,10 +210,11 @@ class Algo():
         return
 
     def crossoverPending(self, bars_15m, pendingLong, pendingShort, pendingSkip, pendingCnt):   # this is from excel macro.  Changes here should be changed there as well.
-        tradeNow = False
+        tradeNow, crossed = False, False
         tradeAction = "CASH"
         if (bars_15m.cci < bars_15m.ccia and bars_15m.cci_prior > bars_15m.ccia_prior) or \
                 (bars_15m.cci > bars_15m.ccia and bars_15m.cci_prior < bars_15m.ccia_prior):
+                crossed = True
                 log.info("We have crossed ----------^v")
                 if abs(bars_15m.cci - bars_15m.ccia) > config.SPREAD:
                     log.info("crossed and outside spread")
@@ -234,7 +230,7 @@ class Algo():
                     pendingCnt = 0
                     pendingSkip = True
                     log.info("crossed but not meet spread requirement, pendingSkip: {skip}, pendingCnt: {cnt}".format(skip = pendingSkip, cnt = pendingCnt))
-        log.info("crossed, pendingSkip: {skip}, pendingCnt: {cnt}".format(skip = pendingSkip, cnt = pendingCnt))
+        log.info("crossed {cross}, pendingSkip: {skip}, pendingCnt: {cnt}".format(cross=crossed, skip = pendingSkip, cnt = pendingCnt))
         # deal with existing pending
         if pendingLong and pendingCnt < config.SPREAD_COUNT and bars_15m.cci - bars_15m.ccia > config.SPREAD:
             log.info("pending long cnt < 3 and > spread")
@@ -252,7 +248,7 @@ class Algo():
             pendingCnt += 1
             log.info("pending continues cnt: {cnt}".format(cnt = pendingCnt))
         print("check post cross and we have tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt",tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt)
-        return pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction
+        return pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction, crossed
         
 def get_contract(client):
     contract = client.ib.reqContractDetails(
@@ -269,7 +265,7 @@ def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
     if tradeAction == "SELL":
         cci_key = "short"
     #key_arr.append[1,"test"] 
-    cci_key += categories.categorize_atr1h(bars_1h.atr) + categories.categorize_atr1h(bars_1h.atr) + categories.categorize_atr1d(bars_1d.atr) + \
+    cci_key += categories.categorize_atr15(bars_15m.atr) + categories.categorize_atr1h(bars_1h.atr) + categories.categorize_atr1d(bars_1d.atr) + \
         categories.categorize_cci_15(bars_15m.cci) + categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + \
         categories.categorize_cci_1d(bars_1d.ccia)
     ccibb_key = cci_key + categories.categorize_BBW15(bars_15m.bband_width) + categories.categorize_BBb15(bars_15m.bband_b) + categories.categorize_BBW1h(bars_1h.bband_width) + \

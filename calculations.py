@@ -29,9 +29,9 @@ class Calculations():
   
         """ Execute the calculations """
     def run(self):    
-        #print("bar_duration, bar size date time ",self.dataContract, self.bar_duration, self.bar_size, self.datetime_period)
+        #print("\n bar_duration, bar size date time ",self.dataContract, self.bar_duration, self.bar_size, self.datetime_period)
         bars_period = self.get_bars_data()
-        print("bar data close - this is what stoplossprice comes from: ",bars_period[-1].close)
+        #print("bar data close - this is what stoplossprice comes from: ",bars_period[-1].close)
         #x = np.array(bars_period)
         #log.debug("bars {bars} ".format(bars=bars_period))
         self.cci, self.ccia, self.cci_prior, self.ccia_prior = self.calculate_cci(bars_period)
@@ -39,6 +39,7 @@ class Calculations():
         self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
         #logged_it = self.log_value("Starting ")
         self.stoplossprice = round((bars_period[-1].close - (self.atr * 2))*4,0)/4
+
         if self.bar_size == "15 mins":
             if self.self.cci > self.ccia and self.cci_prior < self.ccia_prior:
                 crossed, tradenow = True, True
@@ -54,6 +55,8 @@ class Calculations():
                 pendinglong = True
                 pendingshort = True
             log.info("Stop loss set > ".format(self.stoplossprice))
+        #else:
+        #    print("\n non 15m bars",self.bar_size,bars_period)
 
             
     def get_bars_data(self):

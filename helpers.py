@@ -72,22 +72,26 @@ def parseAdvisorConfig(xml):
                  amount += int(float(attrib.text))
     return amount
 
-def build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow):
+def build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow, ccibb_trade, cci_trade, ccibb_key, cci_key):
     #csv_header = "Time,Status,Crossed,CCI15,CCIA15,CCI15P,CCIA15P,ATR15,BBw15,BBB15"
     if os.stat("data/hist15.csv").st_size < 10:
         csv_header = 'wait_time,tradeAction,'
         csv_header += 'bars_15m.cci,bars_15m.ccia,bars_15m.atr,bars_15m.bband_width,bars_15m.bband_b,'
         csv_header += 'bars_1h.cci,bars_1h.ccia,bars_1h.atr,bars_1h.bband_width,bars_1h.bband_b,'
         csv_header += 'bars_1d.cci,bars_1d.ccia,bars_1d.atr,bars_1d.bband_width,bars_1d.bband_b,'
-        csv_header += 'tradeAction,tradeNow,pendingLong,pendingShort,pendingCnt,curr_spread,prior_spread'
-    csv_row = "'"+str(wait_time) + ',' + tradeAction + ','
-    csv_row += str(bars_15m.cci) + ',' + str(bars_15m.ccia) + ',' + str(bars_15m.atr) + ',' + str(bars_15m.bband_width) + ',' + str(bars_15m.bband_b) + ','
-    csv_row += str(bars_1h.cci) + ',' + str(bars_1h.ccia) + ',' + str(bars_1h.atr) + ',' + str(bars_1h.bband_width) + ',' + str(bars_1h.bband_b) + ','
-    csv_row += str(bars_1d.cci) + ',' + str(bars_1d.ccia) + ',' + str(bars_1d.atr) + ',' + str(bars_1d.bband_width) + ',' + str(bars_1d.bband_b) + ','
-    csv_row += tradeAction + ',' + str(tradeNow) +','+ str(pendingLong) +','+ str(pendingShort) +','+ str(pendingCnt) + ','
-    csv_row += str(abs(bars_15m.cci-bars_15m.ccia)) + ',' + str(abs(bars_15m.cci_prior-bars_15m.ccia_prior))
-    with open('data/hist15.csv', mode='a') as hist15:
+        csv_header += 'tradeNow,pendingLong,pendingShort,pendingCnt,curr_spread,prior_spread,'
+        csv_header += 'ccibb_trade,cci_trade,ccibb_key, cci_key'
+        with open('data/hist15.csv', mode='a') as hist15:
             histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             histwriter.writerow([csv_header])
+    csv_row = str(wait_time) + ',' + tradeAction + ','
+    csv_row += str(bars_15m.cci) + ',' + str(bars_15m.ccia) + ',' + str(bars_15m.atr) + ',' + str(bars_15m.bband_width) + ',' + str(bars_15m.bband_b) + ','
+    csv_row += str(bars_1h.cci)  + ',' + str(bars_1h.ccia) + ',' + str(bars_1h.atr) + ',' + str(bars_1h.bband_width) + ',' + str(bars_1h.bband_b) + ','
+    csv_row += str(bars_1d.cci)  + ',' + str(bars_1d.ccia) + ',' + str(bars_1d.atr) + ',' + str(bars_1d.bband_width) + ',' + str(bars_1d.bband_b) + ','
+    csv_row += str(tradeNow) +','+ str(pendingLong) +','+ str(pendingShort) + ',' + str(pendingCnt) + ','
+    csv_row += str(abs(bars_15m.cci-bars_15m.ccia)) + ',' + str(abs(bars_15m.cci_prior-bars_15m.ccia_prior)) + ',' + str(ccibb_trade) + ',' + str(cci_trade) + ','
+    csv_row += str(ccibb_key) + ',' + str(cci_key)
+    with open('data/hist15.csv', mode='a') as hist15:
+            histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             histwriter.writerow([csv_row])
     return True
