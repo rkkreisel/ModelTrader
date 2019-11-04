@@ -12,8 +12,9 @@ log = logger.getLogger()
 # buy or sell based on trigger with open stp and open position (every open order should have a stp order)
 # no buy or sell but we crossed and need to close stp's and close positions
 #
-def closeOutSTPandPosition(ib):   # this manages the closing of stp orders and open positions
-    closeOutOpenSTP = coverOrders(ib,True)  # we are going to execute (True)
+def closeOutSTPandPosition(ib):   # this manages the closing of stp orders and open position
+    closeSTP = findOpenOrders(ib.True)      # close open STP orders
+    closeOutPositions = findOpenPositions(ib,True)  # we are going to execute (True)
     return
 
 def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice,):
@@ -107,3 +108,19 @@ def findOpenOrders(ib, execute):
                     ib.cancelOrder(openOrders[x].permId)
             x += 1
         return stpSell, stpBuy
+def findOpenPositions(self,positions):
+        position_long_tf = False
+        position_short_tf = False
+        x = 0
+        long_position_qty, short_position_qty = 0, 0
+        while x < len(positions):
+            if (positions[x][1].symbol) == "ES":
+                if positions[x][2] > 0:
+                    long_position_qty += positions[x][2]
+                    position_long_tf = True
+                elif positions[x][2] < 0:
+                    short_position_qty += positions[x][2]
+                    position_short_tf = True
+            x += + 1
+        log.info("Have a position: long qty: {lqty} and short qty: {sqty} ".format(lqty = long_position_qty,sqty = short_position_qty))    
+        return position_long_tf, position_short_tf, long_position_qty, short_position_qty 

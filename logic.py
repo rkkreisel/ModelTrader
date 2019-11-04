@@ -53,9 +53,6 @@ class Algo():
             #
             self.ib.waitUntil(wait_time)
             log.debug("requesting info for the following timeframe today: {} ".format(wait_time))
-            #
-            #start of study
-            #
             bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15)
             bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h)
             bars_1d = calculations.Calculations(self.ib, dataContract, "75 D", "1 day", self.datetime_1d)
@@ -63,12 +60,9 @@ class Algo():
             cci_key, ccibb_key, summ_key = build_key_array(tradeAction, bars_15m, bars_1h, bars_1d)
             setsum = self.setupsummary(summ_key)
             log.info("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
-            #
-            # starting trade logic
-            #
-            # test buy
             print("going into tradenow, backtest, open long and short",tradeNow, self.backTest, open_short,open_long)
             if crossed and (open_long or open_short) and not tradeNow:    # need to close stp and open positions
+                allClosed = orders.closeOutSTPandPosition(self.ib,tradeContract)
                 log.info("crossed but not tradeNow so lets close stp and open positions")
             if tradeNow:
                 if tradeAction == "BUY" and open_short and not self.backTest:
@@ -178,6 +172,7 @@ class Algo():
         position_short_tf = False
         x = 0
         long_position_qty, short_position_qty = 0, 0
+        print("positions --> ",positions)
         while x < len(positions):
             if (positions[x][1].symbol) == "ES":
                 if positions[x][2] > 0:
