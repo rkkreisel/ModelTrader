@@ -34,7 +34,7 @@ class Calculations():
         #print("bar data close - this is what stoplossprice comes from: ",bars_period[-1].close)
         #x = np.array(bars_period)
         #log.debug("bars {bars} ".format(bars=bars_period))
-        self.cci, self.ccia, self.cci_prior, self.ccia_prior = self.calculate_cci(bars_period)
+        self.cci, self.ccia, self.cci_prior, self.ccia_prior, self.cci_third, self.ccia_third, self.cci_four, self.ccia_four = self.calculate_cci(bars_period)
         self.atr =  self.calculate_atr(bars_period)
         self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
         #logged_it = self.log_value("Starting ")
@@ -80,7 +80,9 @@ class Calculations():
         )
         ccia = statistics.mean(cci[-config.CCI_AVERAGE_PERIODS:])
         ccia_prior = statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):][:-1])
-        return cci[-1], ccia, cci[-2], ccia_prior
+        ccia_third = statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):][:-2])
+        ccia_four = statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):][:-2])
+        return cci[-1], ccia, cci[-2], ccia_prior, cci[-3], ccia_third, cci[-4], ccia_four
 
     def calculate_atr(self, bars):
         atr =  talib.ATR(

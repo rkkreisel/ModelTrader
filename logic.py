@@ -28,9 +28,14 @@ class Algo():
         """ Execute the algorithm """
         # check for command line arguments
         # key_arr = ['blank','ATR15','ATR1','ATRD','CCI15','CCIA15','CCIA1h','CCIA1d','BBW15','BBb15','BBW1h','BBb1h','BBW1d','BBb1d']
-        tradeNow, not_finished, pendingShort, pendingLong, pendingSkip, cci_trade, ccibb_trade, crossed = False, True, False, False, False, False, False, False
+        tradeNow, not_finished, pendingShort, pendingLong, pendingSkip, cci_trade, ccibb_trade, crossed, justStartedApp = False, True, False, False, False, False, False, False, True
         pendingCnt = 0
         # any variable that is used within the class will be defined with self
+        if justStartedApp:
+            pendingLong, pendingShort, pendingCnt = self.justStartedAppDirectionCheck()
+            justStartedApp = False
+            # do we need to reset pending
+
         while not_finished:
             print ("top of algo run self*************************************************")
             if not self.backTest:
@@ -61,18 +66,10 @@ class Algo():
             setsum = self.setupsummary(summ_key)
             log.info("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
             print("going into tradenow, backtest, open long and short",tradeNow, self.backTest, open_short,open_long)
-            if crossed and (open_long or open_short) and not tradeNow:    # need to close stp and open positions
-                allClosed = orders.closeOutSTPandPosition(self.ib,tradeContract)
+            if crossed and (open_long or open_short):    # need to close stp and open positions
+                allClosed = orders.closeOutSTPandPosition(self.ib,tradeContract)     # we don't worry about whether we are long or short
                 log.info("crossed but not tradeNow so lets close stp and open positions")
             if tradeNow:
-                if tradeAction == "BUY" and open_short and not self.backTest:
-                    #quantity = 2
-                    MarketOrderId = orders.coverOrders(self.ib,tradeContract,"BUY",short_position_qty,"cci_day")
-                    open_short = False
-                elif tradeAction == "SELL" and open_long and not self.backTest:
-                    #quantity = 2
-                    MarketOrderId = orders.coverOrders(self.ib,tradeContract,"SELL",long_position_qty,"cci_day")
-                    open_long = False
                 log.info("tradeNow - Tradeing this bar {cci} - {ccibb}".format(cci=cci_key,ccibb=ccibb_key))
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
                 #cci_key, ccibb_key = build_key_array(self, tradeAction, bars_15m, bars_1h, bars_1d)
@@ -85,7 +82,7 @@ class Algo():
                         quantity = 2
                         # do we need to close out current order
                         # do we need to close out current stop loss orders?
-                        if not backTest:
+                        if not self.backTest:
                             MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",bars_15m.stoplossprice)
                             log.info("order placed, parentID: {}".format(ParentOrderID))
                         open_long, open_short, tradenow = False, False, False
@@ -168,12 +165,13 @@ class Algo():
         return
 
     def have_position(self,positions):
+        log.info("have_positions:")
         position_long_tf = False
         position_short_tf = False
         x = 0
         long_position_qty, short_position_qty = 0, 0
-        print("positions --> ",positions)
         while x < len(positions):
+            print("positions account should be ",positions[x].account)
             if (positions[x][1].symbol) == "ES":
                 if positions[x][2] > 0:
                     long_position_qty += positions[x][2]
@@ -244,6 +242,47 @@ class Algo():
             log.info("pending continues cnt: {cnt}".format(cnt = pendingCnt))
         print("check post cross and we have tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt",tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt)
         return pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction, crossed
+
+    def justStartedAppDirectionCheck(self):
+        log.info("justStartedAppDirectionCheck: Application just restarted.  Going through our checks")
+        # do we need to reverse positions?
+        # first check to see if we have positions or open orders.  If not exit otherwise continue
+        # Are we positioned in the wrong direction (i.e. long when we should be short?)  If so, we need to close STP and open open trades.
+        # not going to take a position at this time.
+        # the bars data is the current, not completed, bar so we have to go back to get closed bars.
+        
+        contContract, contracthours = get_contract(self) #basic information on continuious contact
+        tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
+        open_long, open_short, long_position_qty, short_position_qty = self.have_position(self.ib.positions())   # do we have an open position?
+        open_today = helpers.is_open_today(contracthours)
+        wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d, self.log_time = self.define_times()
+        dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
+        bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15)
+        #print("bars15 cci_third, ccia_third, cci_prior, ccia_prior, cci, ccia",bars_15m.cci_third,bars_15m.ccia_third,bars_15m.cci_prior, bars_15m.ccia_prior, bars_15m.cci, bars_15m.ccia)
+        if (bars_15m.cci_prior > bars_15m.ccia_prior and open_short) or (bars_15m.cci_prior < bars_15m.ccia_prior and open_long):
+            log.info("we are in app start up and we need to reverse due to wrong direction")
+            allClosed = orders.closeOutSTPandPosition(self.ib,tradeContract)     # we don't worry about whether we are long or short
+            log.info("crossed but not tradeNow so lets close stp and open positions")
+        else:
+            log.info("we are in app start up and we DO NOT need to reverse due to wrong direction")
+        # now check if we should be pending on restart
+        
+        if (bars_15m.cci_four > bars_15m.ccia_four and bars_15m.cci_third < bars_15m.ccia_third and bars_15m.cci_prior < bars_15m.ccia_prior and \
+        abs(bars_15m.cci_third - bars_15m.ccia_third) < config.SPREAD and abs(bars_15m.cci_prior - bars_15m.ccia_prior) < config.SPREAD) or \
+        (bars_15m.cci_four < bars_15m.ccia_four and bars_15m.cci_third > bars_15m.ccia_third and bars_15m.cci_prior > bars_15m.ccia_prior and \
+        abs(bars_15m.cci_third - bars_15m.ccia_third) < config.SPREAD and abs(bars_15m.cci_prior - bars_15m.ccia_prior) < config.SPREAD):
+            if bars_15m.cci_prior > bars_15m.ccia_prior:
+                return True, False, 2
+            else:
+                return False, True, 2
+        elif (bars_15m.cci_third > bars_15m.ccia_third and bars_15m.cci_prior < bars_15m.ccia_prior and abs(bars_15m.cci_prior - bars_15m.ccia_prior) < config.SPREAD) or \
+        (bars_15m.cci_third < bars_15m.ccia_third and bars_15m.cci_prior > bars_15m.ccia_prior and abs(bars_15m.cci_prior - bars_15m.ccia_prior) < config.SPREAD):
+            if bars_15m.cci_prior > bars_15m.ccia_prior:
+                return True, False, 1
+            else:
+                return False, True, 1
+        else:
+            return False, False, 0
         
 def get_contract(client):
     contract = client.ib.reqContractDetails(
@@ -268,3 +307,4 @@ def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
     summ_key = categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + categories.categorize_cci_1d(bars_1d.ccia)
     #print("cci and ccibb key",cci_key, ccibb_key)
     return cci_key, ccibb_key, summ_key
+

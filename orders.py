@@ -12,21 +12,25 @@ log = logger.getLogger()
 # buy or sell based on trigger with open stp and open position (every open order should have a stp order)
 # no buy or sell but we crossed and need to close stp's and close positions
 #
-def closeOutSTPandPosition(ib):   # this manages the closing of stp orders and open position
-    closeSTP = findOpenOrders(ib.True)      # close open STP orders
-    closeOutPositions = findOpenPositions(ib,True)  # we are going to execute (True)
+def closeOutSTPandPosition(ib, tradeContract):   # this manages the closing of stp orders and open position
+    log.info("closeOutSTPandPositions: logic ??????")
+    closeSTP = findOpenOrders(ib,True)      # close open STP orders
+    closeOutPositions = findOpenPositions(ib,tradeContract, True)  # we are going to execute (True)
     return
 
 def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice,):
     #STP order
     closeOpen = findOpenOrders(ib, True)
-    # parentId = ib.client.getReqId()
+    parentId = ib.client.getReqId()
+    stopAction = "BUY"
+    if action == "BUY":
+        stopAction = "SELL"
     #Entry Order
-    print("tradeContract ",tradeContract)
-    print("action: ",action)
-    print("qty : ",quantity)
-    print("cciprofile ",cciProfile)
-    print("stoplosspricee ",stoplossprice)
+    print("buildOrders: tradeContract ",tradeContract)
+    print("buildOrders: action: ",action)
+    print("buildOrders: qty : ",quantity)
+    print("buildOrders: cciprofile ",cciProfile)
+    print("buildOrders: stoplosspricee ",stoplossprice)
     MktOrder = Order(
         action = action,
         orderType = "MKT",
@@ -37,7 +41,7 @@ def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice,):
     )
     #Stop Loss Order
     stoplossOrder = Order(
-        action = action,
+        action = stopAction,
         orderType = "STP",
         auxPrice = stoplossprice,
         lmtPrice = 0,
@@ -49,31 +53,32 @@ def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice,):
     )
     trademkt = ib.placeOrder(tradeContract,MktOrder)
     tradestp = ib.placeOrder(tradeContract,stoplossOrder)
-    print("Order placed  ",action,quantity)
+    print("buildOrders: Order placed  ",action,quantity)
     print("")
     
-    print("did place order",trademkt)
+    print("buildOrders: did place order",trademkt)
     print("")
-    print("placed stop order ",tradestp)
+    print("buildOrders: placed stop order ",tradestp)
     return [MktOrder], [stoplossOrder], parentId
 
-def coverOrders(ib, tradeContract, action, quantity, cciProfile):
+def closeOrders(ib, tradeContract, account, action, quantity):
     #closeOpen = findOpenOrders(ib,True)
     parentId = ib.client.getReqId()
     #Entry Order
-    print("tradeContract ",tradeContract)
-    print("action: ",action)
-    print("qty : ",quantity)
-    print("cciprofile ",cciProfile)
+    print("closeOrders: tradeContract ",tradeContract)
+    print("closeOrders: action: ",action)
+    print("closeOrders: qty : ",quantity)
     MktOrder = Order(
+        account = account,
         action = action,
         orderType = "MKT",
         orderId = parentId,
-        faProfile = cciProfile,
         totalQuantity = quantity,
         transmit = True
     )
     trademkt = ib.placeOrder(tradeContract,MktOrder)
+    ib.sleep(1)
+    trademkt.log
     #Stop Loss Order
     return [MktOrder]
 
@@ -81,46 +86,51 @@ def openOrder(ib):
     openOrders = self.ib.reqAllOpenOrders()
     return
 
-def findOpenOrders(ib, execute):
-        openOrders = ib.reqAllOpenOrders()
+def findOpenOrders(ib,execute):
+        #allOpenOrders = ib.reqAllOpenOrders()
+        log.info("************** in the findOpenOrder function *****************")
+        openOrdersList = ib.openOrders()
         x, stpSell, stpBuy = 0, 0, 0
-        print("openOrders are ---->  ",openOrders)
-        print("execute --------------------------",execute)
         # if we are to execute, we need to create closing orders for each order we scroll through
         # not sure we need to differentiate between buy or sell stop orders below
-        while x < len(openOrders):
-            log.info("order type: {type} with ID: {id}".format(type=openOrders[x].orderType,id=openOrders[x].permId))
-            openOrderId = openOrders[x].permId
-            print("order id variable",openOrderId)
-            print("order id variable as string", str(openOrderId))
-            print("what does permid look like with type ",type(openOrders[x].permId))
-            if openOrders[x].orderType == "STP" and openOrders[x].action == "SELL":
-                log.info("Cancelling Sell STP order")
-                stpSell += openOrders[x].totalQuantity
+        while x < len(openOrdersList):
+            #print("openOrders are ---->  ",openOrdersList[x].conId)
+            #log.info("order type: {type} with ID: {id}".format(type=openOrdersList[x].orderType,id=openOrdersList[x].permId))
+            openOrderId = openOrdersList[x].permId
+            log.info("findOpenOrder: - we have open order records: opendOrderId: {ooi}".format(ooi=openOrderId))
+            if openOrdersList[x].orderType == "STP" and openOrdersList[x].action == "SELL":
+                log.info("findOpenOrder - we have open order records: SELL {one}".format(one=openOrdersList[x].orderType))
+                stpSell += openOrdersList[x].totalQuantity
+                if execute:
+                    #temp = temphold(orderId=openOrder[x].permId)
+                    cv = ib.client.cancelOrder(openOrdersList[x])
+                    log.info("findOpenOrder: cancel order sent -> cv: {cv} ".format(cv=cv))
+            elif openOrdersList[x].orderType == "STP" and openOrdersList[x].action == "BUY":
+                log.info("findOpenOrder: - we have open order records: BUY {one}".format(one=openOrdersList[x].orderType))
+                stpBuy += openOrdersList[x].totalQuantity
                 if execute:
                     print("execute")
-                    ib.cancelOrder(openOrders[x].permId)
-            elif openOrders[x].orderType == "STP" and openOrders[x].action == "BUY":
-                log.info("Cancelling Buy STP order")
-                stpBuy += openOrders[x].totalQuantity
-                if execute:
-                    print("execute")
-                    ib.cancelOrder(openOrders[x].permId)
+                    #temp = temphold(orderId=openOrder[x].permId)
+                    cv = ib.client.cancelOrder(openOrdersList[x])
+                    log.info("findOpenOrder: cancel order sent -> cv: {cv} ".format(cv=cv))
             x += 1
         return stpSell, stpBuy
-def findOpenPositions(self,positions):
-        position_long_tf = False
-        position_short_tf = False
+
+def findOpenPositions(ib, tradeContract, execute):
+        log.info("findOpenPositions: execute: {cv} ".format(cv=execute))
+        #position_long_tf = False
+        #position_short_tf = False
         x = 0
-        long_position_qty, short_position_qty = 0, 0
+        #long_position_qty, short_position_qty = 0, 0
+        positions = ib.positions()
         while x < len(positions):
             if (positions[x][1].symbol) == "ES":
                 if positions[x][2] > 0:
-                    long_position_qty += positions[x][2]
-                    position_long_tf = True
+                    log.info("findOpenPositions: Have a position and closing it qty by SELL: {qty} ".format(qty = positions[x][2])) 
+                    closeLong = closeOrders(ib, tradeContract, positions[x].account, "SELL", positions[x][2])
                 elif positions[x][2] < 0:
-                    short_position_qty += positions[x][2]
-                    position_short_tf = True
+                    log.info("findOpenPosition: Have a position and closing it qty by BUY: {qty} ".format(qty = abs(positions[x][2]))) 
+                    closeLong = closeOrders(ib, tradeContract, positions[x].account, "BUY", abs(positions[x][2]))
             x += + 1
-        log.info("Have a position: long qty: {lqty} and short qty: {sqty} ".format(lqty = long_position_qty,sqty = short_position_qty))    
-        return position_long_tf, position_short_tf, long_position_qty, short_position_qty 
+           
+        return 
