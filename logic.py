@@ -204,7 +204,9 @@ class Algo():
 
     def crossoverPending(self, bars_15m, pendingLong, pendingShort, pendingSkip, pendingCnt):   # this is from excel macro.  Changes here should be changed there as well.
         tradeNow, crossed = False, False
-        tradeAction = "CASH"
+        tradeAction = "Sell"
+        if bars_15m.cci > bars_15m.ccia:
+            tradeAction = "Buy"
         if (bars_15m.cci < bars_15m.ccia and bars_15m.cci_prior > bars_15m.ccia_prior) or \
                 (bars_15m.cci > bars_15m.ccia and bars_15m.cci_prior < bars_15m.ccia_prior):
                 crossed = True
@@ -212,9 +214,6 @@ class Algo():
                 if abs(bars_15m.cci - bars_15m.ccia) > config.SPREAD:
                     log.info("crossed and outside spread")
                     tradeNow = True
-                    tradeAction = "BUY"
-                    if bars_15m.cci < bars_15m.ccia:
-                        tradeAction = "SELL"
                 else:
                     if bars_15m.cci < bars_15m.ccia:
                         pendingShort, pendingLong = True, False
