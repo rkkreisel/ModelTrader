@@ -309,4 +309,3 @@ def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
     summ_key = categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + categories.categorize_cci_1d(bars_1d.ccia)
     #print("cci and ccibb key",cci_key, ccibb_key)
     return cci_key, ccibb_key, summ_key
-
