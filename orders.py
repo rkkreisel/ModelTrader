@@ -43,7 +43,8 @@ def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice,):
         transmit = False
     )
     trademkt = ib.placeOrder(tradeContract,MktOrder)
-    checkOrderStatus = writeOrdersToCSV(ib, trademkt, "trademkt", trademkt.orderStatus.status)   
+    checkOrderStatus = writeOrdersToCSV(ib, trademkt, "trademkt", trademkt.orderStatus.status)
+    checkOrderStatus = checkForOpenOrderStatus(ib, trademkt, "trademkt", trademkt.orderStatus.status)
     #Stop Loss Order
     stoplossOrder = Order(
         action = stopAction,
@@ -158,7 +159,7 @@ def findOpenPositions(ib, tradeContract, execute):
                     print("\n----------------------- TRADEMKT ---------------\n",trademkt)
                     checkOrderStatus = writeOrdersToCSV(ib, tradeContract, positions[x].account, "SELL", positions[x].position)
                     log.info("findOpenOrder: cancel order sent -> cv: {cv} ".format(cv=trademkt))
-            elif positions[x].symbol == "ES" and positions[x].position < 0:
+            elif positions[x].contract.symbol == "ES" and positions[x].position < 0:
                 #orderFoundTF = True
                 log.info("findOpenPositions - we have open order records: Long {one}".format(one=positions[x].position))
                 positionLong += positions[x].position
@@ -173,7 +174,7 @@ def findOpenPositions(ib, tradeContract, execute):
             x += 1
         return 
 
-def writeOrdersToCSV(ib, orderInfo, orderName, status):
+def writeOrdersToCSV(ib, orderInfo, orderName):
     # Go through open order
     #log.info("\nwriteOrdersToCSV: orderInfo: {oi} and orderId: ".format(oi=orderInfo))
     #log.info("\nwriteOrdersToCSV: orderInfo: {oi} and orderId: {os}".format(oi=orderInfo, os=orderInfo.order.orderId))
@@ -191,9 +192,38 @@ def writeOrdersToCSV(ib, orderInfo, orderName, status):
     #    log.info("waiting for the order status to change, orderName: ".format(orderName))
         #ib.waitOnUpdate()
     return
+def writeTradeToCSV(ib, orderInfo, orderName, status):
+    # Go through open order
+    #log.info("\nwriteOrdersToCSV: orderInfo: {oi} and orderId: ".format(oi=orderInfo))
+    #log.info("\nwriteOrdersToCSV: orderInfo: {oi} and orderId: {os}".format(oi=orderInfo, os=orderInfo.order.orderId))
+    orderId = orderInfo.order.orderId
+    status = orderInfo.orderStatus.status
+    log.info("\nwriteOrdersToCSV: orderInfo: {oi} and orderId: {os} and status: oos: {oos}".format(oi=orderInfo, os=orderId,oos=status))
+    csv_row = str(orderInfo) 
+    with open('data/trades.csv', mode='a', newline = '') as ordersCSV:
+        fieldnames = ['Order_Id','Order','Status','Date_Pending','Date_Cancelled','Date_Filled']
+        histwriter = csv.DictWriter(ordersCSV, fieldnames = fieldnames)
+        histwriter.writeheader()
+        histwriter.writerow({'Order_Id': orderId, 'Order': orderInfo, 'Status': status, 'Date_Pending': datetime.datetimenow(), 'Date_Cancelled': '1/1/20', 'Date_Filled': '1/1/20'})
 
-def checkTradesFromOrders(ib, orderInfo, orderName, status):
+    #while not (orderName + ".isDone()"):
+    #    log.info("waiting for the order status to change, orderName: ".format(orderName))
+        #ib.waitOnUpdate()
+    return
+
+def checkForOpenOrderStatus(ib, orderInfo, orderName, status):
     # going through orders looking for filled and updating trades
+    startTime = datetime.datetime.now()
+    while True:
+        status = orderInfo.orderStatus.status
+        if status not in ['PendingSubmit','PreSubmitted']:
+            log.info("Open Executed worked")
+            updateOrders = writeTradeToCSV(ib, orderId, "tradeMkt", status)
+            break
+        if (datetime.datetimenow() - startTime).total_seconds() > 100:
+            log.debug("order failed for: {0} ".format(orderInfo.order.orderId))
+        self.ib.sleep(0.2)
+        
     x1 = 0
     updatedOrders = ib.trades()
     print("\n---------------------------------updated Orders now Trades ----------------------------------",updatedOrders)
