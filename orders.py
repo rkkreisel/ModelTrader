@@ -21,78 +21,52 @@ def closeOutSTPandPosition(ib, tradeContract, execute):               # this man
     closeOutPositions = findOpenPositions(ib,tradeContract, execute)  # we are going to execute (True)
     return
 
-def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice,):
-    #STP order
-    closeOpen = findOpenOrders(ib, True)
-    parentId = ib.client.getReqId()
-    stopAction = "BUY"
-    if action == "BUY":
-        stopAction = "SELL"
-    #Entry Order
-    print("buildOrders: tradeContract ",tradeContract)
-    print("buildOrders: action: ",action)
-    print("buildOrders: qty : ",quantity)
-    print("buildOrders: cciprofile ",cciProfile)
-    print("buildOrders: stoplosspricee ",stoplossprice)
-    MktOrder = Order(
-        action = action,
-        orderType = "MKT",
-        orderId = parentId,
-        faProfile = cciProfile,
-        totalQuantity = quantity,
-        transmit = False
-    )
-    trademkt = ib.placeOrder(tradeContract,MktOrder)
-    checkOrderStatus = writeOrdersToCSV(ib, trademkt, "trademkt", trademkt.orderStatus.status)
-    checkOrderStatus = checkForOpenOrderStatus(ib, trademkt, "trademkt", trademkt.orderStatus.status)
-    #Stop Loss Order
-    stoplossOrder = Order(
-        action = stopAction,
-        orderType = "STP",
-        auxPrice = stoplossprice,
-        lmtPrice = 0,
-        faProfile = cciProfile,
-        totalQuantity = quantity,
-        orderId = ib.client.getReqId(),
-        parentId = parentId,
-        transmit = True
-    )
-    tradestp = ib.placeOrder(tradeContract,stoplossOrder)
-    checkOrderStatus = writeOrdersToCSV(ib, trademkt, "trademkt", trademkt.orderStatus.status)   
-    print("buildOrders: Order placed  ",action,quantity)
-    print("")
-    
-    print("buildOrders: did place order",trademkt)
-    print("")
-    print("buildOrders: placed stop order ",tradestp)
 
-    return [MktOrder], [stoplossOrder], parentId
 
-def closeOrders(ib, tradeContract, account, action, quantity):
-    #closeOpen = findOpenOrders(ib,True)
-    parentId = ib.client.getReqId()
-    #Entry Order
-    log.info("closeOrders: tradeContract: {tc} account: {ac} action: {act} qty: {qty}".format(tc=tradeContract, ac=account, act=action, qty= quantity))
-    MktOrder = Order(
-        account = account,
-        action = action,
-        orderType = "MKT",
-        orderId = parentId,
-        totalQuantity = quantity,
-        transmit = True
-    ) 
-    trademkt = ib.placeOrder(tradeContract,MktOrder)
-    print("closeOrders: trademkt ",trademkt)
-    checkOrderStatus = writeOrdersToCSV(ib, trademkt, "trademkt")
-    #ib.sleep(1)
-    #trademkt.log
-    #Stop Loss Order
-    return [MktOrder]
 
-def openOrder(ib):
-    openOrders = self.ib.reqAllOpenOrders()
 
-def findOpenOrders(ib,execute):                 # This is to find open STP orders and cancel them when execute is True
+def countOpenOrders(ib):                 # This is to find open STP orders only
+        log.info("************** in the findOpenOrder function *****************")
+        openOrdersList = ib.openTrades()
+        x, stpSell, stpBuy = 0, 0, 0
+        # if we are to execute, we need to create closing orders for each order we scroll throug
+        # not sure we need to differentiate between buy or sell stop orders below
+        while x < len(openOrdersList):
+            symbol, orderId, orderType, action, quantity, status, date_order = parseTradeString(openOrdersList[x])
+            validatedOpenOrders = validateOpenOrdersCSV(ib, orderId, status)
+            log.info("findOpenOrder: - we have open order records: opendOrderId: {ooi} ".format(ooi=orderId))
+            if orderType == "STP" and action == "SELL" and status == "PendingSubmit":
+                log.info("findOpenOrder - we have open order records: SELL {one}".format(one=orderType))
+                stpSell += quantity                       #        we don't care about qty - just cancel order
+            elif orderType == "STP" and action == "BUY" and status == "PendingSubmit":
+                log.info("findOpenOrder: - we have open order records: BUY {one}".format(one=orderType))
+                stpBuy += quantity
+            x += 1
+        return stpSell, stpBuy
+
+def countOpenPositions(ib):
+        log.info("countOpenPositions: execute: {cv} ".format(cv=execute))
+        x = 0
+        position_long_tf = False
+        position_short_tf = False
+        long_position_qty, short_position_qty = 0, 0
+        positions = ib.positions()
+        print("countOpenPositions: ",positions)
+        updatedPositions = updatePositionsCSV(ib,positions)
+        while x < len(positions):
+            print("positions account should be ",positions[x].account)
+            if (positions[x][1].symbol) == "ES":
+                if positions[x][2] > 0:
+                    long_position_qty += positions[x][2]
+                    position_long_tf = True
+                elif positions[x][2] < 0:
+                    short_position_qty += positions[x][2]
+                    position_short_tf = True
+            x += + 1
+        log.info("Have a position: long qty: {lqty} and short qty: {sqty} ".format(lqty = long_position_qty,sqty = short_position_qty))    
+        return position_long_tf, position_short_tf, long_position_qty, short_position_qty 
+
+ def oldfindOpenOrders(ib,execute):                 # This is to find open STP orders and cancel them when execute is True
         #allOpenOrders = ib.reqAllOpenOrders()
         log.info("************** in the findOpenOrder function *****************")
         openOrdersList = ib.openTrades()
@@ -132,6 +106,8 @@ def findOpenOrders(ib,execute):                 # This is to find open STP order
                     log.info("findOpenOrder: cancel order sent -> cv: {cv} ".format(cv=trademkt))
             x += 1
         return stpSell, stpBuy
+
+
 
 def findOpenPositions(ib, tradeContract, execute):
         log.info("findOpenPositions: execute: {cv} ".format(cv=execute))
@@ -299,3 +275,70 @@ def parseTradeString(tradeInfo):
     status = tradeInfo.orderStatus.status
     date_order = tradeInfo.log[0].time      # there are nested logs
     return symbol, orderId, orderType, action, quantity, status, date_order
+    def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice,):
+    #STP order
+    closeOpen = findOpenOrders(ib, True)
+    parentId = ib.client.getReqId()
+    stopAction = "BUY"
+    if action == "BUY":
+        stopAction = "SELL"
+    #Entry Order
+    print("buildOrders: tradeContract ",tradeContract)
+    print("buildOrders: action: ",action)
+    print("buildOrders: qty : ",quantity)
+    print("buildOrders: cciprofile ",cciProfile)
+    print("buildOrders: stoplosspricee ",stoplossprice)
+    MktOrder = Order(
+        action = action,
+        orderType = "MKT",
+        orderId = parentId,
+        faProfile = cciProfile,
+        totalQuantity = quantity,
+        transmit = False
+    )
+    trademkt = ib.placeOrder(tradeContract,MktOrder)
+    checkOrderStatus = writeOrdersToCSV(ib, trademkt, "trademkt", trademkt.orderStatus.status)
+    checkOrderStatus = checkForOpenOrderStatus(ib, trademkt, "trademkt", trademkt.orderStatus.status)
+    #Stop Loss Order
+    stoplossOrder = Order(
+        action = stopAction,
+        orderType = "STP",
+        auxPrice = stoplossprice,
+        lmtPrice = 0,
+        faProfile = cciProfile,
+        totalQuantity = quantity,
+        orderId = ib.client.getReqId(),
+        parentId = parentId,
+        transmit = True
+    )
+    tradestp = ib.placeOrder(tradeContract,stoplossOrder)
+    checkOrderStatus = writeOrdersToCSV(ib, trademkt, "trademkt", trademkt.orderStatus.status)   
+    print("buildOrders: Order placed  ",action,quantity)
+    print("")
+    
+    print("buildOrders: did place order",trademkt)
+    print("")
+    print("buildOrders: placed stop order ",tradestp)
+
+    return [MktOrder], [stoplossOrder], parentId
+
+def closeOrders(ib, tradeContract, account, action, quantity):
+    #closeOpen = findOpenOrders(ib,True)
+    parentId = ib.client.getReqId()
+    #Entry Order
+    log.info("closeOrders: tradeContract: {tc} account: {ac} action: {act} qty: {qty}".format(tc=tradeContract, ac=account, act=action, qty= quantity))
+    MktOrder = Order(
+        account = account,
+        action = action,
+        orderType = "MKT",
+        orderId = parentId,
+        totalQuantity = quantity,
+        transmit = True
+    ) 
+    trademkt = ib.placeOrder(tradeContract,MktOrder)
+    print("closeOrders: trademkt ",trademkt)
+    checkOrderStatus = writeOrdersToCSV(ib, trademkt, "trademkt")
+    #ib.sleep(1)
+    #trademkt.log
+    #Stop Loss Order
+    return [MktOrder]

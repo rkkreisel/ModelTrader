@@ -39,12 +39,12 @@ class Algo():
         while not_finished:
             print ("top of algo run self*************************************************")
             if not self.backTest:
-                stpSell, stpBuy = orders.findOpenOrders(self.ib,False) # don't want to execute covering
+                stpSell, stpBuy = orders.countOpenOrders(self.ib) # don't want to execute covering
                 log.info("we have the follow number of open stp orders for Sell: {sell} and Buy: {buy} ".format(sell=stpSell, buy=stpBuy))
                 #top of logic - want to check status as we enter a new bar/hour/day/contract
             contContract, contracthours = get_contract(self) #basic information on continuious contact
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
-            open_long, open_short, long_position_qty, short_position_qty = self.have_position(self.ib.positions())   # do we have an open position?
+            open_long, open_short, long_position_qty, short_position_qty = orders.countOpenPositions(self.ib)   # do we have an open position?
             open_today = helpers.is_open_today(contracthours)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.debug("Got Contract: {}".format(dataContract.localSymbol))
@@ -163,25 +163,6 @@ class Algo():
         log.info("* Rank (0-100)s:      {}".format(row[31]))
         log.info("************************************************")
         return
-
-    def have_position(self,positions):
-        log.info("have_positions:")
-        position_long_tf = False
-        position_short_tf = False
-        x = 0
-        long_position_qty, short_position_qty = 0, 0
-        while x < len(positions):
-            print("positions account should be ",positions[x].account)
-            if (positions[x][1].symbol) == "ES":
-                if positions[x][2] > 0:
-                    long_position_qty += positions[x][2]
-                    position_long_tf = True
-                elif positions[x][2] < 0:
-                    short_position_qty += positions[x][2]
-                    position_short_tf = True
-            x += + 1
-        log.info("Have a position: long qty: {lqty} and short qty: {sqty} ".format(lqty = long_position_qty,sqty = short_position_qty))    
-        return position_long_tf, position_short_tf, long_position_qty, short_position_qty 
 
     def setupsummary(self,summ_key):
         csv_file3 = csv.reader(open('data/setupsummary.csv', "rt"), delimiter = ",")
