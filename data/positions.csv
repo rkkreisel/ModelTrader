@@ -1,29 +1,17 @@
 Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=2.0, avgCost=155414.55)]"
+[]
 Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=2.0, avgCost=155414.55)]"
+[]
 Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=2.0, avgCost=155414.55)]"
+[]
 Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=2.0, avgCost=155414.55)]"
+[]
 Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=2.0, avgCost=155414.55)]"
+[]
 Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=2.0, avgCost=155414.55)]"
+[]
 Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=2.0, avgCost=155414.55)]"
-Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=2.0, avgCost=155414.55)]"
-Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=2.0, avgCost=155414.55)]"
-Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=2.0, avgCost=155414.55)]"
-Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=2.0, avgCost=155414.55)]"
-Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=2.0, avgCost=155414.55)]"
-Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=2.0, avgCost=155414.55)]"
+[]
 Trade
 []
 Trade
@@ -39,36 +27,96 @@ Trade
 Trade
 []
 Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155977.05)]"
+[]
 Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155977.05)]"
+[]
 Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=2.0, avgCost=155977.05), Position(account='DU1044804', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75), Position(account='DU1044803', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75)]"
+[]
 Trade
-"[Position(account='DU1044806', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=2.0, avgCost=155977.05), Position(account='DU1044803', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75), Position(account='DU1044804', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75)]"
+[]
 Trade
-"[Position(account='DU1044803', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75), Position(account='DU1044804', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75)]"
+[]
 Trade
-"[Position(account='DU1044803', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75), Position(account='DU1044804', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75)]"
+[]
 Trade
-"[Position(account='DU1044803', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75), Position(account='DU1044804', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75)]"
+[]
 Trade
-"[Position(account='DU1044803', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75), Position(account='DU1044804', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75)]"
+[]
 Trade
-"[Position(account='DU1044803', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75), Position(account='DU1044804', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75)]"
+[]
 Trade
-"[Position(account='DU1044803', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75), Position(account='DU1044804', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75)]"
+[]
 Trade
-"[Position(account='DU1044803', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75), Position(account='DU1044804', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75)]"
+[]
 Trade
-"[Position(account='DU1044803', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75), Position(account='DU1044804', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75)]"
+[]
 Trade
-"[Position(account='DU1044803', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75), Position(account='DU1044804', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75)]"
+[]
 Trade
-"[Position(account='DU1044803', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75), Position(account='DU1044804', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75)]"
+[]
 Trade
-"[Position(account='DU1044803', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75), Position(account='DU1044804', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75)]"
+[]
 Trade
-"[Position(account='DU1044803', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75), Position(account='DU1044804', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75)]"
+[]
 Trade
-"[Position(account='DU1044803', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75), Position(account='DU1044804', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=1.0, avgCost=263.75)]"
+[]
+Trade
+[]
+Trade
+[]
+Trade
+[]
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044804', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55), Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"
+Trade
+"[Position(account='DU1044803', contract=Future(conId=334144679, symbol='ES', lastTradeDateOrContractMonth='20191220', multiplier='50', currency='USD', localSymbol='ESZ9', tradingClass='ES'), position=1.0, avgCost=155614.55)]"

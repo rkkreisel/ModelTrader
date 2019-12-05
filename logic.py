@@ -67,7 +67,7 @@ class Algo():
             log.info("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
             print("going into tradenow, backtest, open long and short",tradeNow, self.backTest, open_short,open_long)
             if crossed: #and (open_long or open_short):    # need to close stp and open positions
-                allClosed = orders.closeOutSTPandPosition(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
+                allClosed = orders.closeOutMain(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
                 log.info("crossed but not tradeNow so lets close stp and open positions")
             if tradeNow:
                 log.info("tradeNow - Tradeing this bar {cci} - {ccibb}".format(cci=cci_key,ccibb=ccibb_key))
@@ -83,7 +83,7 @@ class Algo():
                         # do we need to close out current order
                         # do we need to close out current stop loss orders?
                         if not self.backTest:
-                            MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",bars_15m.stoplossprice)
+                            MarketOrderId, StopLossId, ParentOrderID = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",bars_15m.stoplossprice)
                             log.info("order placed, parentID: {}".format(ParentOrderID))
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row1,cci_trade,ccibb_trade)
@@ -100,7 +100,7 @@ class Algo():
                         cci_trade = True
                         quantity = 2
                         if not self.backTest:
-                            MarketOrderId, StopLossId, ParentOrderID = orders.buildOrders(self.ib,tradeContract,tradeAction,quantity,"cci_day",bars_15m.stoplossprice)
+                            MarketOrderId, StopLossId, ParentOrderID = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"cci_day",bars_15m.stoplossprice)
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row2,cci_trade,ccibb_trade)
                         break
@@ -233,7 +233,7 @@ class Algo():
         
         contContract, contracthours = get_contract(self) #basic information on continuious contact
         tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
-        open_long, open_short, long_position_qty, short_position_qty = self.have_position(self.ib.positions())   # do we have an open position - not orders but positions?
+        open_long, open_short, long_position_qty, short_position_qty = orders.countOpenPositions(self.ib)   # do we have an open position - not orders but positions?
         open_today = helpers.is_open_today(contracthours)
         wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d, self.log_time = self.define_times()
         dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
@@ -241,7 +241,7 @@ class Algo():
         #print("bars15 cci_third, ccia_third, cci_prior, ccia_prior, cci, ccia",bars_15m.cci_third,bars_15m.ccia_third,bars_15m.cci_prior, bars_15m.ccia_prior, bars_15m.cci, bars_15m.ccia)
         if (bars_15m.cci_prior > bars_15m.ccia_prior and open_short) or (bars_15m.cci_prior < bars_15m.ccia_prior and open_long):
             log.info("we are in app start up and we need to reverse due to wrong direction")
-            allClosed = orders.closeOutSTPandPosition(self.ib,tradeContract,True)     # we don't worry about whether we are long or short. just passing the contract, need to add order
+            allClosed = orders.closeOutMain(self.ib,tradeContract,True)     # we don't worry about whether we are long or short. just passing the contract, need to add order
             log.info("crossed but not tradeNow so lets close stp and open positions")
         else:
             log.info("we are in app start up and we DO NOT need to reverse due to wrong direction")
