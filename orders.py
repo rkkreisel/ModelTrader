@@ -196,26 +196,23 @@ def updatePositionsCSV(ib,positionsInfo):
         histwriter.writerow({'Trade': positionsInfo})
     return
 
-def updateOrderWithCancelledSTP(ib, openOrderId, status):
+def updateOrderWithCancelledSTP(ib, openOrderId, newstatus):
     # we have an open order from IB.  Going to run through our CSV file and make sure it exists.
     # if it doesn't exist, we will add it
-    log.info("updateOrderWithCancelledSTP: we are looking for openOrderId")
+    # this is for a single order
+    # log.info("updateOrderWithCancelledSTP: we are looking for openOrderId")
     # REFERENCE fieldnames = ['Order_Id','Order','Status','Date_Pending','Date_Cancelled','Date_Filled','Date_Updated]
     foundOrderInCSV = False
+    x3 = 0
+    df = pd.read_csv("data\orders.csv")   # https://stackoverflow.com/questions/11033590/change-specific-value-in-csv-file-via-python
     with open('data/orders.csv', newline ='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             if row['Order_Id'] == openOrderId:
-                #if row['Status'] == status:           # means we have it in the CSV and status matches.  Nothing to do
-                #    log.info("validateOpenOrdersCSV:found in CSV and status matches")
-                #    break
-                #else:                                 # order is in CSV but the status does not match.  Need to update CSV
-                csvfile.close()
-                df = pd.read_csv("data\orders.csv")   # https://stackoverflow.com/questions/11033590/change-specific-value-in-csv-file-via-python
-                df.head(5)
-                df.loc[df['Order_Id']==openOrderId, 'Status'] = status
-                df.loc[df['Order_Id']==openOrderId, 'Date_Updated'] = datetime.now()
-                df.to_csv("data\orders.csv", index=False)
+                df.set_value(x3,"status",newstatus)                
+        x3 += 1
+    csvfile.close()
+    df.to_csv("data\orders.csv", index=False)
     return
 
 def validateOpenOrdersCSV(ib, openOrderId, status):
