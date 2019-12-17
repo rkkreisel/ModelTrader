@@ -37,7 +37,7 @@ class Algo():
             # do we need to reset pending
 
         while not_finished:
-            print ("top of algo run self*************************************************")
+            log.info("top of algo run self*************************************************")
             if not self.backTest:
                 stpSell, stpBuy = orders.countOpenOrders(self.ib) # don't want to execute covering
                 log.info("we have the follow number of open stp orders for Sell: {sell} and Buy: {buy} ".format(sell=stpSell, buy=stpBuy))
@@ -65,7 +65,7 @@ class Algo():
             cci_key, ccibb_key, summ_key = build_key_array(tradeAction, bars_15m, bars_1h, bars_1d)
             setsum = self.setupsummary(summ_key)
             log.info("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
-            print("going into tradenow, backtest, open long and short",tradeNow, self.backTest, open_short,open_long)
+            log.info("going into tradenow: {tn}, backtest: {bt}, open long: {ol} and short: {os}".format(tn=tradeNow, bt=self.backTest, ol=open_long, os=open_long))
             if crossed: #and (open_long or open_short):    # need to close stp and open positions
                 allClosed = orders.closeOutMain(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
                 log.info("crossed but not tradeNow so lets close stp and open positions")
@@ -76,15 +76,15 @@ class Algo():
                 for row1 in csv_file1:
                     #print("ccibb row: ",row1[0],row1[13])
                     if ccibb_key == row1[0] and row1[13] == "Y": #13 is winrisk - whether we trade or not
-                        log.info("we have a match in ccibb.csv")
+                        #log.info("we have a match in ccibb.csv")
                         log.info("found a match in CCIBB ".format(str(row1[0])))
                         ccibb_trade = True
                         quantity = 2
                         # do we need to close out current order
                         # do we need to close out current stop loss orders?
                         if not self.backTest:
-                            MarketOrderId, StopLossId, ParentOrderID = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",bars_15m.stoplossprice)
-                            log.info("order placed, parentID: {}".format(ParentOrderID))
+                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",bars_15m.stoplossprice)
+                            log.info("logic.CCIbb: order placed, fillStatus: {fs}".format(fs=fillStatus))
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row1,cci_trade,ccibb_trade)
                         break
@@ -100,7 +100,7 @@ class Algo():
                         cci_trade = True
                         quantity = 2
                         if not self.backTest:
-                            MarketOrderId, StopLossId, ParentOrderID = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"cci_day",bars_15m.stoplossprice)
+                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"cci_day",bars_15m.stoplossprice)
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row2,cci_trade,ccibb_trade)
                         break
@@ -279,7 +279,7 @@ def get_contract(client):
 def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
     #These has to be in sequential order since insert adds rather than replace.
     cci_key = "long"
-    if tradeAction == "SELL":
+    if tradeAction == "Sell":
         cci_key = "short"
     #key_arr.append[1,"test"] 
     cci_key += categories.categorize_atr15(bars_15m.atr) + categories.categorize_atr1h(bars_1h.atr) + categories.categorize_atr1d(bars_1d.atr) + \

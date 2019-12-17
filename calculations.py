@@ -54,7 +54,7 @@ class Calculations():
                 log.info("Pending ".format(cci-ccia))
                 pendinglong = True
                 pendingshort = True
-            log.info("Stop loss set > ".format(self.stoplossprice))
+            log.info("calculations: Stop loss set:{sl} close was: {c}".format(sl=self.stoplossprice,c=bars_period[-1].close))
         #else:
         #    print("\n non 15m bars",self.bar_size,bars_period)
 

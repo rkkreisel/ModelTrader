@@ -8,6 +8,9 @@ from ib_insync.contract import Contract
 import csv
 import config
 import os
+import logger
+
+log = logger.getLogger()
 
 def is_open_today(contracthours: Contract):
     # a return of NONE is when the market is not opern for the given day
@@ -31,7 +34,7 @@ def is_open_today(contracthours: Contract):
         hours += ["{0}-{1}".format(match.group(2), match.group(4))]
 
     today_hours = ",".join(hours)
-    print("todays trading hours are: ",today_hours)
+    log.info("todays trading hours are: {th}".format(th=today_hours))
 
     csv_file = csv.reader(open('data/tradinghours.csv', "rt"), delimiter = ",")
     hours_found = False
