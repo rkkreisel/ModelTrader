@@ -115,6 +115,12 @@ def main(ib: IB):
         logger.getLogger().info("Connecting...")
         ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
         ib.reqMarketDataType(config.DATATYPE.value)
+    except NameError:    # got this block from https://groups.io/g/insync/message/4045
+            self.num_disconnects += 1
+            print(datetime.datetime.now(), 'Connection error exception', self.num_disconnects)
+            #self.ib.cancelHistoricalData(bars)
+            print('Sleeping for 10sec...')
+            self.ib.sleep(10)
     except OSError:
         logger.getLogger().error("Connection Failed.")
         sys_exit()

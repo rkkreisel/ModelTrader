@@ -19,7 +19,7 @@ def closeOutMain(ib, tradeContract, execute):           # this manages the closi
     log.info("closeOutMains: logic ")
     qtyCancel = closeOpenOrders(ib)                   # close open STP orders
     log.info("closeOutMain: we just cancelled the following number of orders: {c}".format(c=qtyCancel))
-    log.info("Closed out open orders qty: {qty}".format(qty=qtyCancel))
+    #log.info("Closed out open orders qty: {qty}".format(qty=qtyCancel))
     closeOutPositions = closeOpenPositions(ib, tradeContract)  # we re going to execute (True)
     return
 
@@ -113,19 +113,19 @@ def closeOpenPositions(ib, tradeContract):             #we want to close open po
     #updatedPositions = updatePositionsCSV(ib,positions)
     while x < len(positions):
         orderFoundTF = False
-        account, symbol, quantity, avgCost = parsePositionString(ib,positions[x])
+        account, symbol, quantity, avgCost = parsePositionString(ib,positions[x])   # need abs quty since buy/sell abs and position are plus and minus
         log.info("closeOpenPositions: - we have open Position records: symbol: {s} and len of positions: {lp}".format(s=symbol,lp=len(positions)))
         action = "Buy"
-        if symbol == "ES" and quantity > 0:
+        if symbol == "ES" and abs(quantity) > 0:
             action = "Sell"
         #orderFoundTF = True
-        log.info("closeOpenPositions - we have open order records: Long {one} with the action: {act}".format(one=quantity,act=action))
+        log.info("closeOpenPositions - we have open order records: Long {one} with the action: {act}".format(one=abs(quantity),act=action))
         positionLong += quantity
         #temp = temphold(orderId=openOrder[x].permId)
-        trademkt, MktOrder = closePositionsOrders(ib,tradeContract, account, action, quantity)
+        trademkt, MktOrder = closePositionsOrders(ib,tradeContract, account, action, abs(quantity))
         symbol, orderId, orderType, action, quantity, status, date_order = parseTradeString(ib,trademkt)
         print("\n----------------------- openOrdersList ---------------\n",positions[x])
-        print("\n----------------------- TRADEMKT ---------------\n\n",trademkt)
+        print("\n----------------------- TRADEMKT ---------------\n",trademkt)
         writeToCsv = writeOrdersToCSV(ib, MktOrder, "MktOrder",status)               # writing to orders csv
         log.info("closeOpenPositions: cancel order sent -> cv: {cv} and status: {s} ".format(cv=trademkt, s=status))
         # checking status of the order
@@ -171,16 +171,17 @@ def checkForOpenOrderStatus(ib, orderInfo, orderName, status):
     # going through orders looking for filled and updating trades   
     startTime = datetime.now()
     while True:
-        #status = orderInfo.orderStatus.status
         symbol, orderId, orderType, action, quantity, fillStatus, date_order = parseTradeString(ib,orderInfo)
+        log.info("Checking for status change.  status:{s})".format(s=fillStatus))
         if fillStatus not in ['PendingSubmit','PreSubmitted']:
-            log.info("Open Executed worked")
+            log.info("checkForOpenOrderStatus: Open Executed worked.  Fill Status is:{fs}".format(fs=fillStatus))
             filledTF = True
             break
-        if (datetime.now() - startTime).total_seconds() > 100:
+        elif (datetime.now() - startTime).total_seconds() > 100:
             log.debug("order failed for: {0} ".format(orderInfo.order.orderId))
             filledTF = False
             break
+        log.info("\ncheckForOpenOrderStatus: going to sleep {s}\n".format(s=(datetime.now() - startTime).total_seconds()))
         ib.sleep(1.0)
     return filledTF, fillStatus
 
@@ -189,7 +190,7 @@ def updateCanceledOpenOrders(ib, orderId, trademkt):     # I don't think this cr
     cancelledTF = False
     log.info("updateCanceledOpenOrders: trademkt: {tm}".format(tm=trademkt))
     while True:
-        log.info("updateCanceledOpenOrders: in loop trademkt: {tm}".format(tm=trademkt))
+        log.info("updateCanceledOpenOrders: in loop trademkt: {tm} seconds start {sd} end {ed}".format(tm=trademkt.orderStatus.status,sd=datetime.now(),ed=startTime))
         status = trademkt.orderStatus.status
         if status not in ['PendingSubmit','PreSubmitted','PendingCancel']:
             log.info("Cancelling Open Orders worked")
@@ -210,7 +211,7 @@ def updateCanceledOpenOrders(ib, orderId, trademkt):     # I don't think this cr
 #        histwriter.writerow({'Trade': positionsInfo})
 #    return
 
-def updateOrderWithCancelledSTP(ib, openOrderId, newstatus):
+def updateOrderWithCancelledSTP(ib, openOrderId, orderName, newstatus):
     # we have an open order from IB.  Going to run through our CSV file and make sure it exists.
     # if it doesn't exist, we will add it
     # this is for a single order
@@ -218,7 +219,7 @@ def updateOrderWithCancelledSTP(ib, openOrderId, newstatus):
     # REFERENCE fieldnames = ['Order_Id','Order','Status','Date_Pending','Date_Cancelled','Date_Filled','Date_Updated]
     foundOrderInCSV = False
     x3 = 0
-    df = pd.read_csv("data\orders.csv")   # https://stackoverflow.com/questions/11033590/change-specific-value-in-csv-file-via-python
+    df = pd.read_csv("data/orders.csv")   # https://stackoverflow.com/questions/11033590/change-specific-value-in-csv-file-via-python
     with open('data/orders.csv', newline ='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
@@ -228,7 +229,7 @@ def updateOrderWithCancelledSTP(ib, openOrderId, newstatus):
                 df.set_value(x3,"status",newstatus)                
         x3 += 1
     csvfile.close()
-    df.to_csv("data\orders.csv", index=False)
+    df.to_csv("data/orders.csv", index=False)
     if not foundOrderInCSV:
         log.info("updateOrderWithCancelledSTP: we DID NOT FIND the order we are cancelling in the CSV file")
     return foundOrderInCSV
@@ -248,15 +249,15 @@ def validateOpenOrdersCSV(ib, openOrderId, status):
                     break
                 else:                                 # order is in CSV but the status does not match.  Need to update CSV
                     csvfile.close()
-                    df = pd.read_csv("data\orders.csv")   # https://stackoverflow.com/questions/11033590/change-specific-value-in-csv-file-via-python
+                    df = pd.read_csv("data/orders.csv")   # https://stackoverflow.com/questions/11033590/change-specific-value-in-csv-file-via-python
                     df.head(5)
                     df.loc[df['Order_Id']==openOrderId, 'Status'] = status
                     df.loc[df['Order_Id']==openOrderId, 'Date_Updated'] = datetime.now()
-                    df.to_csv("data\orders.csv", index=False)
+                    df.to_csv("data/orders.csv", index=False)
     return
 
 def parseOrderString(ib,tradeInfo):
-    log.info("parseOrderString: tradeInfo: {to} ".format(to=tradeInfo))
+    log.debug("parseOrderString: tradeInfo: {to} ".format(to=tradeInfo))
     orderId = tradeInfo.orderId
     orderType = tradeInfo.orderType
     action = tradeInfo.action
@@ -264,7 +265,7 @@ def parseOrderString(ib,tradeInfo):
     return orderId, orderType, action, quantity
     
 def parseTradeString(ib,tradeInfo):
-    log.info("parseTradeString: tradeInfo: {to} ".format(to=tradeInfo))
+    log.debug("parseTradeString: tradeInfo: {to} ".format(to=tradeInfo))
     symbol = tradeInfo.contract.symbol
     orderId = tradeInfo.order.orderId
     orderType = tradeInfo.order.orderType

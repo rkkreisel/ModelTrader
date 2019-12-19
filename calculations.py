@@ -43,10 +43,10 @@ class Calculations():
         if self.bar_size == "15 mins":
             if self.self.cci > self.ccia and self.cci_prior < self.ccia_prior:
                 crossed, tradenow = True, True
-                tradeAction = "BUY"
+                tradeAction = "Buy"
             elif self.cci <self.ccia and self.cci_prior > self.ccia_prior:
                 crossed, tradenow = True, True
-                tradeAction = "SELL"
+                tradeAction = "Sell"
             else:
                 crossed, tradenow = False, False
                 self.stoplossprice = 0
