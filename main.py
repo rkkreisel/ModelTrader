@@ -110,6 +110,9 @@ class App:
         #self.bband15_b.update(f"{bband_b:.04f}")
         #self.qtrhour.update(qtrtime)
 
+def errorEvent (reqId: int, errorCode: int, errorString: str):
+    
+
 def main(ib: IB):
     try:
         logger.getLogger().info("Connecting...")

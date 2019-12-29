@@ -57,6 +57,9 @@ class Algo():
             #wait_time = wait_time = current_time.replace(minute = 1,second=0)
             #
             self.ib.waitUntil(wait_time)
+            log.info("before loop start:{ls}".format(ls=datetime.now()))
+            self.ib.loopUntil(condition=self.ib.isConnected())   # rying to fix 1100 error on nightly reset
+            log.info("after loop start:{ls}".format(ls=datetime.now()))
             log.debug("requesting info for the following timeframe today: {} ".format(wait_time))
             bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15)
             bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h)
@@ -152,15 +155,15 @@ class Algo():
 
     def row_results(self, row, cci_trade, ccibb_trade):
         log.info("************************************************")
-        log.info("* CCI Trade:          {}".format(cci_trade))
-        log.info("* CCIbb Trade:        {}".format(ccibb_trade))
+        log.info("* CCI Trade:          {0:.2f}".format(float(cci_trade)))
+        log.info("* CCIbb Trade:        {0:.2f}".format(float(ccibb_trade)))
         log.info("* Do we buy this one: {}".format(row[13]))
-        log.info("* Profit:             {}".format(row[5]))
-        log.info("* Winning %:          {}%".format(row[11]))
-        log.info("* Risk:               {}%".format(row[12]))
+        log.info("* Profit:             {0:.2f}".format(float(row[5])))
+        log.info("* Winning %:          {0:.2f}%".format(float(row[11])))
+        log.info("* Risk:               {0:.2f}%".format(float(row[12])))
         log.info("* Previous Order:     {}".format(row[6]))
         log.info("* Previous Wins:      {}".format(row[7]))
-        log.info("* Rank (0-100)s:      {}".format(row[31]))
+        log.info("* Rank (0-100)s:      {0:.2f}".format(float(row[31])))
         log.info("************************************************")
         return
 
@@ -172,13 +175,13 @@ class Algo():
             if summ_key == row3[4]:
                 log.info("++++++++++++++++++++++++++++++++++++")
                 log.info("join key:     {}".format(summ_key))
-                log.info("CCI Long %  : {}".format(row3[7]))
-                log.info("CCI Profit  : {}".format(row3[9]))
-                log.info("CCI Win%    : {}".format(row3[12]))
-                log.info("CCIbb Long %: {}".format(row3[15]))
-                log.info("CCIbb Profit: {}".format(row3[17]))
-                log.info("CCIbb Win%  : {}".format(row3[20]))
-                log.info("Rank (0-100): {}".format(row3[21]))
+                log.info("CCI Long %  : {0:.2f}".format(float(row3[7])))
+                log.info("CCI Profit  : {0:.2f}".format(float(row3[9])))
+                log.info("CCI Win%    : {0:.2f}".format(float(row3[12])))
+                log.info("CCIbb Long %: {0:.2f}".format(float(row3[15])))
+                log.info("CCIbb Profit: {0:.2f}".format(float(row3[17])))
+                log.info("CCIbb Win%  : {0:.2f}".format(float(row3[20])))
+                log.info("Rank (0-100): {0:.2f}".format(float(row3[21])))
                 log.info("-------------------------------------")
                 break
         return

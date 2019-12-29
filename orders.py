@@ -116,8 +116,10 @@ def closeOpenPositions(ib, tradeContract):             #we want to close open po
         account, symbol, quantity, avgCost = parsePositionString(ib,positions[x])   # need abs quty since buy/sell abs and position are plus and minus
         log.info("closeOpenPositions: - we have open Position records: symbol: {s} and len of positions: {lp}".format(s=symbol,lp=len(positions)))
         action = "Buy"
-        if symbol == "ES" and abs(quantity) > 0:
+        orderQty = abs(quantity)
+        if symbol == "ES" and quantity > 0:
             action = "Sell"
+            orderQty = -quantity
         #orderFoundTF = True
         log.info("closeOpenPositions - we have open order records: Long {one} with the action: {act}".format(one=abs(quantity),act=action))
         positionLong += quantity
@@ -158,7 +160,7 @@ def writeTradeToCSV(ib, orderInfo, orderName, status):
     orderId = orderInfo.order.orderId
     status = orderInfo.orderStatus.status
     time = datetime.now()
-    log.info("\nwriteTradesToCSV: orderInfo: {oi} and orderId: {os} and status: oos: {oos}".format(oi=orderInfo, os=orderId,oos=status))
+    log.info("writeTradesToCSV: orderInfo: and orderId: {os} and status: oos: {oos}".format(os=orderId,oos=status))
     csv_row = str(orderInfo) 
     with open('data/trades.csv', mode='a', newline = '') as ordersCSV:
         fieldnames = ['Order_Id','Order','Status','Date_Pending','Date_Cancelled','Date_Filled']
@@ -201,15 +203,6 @@ def updateCanceledOpenOrders(ib, orderId, trademkt):     # I don't think this cr
             log.debug("Cancelling order failed for: {0} ".format(trademkt.order.orderId))
         ib.sleep(1.0)
     return cancelledTF
-
-#def updatePositionsCSV(ib,positionsInfo):
-#    csv_row = positionsInfo
-#    with open('data/positions.csv', mode='a', newline = '') as positionsCSV:
-#        fieldnames = ['Trade']
-#        histwriter = csv.DictWriter(positionsCSV, fieldnames = fieldnames)
-#        histwriter.writeheader()
-#        histwriter.writerow({'Trade': positionsInfo})
-#    return
 
 def updateOrderWithCancelledSTP(ib, openOrderId, orderName, newstatus):
     # we have an open order from IB.  Going to run through our CSV file and make sure it exists.
@@ -315,6 +308,7 @@ def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice,):
         totalQuantity = quantity,
         orderId = ib.client.getReqId(),
         parentId = parentId,
+        tif = "GTC",
         transmit = True
     )
     tradestp = ib.placeOrder(tradeContract,stopLossOrder)
