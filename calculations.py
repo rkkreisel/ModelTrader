@@ -24,7 +24,8 @@ class Calculations():
         self.bar_size = bar_size
         self.bar_duration = bar_duration
         self.datetime_period = datetime_period
-        self.stoplossprice = 0
+        self.buyStopLossPrice = 0
+        self.sellStopLossPrice = 0
         self.run()
   
         """ Execute the calculations """
@@ -38,7 +39,8 @@ class Calculations():
         self.atr =  self.calculate_atr(bars_period)
         self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
         #logged_it = self.log_value("Starting ")
-        self.stoplossprice = round((bars_period[-1].close - (self.atr * 2))*4,0)/4
+        self.buyStopLossPrice = round((bars_period[-1].close - (self.atr * 2))*4,0)/4
+        self.sellStopLossPrice = round((bars_period[-1].close + (self.atr * 2))*4,0)/4
 
         if self.bar_size == "15 mins":
             if self.self.cci > self.ccia and self.cci_prior < self.ccia_prior:
@@ -49,12 +51,13 @@ class Calculations():
                 tradeAction = "Sell"
             else:
                 crossed, tradenow = False, False
-                self.stoplossprice = 0
+                self.buyStopLossPrice = 0
+                self.sellStopLossPrice = 0
             if abs(self.cci - self.ccia) > config.SPREAD:
                 log.info("Pending ".format(cci-ccia))
                 pendinglong = True
                 pendingshort = True
-            log.info("calculations: Stop loss set:{sl} close was: {c}".format(sl=self.stoplossprice,c=bars_period[-1].close))
+            log.info("calculations: Buy Stop loss set:{sl} sell stop loss: {stp} close was: {c}".format(sl=self.buyStopLossPrice,stp=self.sellStopLossPrice,c=bars_period[-1].close))
         #else:
         #    print("\n non 15m bars",self.bar_size,bars_period)
 

@@ -86,7 +86,7 @@ class Algo():
                         # do we need to close out current order
                         # do we need to close out current stop loss orders?
                         if not self.backTest:
-                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",bars_15m.stoplossprice)
+                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",bars_15m.buyStopLossPrice,bars_15m.sellStopLossPrice)
                             log.info("logic.CCIbb: order placed, fillStatus: {fs}".format(fs=fillStatus))
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row1,cci_trade,ccibb_trade)
@@ -103,7 +103,7 @@ class Algo():
                         cci_trade = True
                         quantity = 2
                         if not self.backTest:
-                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"cci_day",bars_15m.stoplossprice)
+                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"cci_day",bars_15m.buyStopLossPrice,bars_15m.sellStopLossPrice)
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row2,cci_trade,ccibb_trade)
                         break
@@ -158,8 +158,8 @@ class Algo():
         log.info("* CCI Trade:          {0:.2f}".format(float(cci_trade)))
         log.info("* CCIbb Trade:        {0:.2f}".format(float(ccibb_trade)))
         log.info("* Do we buy this one: {}".format(row[13]))
-        log.info("* Profit:             {0:.2f}".format(float(row[5])))
-        log.info("* Winning %:          {0:.2f}%".format(float(row[11])))
+        log.info("* Profit:             {0:,.2f}".format(float(row[5])))
+        log.info("* Winning %:          {0:.2f}%".format(float(row[11])*100))
         log.info("* Risk:               {0:.2f}%".format(float(row[12])))
         log.info("* Previous Order:     {}".format(row[6]))
         log.info("* Previous Wins:      {}".format(row[7]))
@@ -175,12 +175,12 @@ class Algo():
             if summ_key == row3[4]:
                 log.info("++++++++++++++++++++++++++++++++++++")
                 log.info("join key:     {}".format(summ_key))
-                log.info("CCI Long %  : {0:.2f}".format(float(row3[7])))
-                log.info("CCI Profit  : {0:.2f}".format(float(row3[9])))
+                log.info("CCI Long %  : {0:.2f}".format(float(row3[7])*100))
+                log.info("CCI Profit  : {0:,.2f}".format(float(row3[9])))
                 log.info("CCI Win%    : {0:.2f}".format(float(row3[12])))
-                log.info("CCIbb Long %: {0:.2f}".format(float(row3[15])))
-                log.info("CCIbb Profit: {0:.2f}".format(float(row3[17])))
-                log.info("CCIbb Win%  : {0:.2f}".format(float(row3[20])))
+                log.info("CCIbb Long %: {0:.2f}".format(float(row3[15])*100))
+                log.info("CCIbb Profit: {0:,.2f}".format(float(row3[17])))
+                log.info("CCIbb Win%  : {0:.2f}".format(float(row3[20])*100))
                 log.info("Rank (0-100): {0:.2f}".format(float(row3[21])))
                 log.info("-------------------------------------")
                 break

@@ -23,8 +23,8 @@ def closeOutMain(ib, tradeContract, execute):           # this manages the closi
     closeOutPositions = closeOpenPositions(ib, tradeContract)  # we re going to execute (True)
     return
 
-def createOrdersMain(ib,tradeContract,tradeAction,quantity,cciProfile,stoplossprice):
-    trademkt, tradestp, parentId, MktOrder, stopLossOrder = buildOrders(ib, tradeContract, tradeAction, quantity, cciProfile, stoplossprice)    # this places the order.  No confirm it was executed
+def createOrdersMain(ib,tradeContract,tradeAction,quantity,cciProfile,buyStopLossPrice,sellStopLossPrice):
+    trademkt, tradestp, parentId, MktOrder, stopLossOrder = buildOrders(ib, tradeContract, tradeAction, quantity, cciProfile, buyStopLossPrice, sellStopLossPrice)    # this places the order.  No confirm it was executed
     log.info("createOrdersMain: just created MKT: {l} and STP {s} order ".format(l=trademkt,s=tradestp))
     symbol, orderId, orderType, action, quantity, status, date_order = parseTradeString(ib,trademkt)
     wroteOrdersToCSV = writeOrdersToCSV(ib, MktOrder, "MktOrder", status)
@@ -276,19 +276,17 @@ def parsePositionString(ib, positionInfo):
     avgCost = positionInfo.avgCost
     return account, symbol, quantity, avgCost
 
-def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice,):
+def buildOrders(ib, tradeContract, action, quantity, cciProfile, buyStopLossPrice, sellStopLossPrice):
     #STP order
     #closeOpen = findOpenOrders(ib, True)
     parentId = ib.client.getReqId()
-    stopAction = "Buy" 
-    if action == "Buy":
-        stopAction = "Sell"
     #Entry Order
-    print("buildOrders: tradeContract ",tradeContract)
-    print("buildOrders: action: ",action)
-    print("buildOrders: qty : ",quantity)
-    print("buildOrders: cciprofile ",cciProfile)
-    print("buildOrders: stoplosspricee ",stoplossprice)
+    log.info("buildOrders: tradeContract: {tc} ".format(tc=tradeContract))
+    log.info("buildOrders: action: {a} ".format(a=action))
+    log.info("buildOrders: qty : {q}".format(q=quantity))
+    log.info("buildOrders: cciprofile: {p} ".format(p=cciProfile))
+    log.info("buildOrders: buystoplossprice: {sl} ".format(sl=buyStopLossPrice))
+    log.info("buildOrders: sellstoplossprice: {stl} ".format(stl=sellStopLossPrice))
     MktOrder = Order(
         action = action,
         orderType = "MKT",
@@ -298,6 +296,12 @@ def buildOrders(ib, tradeContract, action, quantity, cciProfile,stoplossprice,):
         transmit = False
     )
     trademkt = ib.placeOrder(tradeContract,MktOrder)
+    stopAction = "Buy"
+    stoplossprice = sellStopLossPrice
+    if action == "Buy":
+        stopAction = "Sell"
+        stoplossprice = buyStopLossPrice
+
     #Stop Loss Order
     stopLossOrder = Order(
         action = stopAction,

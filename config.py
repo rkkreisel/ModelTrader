@@ -17,6 +17,8 @@ EXCHANGE = "GLOBEX"
 DATATYPE = MarketDataTypes.LIVE
 
 NORMAL_TRADING_HOURS = "1700-1515,1530-1600"
+DAY_TRADING_HOURS = "0930"
+NIGHT_TRADING_HOURS = "1500"    # 1 hour prior to day close.  DOn't want to start position 1 hour prior to close if not night trader
 
 CCI_PERIODS = 34
 CCI_AVERAGE_PERIODS = 8
