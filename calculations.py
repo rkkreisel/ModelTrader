@@ -38,7 +38,7 @@ class Calculations():
         self.cci, self.ccia, self.cci_prior, self.ccia_prior, self.cci_third, self.ccia_third, self.cci_four, self.ccia_four = self.calculate_cci(bars_period)
         self.atr =  self.calculate_atr(bars_period)
         self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
-        #logged_it = self.log_value("Starting ")
+        logged_it = self.log_value("Starting ")
         self.buyStopLossPrice = round((bars_period[-1].close - (self.atr * 2))*4,0)/4
         self.sellStopLossPrice = round((bars_period[-1].close + (self.atr * 2))*4,0)/4
 
@@ -111,11 +111,11 @@ class Calculations():
 
     def log_value(self, label):
         log.info(label.format(datetime.now()))
-        log.info("CCI:      {} ".format(self.cci))
-        log.info("CCIA      {} ".format(self.ccia))
-        log.info("CCIP      {} ".format(self.cci_prior))
-        log.info("CCIPA:    {} ".format(self.ccia_prior))
-        log.info("ATR:      {} ".format(self.atr))
-        log.info("bband w:  {} ".format(self.bband_width))
-        log.info("bband p:  {} ".format(self.bband_b))
+        log.info("CCI:      {0:.2f} ".format(float(self.cci)))
+        log.info("CCIA      {0:.2f} ".format(float(self.ccia)))
+        log.info("CCIP      {0:.2f} ".format(float(self.cci_prior)))
+        log.info("CCIPA:    {0:.2f} ".format(float(self.ccia_prior)))
+        log.info("ATR:      {0:.2f} ".format(float(self.atr)))
+        log.info("bband w:  {0:.2f} ".format(float(self.bband_width)))
+        log.info("bband p:  {0:.2f} ".format(float(self.bband_b)))
         return True
