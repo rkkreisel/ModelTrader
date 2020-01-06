@@ -147,7 +147,8 @@ class Algo():
         else:
             self.log_time = wait_time
         #print("wait time -> ",wait_time)
-        self.datetime_1h = self.log_time.replace(minute=0, second=0, microsecond=0)
+        self.datetime_1h = self.log_time - timedelta(hours=1)
+        self.datetime_1h = self.datetime_1h.replace(minute=0, second=0, microsecond=0)
         self.datetime_1d = current_time -  timedelta(days = 1)
         self.datetime_1d =self.datetime_1d.replace(hour = 0, minute=0, second=0)
         log.info("log time: {lt} wait time: {wt} 1 hour: {one} day: {day}".format(lt = self.log_time,wt=wait_time,one=self.datetime_1h,day=self.datetime_1d))
