@@ -70,6 +70,10 @@ class Algo():
             log.info("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
             log.info("going into tradenow: {tn}, backtest: {bt}, open long: {ol} and short: {os}".format(tn=tradeNow, bt=self.backTest, ol=open_long, os=open_long))
             if crossed: #and (open_long or open_short):    # need to close stp and open positions
+                #if pendingLong or pendingShort:
+                #    log.info("we have crossed and should close out our positions but we are pending so we are going to wait - check out if this is the right call pendingLong:{pl} pendingShort:{ps}".format(pl=pendingLong,ps=pendingShort))
+                #else:
+                #    log.info("we have crossed and we are going to close out our positions but we are pending so we are going to wait - check out if this is the right call pendingLong:{pl} pendingShort:{ps}".format(pl=pendingLong,ps=pendingShort))
                 allClosed = orders.closeOutMain(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
                 log.info("crossed but not tradeNow so lets close stp and open positions")
             if tradeNow:
@@ -127,6 +131,7 @@ class Algo():
             current_minute = datetime.now().minute
         log.info("currnet time: {ct} ".format(ct=current_time))
         if current_minute < 15:
+            self.datetime_1h = current_time - timedelta(hours=1)
             wait_time = current_time.replace(minute = 15,second=0) 
             self.datetime_15 = current_time.replace(minute = 30, second = 0)
         elif current_minute < 30:
@@ -145,9 +150,10 @@ class Algo():
             wait_time = datetime.now() + timedelta(seconds=3)
             self.log_time = self.backTestStartDateTime
         else:
+            self.datetime_1h = current_time
             self.log_time = wait_time
         #print("wait time -> ",wait_time)
-        self.datetime_1h = self.log_time - timedelta(hours=1)
+        #self.datetime_1h = self.log_time - timedelta(hours=1)
         self.datetime_1h = self.datetime_1h.replace(minute=0, second=0, microsecond=0)
         self.datetime_1d = current_time -  timedelta(days = 1)
         self.datetime_1d =self.datetime_1d.replace(hour = 0, minute=0, second=0)
