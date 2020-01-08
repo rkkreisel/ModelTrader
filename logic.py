@@ -126,40 +126,24 @@ class Algo():
         # we have noticed a 1 second drift and it impacts our data calls
         log.info("TWS time is: {tws} ".format(tws=self.ib.reqCurrentTime()))
         log.info("PTH time is: {st}".format(st=datetime.now()))
-        #log.info("ib time min:{min}".format(min=self.ib.reqCurrentTime().minute))
-        #log.info("ib time second:{min}".format(min=self.ib.reqCurrentTime().second))
-        #
         localDateTime = datetime.now()
         twsTime = self.ib.reqCurrentTime()
         twsTime = twsTime.replace(tzinfo=None)
-        #twsTime = twsTime.astimezone(timezone('America/New_York'))
         twsTimeLocal = twsTime - timedelta(hours=5)
         log.info("tws time in local time zone format: {t} ".format(t=twsTimeLocal))
         twsDiff = localDateTime - twsTimeLocal 
-        log.info("tws to server time diff:{diff} ".format(diff=twsDiff))
-        newWait = localDateTime + timedelta(seconds=twsDiff)
-        log.info("additional delay in wait time added says wait time should be:{w}".format(w=newWait))
-#        if twsDiff.hour < 5:
-        #f localDateTime.second < twsDiff.second:
-        #    secondDiff = (locatDateTime.second + 60) - twsDiff.second
-        ###    print("second diff ",secondDiff)
-         #   minuteDiff = (locatDateTime.minute - 1) - twsDiff.minute
-         #   print("minuteDiff ",minuteDiff)
-        #else:
-        #    secondDiff = locatDateTime.second - twsDiff.second
-        #    print("second diff ",secondDiff)
-        #    minuteDiff = locatDateTime.minute - twsDiff.minute
-        #    print("minuteDiff ",minuteDiff)
-        #current_time + timedelta(minute=minuteDiff,second=secondDiff)
+        log.info("tws to server time diff:{diff} in seconds {s} microsecond {m}".format(diff=twsDiff,s=twsDiff.seconds,m=twsDiff.microseconds))
+        #newWait = localDateTime + timedelta(seconds=twsDiff)
+        
         if self.backTest:   # added for backtest
             current_time = self.backTestStartDateTime
             current_minute = self.backTestStartDateTime.minute
             self.backTestStartDateTime = current_time + timedelta(minutes=15)
             print("current time, backteststartdatetime",current_time,self.backTestStartDateTime)
         else:    
-            current_time = datetime.now() + timedelta(seconds=5) #manually trying to augment time differences
+            current_time = localDateTime - timedelta(seconds = twsDiff.seconds, microseconds = twsDiff.microseconds) # trying to augment time differences
             current_minute = datetime.now().minute
-        log.info("currnet time: {ct} ".format(ct=current_time))
+        log.info("currnet adjusted time is: {ct} ".format(ct=current_time))
         if current_minute < 15:
             self.datetime_1h = current_time - timedelta(hours=1)
             wait_time = current_time.replace(minute = 15,second=0, microsecond=0) 
@@ -182,8 +166,9 @@ class Algo():
         else:
             self.datetime_1h = current_time
             self.log_time = wait_time
-        #print("wait time -> ",wait_time)
-        #self.datetime_1h = self.log_time - timedelta(hours=1)
+        wait_time = wait_time - timedelta(seconds = twsDiff.seconds, microseconds = twsDiff.microseconds) # trying to augment time differences
+        wait_time = wait_time + timedelta(seconds = 5) # adding 5 seconds just to address fluctuations from wait set to wait execute
+        log.info("Wait time adjusted for differnces in time between TWS and server is now: {t}".format(t=wait_time))
         self.datetime_1h = self.datetime_1h.replace(minute=0, second=0, microsecond=0)
         self.datetime_1d = current_time -  timedelta(days = 1)
         self.datetime_1d =self.datetime_1d.replace(hour = 0, minute=0, second=0, microsecond=0)
