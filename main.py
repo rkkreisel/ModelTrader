@@ -127,7 +127,21 @@ def main(ib: IB):
 
     app = App(ib)
     app.run()
+timeout_retry_flag = 0
 
+def onError(reqId, errorCode, errorString, contract):
+    if errorCode == 162:
+        global timeout_retry_flag
+        if timeout_retry_flag >= 5:
+            log.info("Request timed out. Setting flag.")
+            print("Request timed out. Setting flag.")
+            set_timeout_flag(True, contract.conId)
+            timeout_retry_flag = 0
+        else:
+            timeout_retry_flag += 1
+            print(f"Timeout try {timeout_retry_flag}")
+            raise TimeoutError
+            
 if __name__ == '__main__':
     logger.setup()
     util.patchAsyncio()

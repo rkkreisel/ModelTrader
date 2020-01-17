@@ -38,7 +38,7 @@ class Calculations():
         self.cci, self.ccia, self.cci_prior, self.ccia_prior, self.cci_third, self.ccia_third, self.cci_four, self.ccia_four = self.calculate_cci(bars_period)
         self.atr =  self.calculate_atr(bars_period)
         self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
-        logged_it = self.log_value("Starting ")
+        #logged_it = self.log_value("Starting ")
         self.buyStopLossPrice = round((bars_period[-1].close - (self.atr * 2))*4,0)/4
         self.sellStopLossPrice = round((bars_period[-1].close + (self.atr * 2))*4,0)/4
 

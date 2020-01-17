@@ -182,3 +182,235 @@ Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
 367,"Order(orderId=367, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-10 05:05:09.099102,1/1/20,1/1/20
 Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
 367,"Order(orderId=367, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-10 05:05:09.108848,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+31,"Order(orderId=31, action='Buy', totalQuantity=2, orderType='MKT', transmit=False, faProfile='cci_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-10 09:30:04.660877,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+32,"Order(orderId=32, permId=1668781274, action='SELL', totalQuantity=2, orderType='STP', lmtPrice=0.0, auxPrice=3277.75, tif='GTC', ocaGroup='1668781273', ocaType=3, parentId=31, trailStopPrice=3277.75, faProfile='cci_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-10 09:30:05.672757,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+38,"Order(orderId=38, action='Sell', totalQuantity=2, orderType='MKT', transmit=False, faProfile='cci_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-10 09:45:05.651749,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+39,"Order(orderId=39, permId=1668781276, action='BUY', totalQuantity=2, orderType='STP', lmtPrice=0.0, auxPrice=3282.0, tif='GTC', ocaGroup='1668781275', ocaType=3, parentId=38, trailStopPrice=3282.0, faProfile='cci_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-10 09:45:06.664875,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+131,"Order(orderId=131, action='Buy', totalQuantity=2, orderType='MKT', transmit=False, faProfile='ccibb_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-10 17:30:04.452309,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+132,"Order(orderId=132, permId=1008162342, action='SELL', totalQuantity=1, orderType='STP', lmtPrice=0.0, auxPrice=3257.0, tif='GTC', ocaGroup='1008162341', ocaType=3, parentId=131, trailStopPrice=3257.0, faProfile='ccibb_day', volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-10 17:31:45.203684,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+283,"Order(orderId=283, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 01:00:05.528662,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+283,"Order(orderId=283, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 01:00:05.530310,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+304,"Order(orderId=304, action='Sell', totalQuantity=2, orderType='MKT', transmit=False, faProfile='ccibb_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 02:00:04.507300,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+305,"Order(orderId=305, permId=1008162347, action='BUY', totalQuantity=1, orderType='STP', lmtPrice=0.0, auxPrice=3276.25, tif='GTC', ocaGroup='1008162346', ocaType=3, parentId=304, trailStopPrice=3276.25, faProfile='ccibb_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-13 02:00:05.529076,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+331,"Order(orderId=331, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 03:15:05.094661,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+331,"Order(orderId=331, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 03:15:05.097002,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+332,"Order(orderId=332, action='Buy', totalQuantity=2, orderType='MKT', transmit=False, faProfile='ccibb_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 03:15:06.161596,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+333,"Order(orderId=333, permId=1008162350, action='SELL', totalQuantity=1, orderType='STP', lmtPrice=0.0, auxPrice=3271.5, tif='GTC', ocaGroup='1008162349', ocaType=3, parentId=332, trailStopPrice=3271.5, faProfile='ccibb_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-13 03:15:07.178985,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+384,"Order(orderId=384, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 05:45:05.321046,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+384,"Order(orderId=384, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 05:45:05.331836,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+435,"Order(orderId=435, action='Buy', totalQuantity=2, orderType='MKT', transmit=False, faProfile='cci_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 08:15:04.939966,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+436,"Order(orderId=436, permId=1008162353, action='SELL', totalQuantity=2, orderType='STP', lmtPrice=0.0, auxPrice=3272.0, tif='GTC', ocaGroup='1008162352', ocaType=3, parentId=435, trailStopPrice=3272.0, faProfile='cci_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-13 08:15:05.951913,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+452,"Order(orderId=452, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 09:00:06.493584,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+452,"Order(orderId=452, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 09:00:06.498726,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+453,"Order(orderId=453, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 09:00:07.525353,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+453,"Order(orderId=453, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 09:00:07.529706,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+594,"Order(orderId=594, action='Buy', totalQuantity=2, orderType='MKT', transmit=False, faProfile='cci_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 16:00:04.465327,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+595,"Order(orderId=595, permId=1008162357, action='SELL', totalQuantity=2, orderType='STP', lmtPrice=0.0, auxPrice=3283.5, tif='GTC', ocaGroup='1008162356', ocaType=3, parentId=594, trailStopPrice=3283.5, faProfile='cci_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-13 16:00:05.481705,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+671,"Order(orderId=671, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 19:45:05.213562,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+671,"Order(orderId=671, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 19:45:05.221310,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+672,"Order(orderId=672, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 19:45:06.260931,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+672,"Order(orderId=672, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 19:45:06.274351,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+678,"Order(orderId=678, action='Sell', totalQuantity=2, orderType='MKT', transmit=False, faProfile='ccibb_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-13 20:00:04.341693,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+679,"Order(orderId=679, permId=1008162361, action='BUY', totalQuantity=1, orderType='STP', lmtPrice=0.0, auxPrice=3299.5, tif='GTC', ocaGroup='1008162360', ocaType=3, parentId=678, trailStopPrice=3299.5, faProfile='ccibb_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-13 20:00:05.407120,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+770,"Order(orderId=770, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 00:30:05.692946,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+770,"Order(orderId=770, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 00:30:05.700101,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+776,"Order(orderId=776, action='Sell', totalQuantity=2, orderType='MKT', transmit=False, faProfile='ccibb_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 00:45:04.853614,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+777,"Order(orderId=777, permId=1008162364, action='BUY', totalQuantity=1, orderType='STP', lmtPrice=0.0, auxPrice=3293.0, tif='GTC', ocaGroup='1008162363', ocaType=3, parentId=776, trailStopPrice=3293.0, faProfile='ccibb_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-14 00:45:23.001087,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+788,"Order(orderId=788, action='Sell', totalQuantity=2, orderType='MKT', transmit=False, faProfile='ccibb_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 01:15:09.572088,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+789,"Order(orderId=789, permId=1008162366, action='BUY', totalQuantity=1, orderType='STP', lmtPrice=0.0, auxPrice=3292.25, tif='GTC', ocaGroup='1008162365', ocaType=3, parentId=788, trailStopPrice=3292.25, faProfile='ccibb_day', volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-14 01:16:50.303384,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+840,"Order(orderId=840, action='Buy', totalQuantity=2.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 04:00:07.092890,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+840,"Order(orderId=840, action='Buy', totalQuantity=2.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 04:00:07.098684,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+881,"Order(orderId=881, action='Sell', totalQuantity=2, orderType='MKT', transmit=False, faProfile='cci_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 06:00:05.393759,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+882,"Order(orderId=882, permId=1008162369, action='BUY', totalQuantity=2, orderType='STP', lmtPrice=0.0, auxPrice=3292.0, tif='GTC', ocaGroup='1008162368', ocaType=3, parentId=881, trailStopPrice=3292.0, faProfile='cci_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-14 06:00:06.410997,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+908,"Order(orderId=908, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 07:15:05.109606,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+908,"Order(orderId=908, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 07:15:05.118700,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+909,"Order(orderId=909, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 07:15:06.153857,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+909,"Order(orderId=909, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 07:15:06.160286,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+910,"Order(orderId=910, action='Buy', totalQuantity=2, orderType='MKT', transmit=False, faProfile='cci_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 07:15:07.295997,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+911,"Order(orderId=911, permId=1008162373, action='SELL', totalQuantity=2, orderType='STP', lmtPrice=0.0, auxPrice=3281.75, tif='GTC', ocaGroup='1008162372', ocaType=3, parentId=910, trailStopPrice=3281.75, faProfile='cci_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-14 07:15:08.307490,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+957,"Order(orderId=957, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 09:30:05.774270,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+957,"Order(orderId=957, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 09:30:05.784198,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+958,"Order(orderId=958, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 09:30:06.815815,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+958,"Order(orderId=958, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 09:30:06.819436,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+984,"Order(orderId=984, action='Buy', totalQuantity=2, orderType='MKT', transmit=False, faProfile='cci_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 10:45:03.968847,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+985,"Order(orderId=985, permId=1008162377, action='SELL', totalQuantity=2, orderType='STP', lmtPrice=0.0, auxPrice=3279.5, tif='GTC', ocaGroup='1008162376', ocaType=3, parentId=984, trailStopPrice=3279.5, faProfile='cci_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-14 10:45:04.991600,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1046,"Order(orderId=1046, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 13:45:04.809007,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1046,"Order(orderId=1046, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 13:45:04.813005,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1047,"Order(orderId=1047, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 13:45:05.848521,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1047,"Order(orderId=1047, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 13:45:05.865189,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1098,"Order(orderId=1098, action='Buy', totalQuantity=2, orderType='MKT', transmit=False, faProfile='cci_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 16:15:04.217611,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1099,"Order(orderId=1099, permId=1008162381, action='SELL', totalQuantity=2, orderType='STP', lmtPrice=0.0, auxPrice=3278.0, tif='GTC', ocaGroup='1008162380', ocaType=3, parentId=1098, trailStopPrice=3278.0, faProfile='cci_day', volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-14 16:16:44.911362,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1145,"Order(orderId=1145, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 18:30:05.057406,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1145,"Order(orderId=1145, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 18:30:05.063698,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1146,"Order(orderId=1146, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 18:30:06.093110,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1146,"Order(orderId=1146, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 18:30:06.104063,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1182,"Order(orderId=1182, action='Buy', totalQuantity=2, orderType='MKT', transmit=False, faProfile='cci_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 20:15:04.488444,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1183,"Order(orderId=1183, permId=1008162385, action='SELL', totalQuantity=2, orderType='STP', lmtPrice=0.0, auxPrice=3275.75, tif='GTC', ocaGroup='1008162384', ocaType=3, parentId=1182, trailStopPrice=3275.75, faProfile='cci_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-14 20:15:05.497791,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1209,"Order(orderId=1209, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 21:30:04.684635,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1209,"Order(orderId=1209, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 21:30:04.691910,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1210,"Order(orderId=1210, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 21:30:05.717436,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1210,"Order(orderId=1210, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-14 21:30:05.725962,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1236,"Order(orderId=1236, action='Sell', totalQuantity=2, orderType='MKT', transmit=False, faProfile='ccibb_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-15 07:30:04.322958,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1237,"Order(orderId=1237, permId=1008162389, action='BUY', totalQuantity=1, orderType='STP', lmtPrice=0.0, auxPrice=3289.0, tif='GTC', ocaGroup='1008162388', ocaType=3, parentId=1236, trailStopPrice=3289.0, faProfile='ccibb_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-15 07:30:05.344747,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1248,"Order(orderId=1248, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-15 08:00:06.235846,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1248,"Order(orderId=1248, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-15 08:00:06.242797,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1284,"Order(orderId=1284, action='Buy', totalQuantity=2, orderType='MKT', transmit=False, faProfile='cci_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-15 09:45:04.609330,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1285,"Order(orderId=1285, permId=1008162392, action='SELL', totalQuantity=2, orderType='STP', lmtPrice=0.0, auxPrice=3284.0, tif='GTC', ocaGroup='1008162391', ocaType=3, parentId=1284, trailStopPrice=3284.0, faProfile='cci_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-15 09:45:05.629387,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1316,"Order(orderId=1316, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-15 11:15:04.672804,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1316,"Order(orderId=1316, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-15 11:15:04.676959,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1317,"Order(orderId=1317, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-15 11:15:05.708571,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+1317,"Order(orderId=1317, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-15 11:15:05.721853,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+91,"Order(orderId=91, action='Buy', totalQuantity=2, orderType='MKT', transmit=False, faProfile='cci_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 12:00:05.947980,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+92,"Order(orderId=92, permId=832593728, action='SELL', totalQuantity=2, orderType='STP', lmtPrice=0.0, auxPrice=3301.5, tif='GTC', ocaGroup='832593727', ocaType=3, parentId=91, trailStopPrice=3301.5, faProfile='cci_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-16 12:00:06.954894,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+123,"Order(orderId=123, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 13:30:05.461161,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+123,"Order(orderId=123, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 13:30:05.463393,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+124,"Order(orderId=124, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 13:30:06.494251,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+124,"Order(orderId=124, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 13:30:06.496679,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+125,"Order(orderId=125, action='Sell', totalQuantity=2, orderType='MKT', transmit=False, faProfile='ccibb_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 13:30:07.562390,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+126,"Order(orderId=126, permId=832593732, action='BUY', totalQuantity=1, orderType='STP', lmtPrice=0.0, auxPrice=3311.75, tif='GTC', ocaGroup='832593731', ocaType=3, parentId=125, trailStopPrice=3311.75, faProfile='ccibb_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-16 13:30:08.584692,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+132,"Order(orderId=132, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 13:45:05.852548,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+132,"Order(orderId=132, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 13:45:05.859807,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+133,"Order(orderId=133, action='Buy', totalQuantity=2, orderType='MKT', transmit=False, faProfile='ccibb_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 13:45:06.913668,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+134,"Order(orderId=134, permId=832593735, action='SELL', totalQuantity=1, orderType='STP', lmtPrice=0.0, auxPrice=3304.25, tif='GTC', ocaGroup='832593734', ocaType=3, parentId=133, trailStopPrice=3304.25, faProfile='ccibb_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-16 13:45:07.940402,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+135,"Order(orderId=135, action='Buy', totalQuantity=2, orderType='MKT', transmit=False, faProfile='cci_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 13:45:07.964371,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+136,"Order(orderId=136, permId=832593737, action='SELL', totalQuantity=2, orderType='STP', lmtPrice=0.0, auxPrice=3304.25, tif='GTC', ocaGroup='832593736', ocaType=3, parentId=135, trailStopPrice=3304.25, faProfile='cci_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-16 13:45:08.978558,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+157,"Order(orderId=157, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 14:45:06.861304,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+157,"Order(orderId=157, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 14:45:06.867539,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+158,"Order(orderId=158, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 14:45:07.893680,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+158,"Order(orderId=158, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 14:45:07.897813,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+159,"Order(orderId=159, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 14:45:08.938196,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+159,"Order(orderId=159, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 14:45:08.946367,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+160,"Order(orderId=160, action='Sell', totalQuantity=2, orderType='MKT', transmit=False, faProfile='ccibb_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 14:45:10.051432,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+161,"Order(orderId=161, permId=832593742, action='BUY', totalQuantity=1, orderType='STP', lmtPrice=0.0, auxPrice=3312.0, tif='GTC', ocaGroup='832593741', ocaType=3, parentId=160, trailStopPrice=3312.0, faProfile='ccibb_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-16 14:45:11.064863,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+177,"Order(orderId=177, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 15:30:05.568446,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+177,"Order(orderId=177, action='Buy', totalQuantity=1.0, orderType='MKT', account='DU1044806', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 15:30:05.574563,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+178,"Order(orderId=178, action='Buy', totalQuantity=2, orderType='MKT', transmit=False, faProfile='cci_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 15:30:06.724961,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+179,"Order(orderId=179, permId=832593745, action='SELL', totalQuantity=2, orderType='STP', lmtPrice=0.0, auxPrice=3306.25, tif='GTC', ocaGroup='832593744', ocaType=3, parentId=178, trailStopPrice=3306.25, faProfile='cci_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-16 15:30:07.734857,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+230,"Order(orderId=230, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 18:00:06.310366,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+230,"Order(orderId=230, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 18:00:06.321973,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+231,"Order(orderId=231, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 18:00:07.349896,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+231,"Order(orderId=231, action='Sell', totalQuantity=1.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-16 18:00:07.359918,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+382,"Order(orderId=382, action='Sell', totalQuantity=2, orderType='MKT', transmit=False, faProfile='cci_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-17 01:30:04.430140,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+383,"Order(orderId=383, permId=832593749, action='BUY', totalQuantity=2, orderType='STP', lmtPrice=0.0, auxPrice=3321.0, tif='GTC', ocaGroup='832593748', ocaType=3, parentId=382, trailStopPrice=3321.0, faProfile='cci_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-17 01:30:05.444725,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+389,"Order(orderId=389, action='Sell', totalQuantity=2, orderType='MKT', transmit=False, faProfile='cci_day', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-17 01:45:04.987448,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+390,"Order(orderId=390, permId=832593751, action='BUY', totalQuantity=2, orderType='STP', lmtPrice=0.0, auxPrice=3320.75, tif='GTC', ocaGroup='832593750', ocaType=3, parentId=389, trailStopPrice=3320.75, faProfile='cci_day', openClose='C', eTradeOnly=False, firmQuoteOnly=False, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, clearingIntent='IB', orderComboLegs=[], adjustedOrderType='None', conditions=[], softDollarTier=SoftDollarTier(), dontUseAutoPriceForHedge=True)",Cancel Submitted,2020-01-17 01:45:06.001085,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+401,"Order(orderId=401, action='Buy', totalQuantity=2.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-17 02:15:06.845170,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+401,"Order(orderId=401, action='Buy', totalQuantity=2.0, orderType='MKT', account='DU1044804', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-17 02:15:06.857058,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+402,"Order(orderId=402, action='Buy', totalQuantity=2.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-17 02:15:07.891273,1/1/20,1/1/20
+Order_Id,Order,Status,Date_Pending,Date_Cancelled,Date_Filled
+402,"Order(orderId=402, action='Buy', totalQuantity=2.0, orderType='MKT', account='DU1044803', conditions=[], softDollarTier=SoftDollarTier())",Cancel Submitted,2020-01-17 02:15:07.899699,1/1/20,1/1/20
