@@ -70,21 +70,24 @@ class Algo():
                 modSellStopLossPrice = bars_1h.sellStopLossPrice
             else:
                 bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h,False, 0)
-                modBuyStopLossPrice = bars_15.buyStopLossPrice
-                modSellStopLossPrice = bars_15.sellStopLossPrice
+                modBuyStopLossPrice = bars_15m.buyStopLossPrice
+                modSellStopLossPrice = bars_15m.sellStopLossPrice
             bars_1d = calculations.Calculations(self.ib, dataContract, "75 D", "1 day", self.datetime_1d,False, 0)
             pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction, crossed = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
             cci_key, ccibb_key, summ_key = build_key_array(tradeAction, bars_15m, bars_1h, bars_1d)
             setsum = self.setupsummary(summ_key)
             log.info("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
             log.info("going into tradenow: {tn}, backtest: {bt}, open long: {ol} and short: {os}".format(tn=tradeNow, bt=self.backTest, ol=open_long, os=open_long))
-            if crossed: #and (open_long or open_short):    # need to close stp and open positions
-                #if pendingLong or pendingShort:
-                #    log.info("we have crossed and should close out our positions but we are pending so we are going to wait - check out if this is the right call pendingLong:{pl} pendingShort:{ps}".format(pl=pendingLong,ps=pendingShort))
-                #else:
-                #    log.info("we have crossed and we are going to close out our positions but we are pending so we are going to wait - check out if this is the right call pendingLong:{pl} pendingShort:{ps}".format(pl=pendingLong,ps=pendingShort))
+            #handeling existing position
+            if crossed and (open_long or open_short) and not (pendingLong and pendingShort):    # need to close stp and open positions
+                log.info("crossed and not pending so lets close stp and open positions")
                 allClosed = orders.closeOutMain(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
-                log.info("crossed but not tradeNow so lets close stp and open positions")
+            elif not (pendingLong or pendingShort) and open_long and tradeAction = "Sell":
+                log.info("Not pending we are open_long and tradeaction is sell so lets close out stp and open positions")
+                allClosed = orders.closeOutMain(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
+            elif not (pendingLong or pendingShort) and open_short and tradeAction = "Buy":
+                log.info("Not pending we are open_short and tradeaction is buy so lets close out stp and open positions")
+                allClosed = orders.closeOutMain(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
             if tradeNow:
                 log.info("tradeNow - Tradeing this bar {cci} - {ccibb}".format(cci=cci_key,ccibb=ccibb_key))
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
@@ -99,7 +102,7 @@ class Algo():
                         # do we need to close out current order
                         # do we need to close out current stop loss orders?
                         if not self.backTest:
-                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",bars_15m.buyStopLossPrice,bars_15m.sellStopLossPrice)
+                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",modBuyStopLossPrice,modSellStopLossPrice)
                             log.info("logic.CCIbb: order placed, fillStatus: {fs}".format(fs=fillStatus))
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row1,cci_trade,ccibb_trade)
@@ -116,7 +119,7 @@ class Algo():
                         cci_trade = True
                         quantity = 2
                         if not self.backTest:
-                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"cci_day",bars_15m.buyStopLossPrice,bars_15m.sellStopLossPrice)
+                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"cci_day",modBuyStopLossPrice,modSellStopLossPrice)
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row2,cci_trade,ccibb_trade)
                         break
@@ -124,7 +127,7 @@ class Algo():
                         log.info("Entry found in CCI but not traded.  See if this changes")
                         cci_trade = True
                 if tradeNow:
-                    log.info("we did not find a match in either CCI or CCI BB")
+                    log.info("we did not find a match in CCI: {cci} or CCI BB: {ccib}".format(cci=cci_trade,ccib=ccibb_trade))
             #csv_row_add = helpers.build_csv_bars_row(","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort),True)
             wrote_bar_to_csv = helpers.build_csv_bars_row(self.log_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow, ccibb_trade, cci_trade,ccibb_key, cci_key)
             tradenow, cci_trade, ccibb_trade = False, False, False
