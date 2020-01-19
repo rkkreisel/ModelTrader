@@ -18,14 +18,20 @@ log = logger.getLogger()
 
 
 class Calculations():
-    def __init__(self, ib, dataContract, bar_size, bar_duration, datetime_period):
+    def __init__(self, ib, dataContract, bar_size, bar_duration, datetime_period, getNewClose, bar15MinClose):
         self.ib = ib
         self.dataContract = dataContract
         self.bar_size = bar_size
         self.bar_duration = bar_duration
         self.datetime_period = datetime_period
+        self.getNewClose = getNewClose
+        self.bar15MinClose = bar15MinClose
         self.buyStopLossPrice = 0
         self.sellStopLossPrice = 0
+        self.atr = 0
+        self.closePrice = 0
+        self.ATRBuyStopLossAmount = 0
+        self.ATRSellStopLossAmount = 0
         self.run()
   
         """ Execute the calculations """
@@ -35,12 +41,29 @@ class Calculations():
         #print("bar data close - this is what stoplossprice comes from: ",bars_period[-1].close)
         #x = np.array(bars_period)
         #log.debug("bars {bars} ".format(bars=bars_period))
+        self.closePrice = bars_period[-1].close
         self.cci, self.ccia, self.cci_prior, self.ccia_prior, self.cci_third, self.ccia_third, self.cci_four, self.ccia_four = self.calculate_cci(bars_period)
         self.atr =  self.calculate_atr(bars_period)
         self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
         #logged_it = self.log_value("Starting ")
-        self.buyStopLossPrice = round((bars_period[-1].close - (self.atr * 2))*4,0)/4
-        self.sellStopLossPrice = round((bars_period[-1].close + (self.atr * 2))*4,0)/4
+        temp = self.atr*4
+        if self.getNewClose:
+            #self.buyStopLossPrice = (self.bar15MinClose - self.atr) * 4
+            #print('first',self.buyStopLossPrice)
+            #self.buyStopLossPrice = round(self.buyStopLossPrice,0)
+            #print('second',self.buyStopLossPrice)
+            #self.buyStopLossPrice = self.buyStopLossPrice/4
+            #print('second',self.buyStopLossPrice)
+            self.sellStopLossPrice = round((self.bar15MinClose + self.atr)*4,0)/4
+            #print("calculations: getting new close bar15minclose self.atr",self.bar15MinClose,self.atr,self.atr*4,self.buyStopLossPrice,self.sellStopLossPrice)
+        else:
+            self.buyStopLossPrice = round((self.closePrice - self.atr)*4,0)/4
+            self.sellStopLossPrice = round((self.closePrice + self.atr)*4,0)/4
+            #print("calculations: getting old close bar15minclose self.atr",self.bar15MinClose,self.atr,self.atr*4,temp,self.buyStopLossPrice,self.sellStopLossPrice)
+            
+        self.ATRBuyStopLossAmount = round((self.atr*4),0)/4
+        self.ATRSellStopLossAmount = round((self.atr*4),0)/4
+        log.info("Calculation: {bs} getNewClose: {gnc} bar15minclose: {c} buystop: {b} sellstop: {s} atrbuy: {ab} atrsell: {aas}".format(bs=self.bar_size,gnc=self.getNewClose,c=self.bar15MinClose,b=self.buyStopLossPrice,s=self.sellStopLossPrice,ab=self.ATRBuyStopLossAmount,aas=self.ATRSellStopLossAmount))
 
         if self.bar_size == "15 mins":
             if self.self.cci > self.ccia and self.cci_prior < self.ccia_prior:

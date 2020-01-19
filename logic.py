@@ -62,9 +62,17 @@ class Algo():
             self.ib.loopUntil(condition=self.ib.isConnected())   # rying to fix 1100 error on nightly reset
             log.info("after loop start:{ls}".format(ls=datetime.now()))
             log.debug("requesting info for the following timeframe today: {} ".format(wait_time))
-            bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15)
-            bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h)
-            bars_1d = calculations.Calculations(self.ib, dataContract, "75 D", "1 day", self.datetime_1d)
+            bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15,False, 0)
+            print("bars15m atr ",bars_15m.atr)
+            if bars_15m.atr < config.ATR_STOP_MIN:
+                bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h,True, bars_15m.closePrice)
+                modBuyStopLossPrice = bars_1h.buyStopLossPrice
+                modSellStopLossPrice = bars_1h.sellStopLossPrice
+            else:
+                bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h,False, 0)
+                modBuyStopLossPrice = bars_15.buyStopLossPrice
+                modSellStopLossPrice = bars_15.sellStopLossPrice
+            bars_1d = calculations.Calculations(self.ib, dataContract, "75 D", "1 day", self.datetime_1d,False, 0)
             pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction, crossed = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
             cci_key, ccibb_key, summ_key = build_key_array(tradeAction, bars_15m, bars_1h, bars_1d)
             setsum = self.setupsummary(summ_key)
@@ -143,7 +151,7 @@ class Algo():
         else:    
             current_time = localDateTime - timedelta(seconds = twsDiff.seconds, microseconds = twsDiff.microseconds) # trying to augment time differences
             current_minute = datetime.now().minute
-        log.info("currnet adjusted time is: {ct} ".format(ct=current_time))
+        log.info("current adjusted time is: {ct} ".format(ct=current_time))
         if current_minute < 15:
             self.datetime_1h = current_time - timedelta(hours=1)
             wait_time = current_time.replace(minute = 15,second=0, microsecond=0) 
@@ -262,7 +270,7 @@ class Algo():
         open_today = helpers.is_open_today(contracthours)
         wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d, self.log_time = self.define_times(self.ib)
         dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
-        bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15)
+        bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15, False, 0)
         #print("bars15 cci_third, ccia_third, cci_prior, ccia_prior, cci, ccia",bars_15m.cci_third,bars_15m.ccia_third,bars_15m.cci_prior, bars_15m.ccia_prior, bars_15m.cci, bars_15m.ccia)
         if (bars_15m.cci_prior > bars_15m.ccia_prior and open_short) or (bars_15m.cci_prior < bars_15m.ccia_prior and open_long):
             log.info("we are in app start up and we need to reverse due to wrong direction")
