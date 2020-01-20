@@ -55,10 +55,11 @@ class Calculations():
             #self.buyStopLossPrice = self.buyStopLossPrice/4
             #print('second',self.buyStopLossPrice)
             self.sellStopLossPrice = round((self.bar15MinClose + self.atr)*4,0)/4
+            self.buyStopLossPrice = round((self.bar15MinClose - self.atr)*4,0)/4
             #print("calculations: getting new close bar15minclose self.atr",self.bar15MinClose,self.atr,self.atr*4,self.buyStopLossPrice,self.sellStopLossPrice)
         else:
-            self.buyStopLossPrice = round((self.closePrice - self.atr)*4,0)/4
             self.sellStopLossPrice = round((self.closePrice + self.atr)*4,0)/4
+            self.buyStopLossPrice = round((self.closePrice - self.atr)*4,0)/4
             #print("calculations: getting old close bar15minclose self.atr",self.bar15MinClose,self.atr,self.atr*4,temp,self.buyStopLossPrice,self.sellStopLossPrice)
             
         self.ATRBuyStopLossAmount = round((self.atr*4),0)/4

@@ -63,7 +63,7 @@ class Algo():
             log.info("after loop start:{ls}".format(ls=datetime.now()))
             log.debug("requesting info for the following timeframe today: {} ".format(wait_time))
             bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15,False, 0)
-            print("bars15m atr ",bars_15m.atr)
+            #print("bars15m atr ",bars_15m.atr)
             if bars_15m.atr < config.ATR_STOP_MIN:
                 bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h,True, bars_15m.closePrice)
                 modBuyStopLossPrice = bars_1h.buyStopLossPrice
@@ -79,14 +79,14 @@ class Algo():
             log.info("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
             log.info("going into tradenow: {tn}, backtest: {bt}, open long: {ol} and short: {os}".format(tn=tradeNow, bt=self.backTest, ol=open_long, os=open_long))
             #handeling existing position
-            if crossed and (open_long or open_short) and not (pendingLong and pendingShort):    # need to close stp and open positions
-                log.info("crossed and not pending so lets close stp and open positions")
+            if crossed and (open_long or open_short) and not (pendingLong or pendingShort):    # need to close stp and open positions
+                log.info("crossed and not pending so lets close stp and open positions.  Open Long: {ol} open short: {os} pending long: {pl} pending short: {ps}".format(ol=open_long,os=open_short,pl=pendingLong,ps=pendingShort))
                 allClosed = orders.closeOutMain(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
-            elif not (pendingLong or pendingShort) and open_long and tradeAction = "Sell":
-                log.info("Not pending we are open_long and tradeaction is sell so lets close out stp and open positions")
+            elif (not (pendingLong or pendingShort)) and open_long and tradeAction == "Sell":
+                log.info("Not pending we are open_long and tradeaction is sell so lets close out stp and open positions  Open Long: {ol} open short: {os} pending long: {pl} pending short: {ps}".format(ol=open_long,os=open_short,pl=pendingLong,ps=pendingShort))
                 allClosed = orders.closeOutMain(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
-            elif not (pendingLong or pendingShort) and open_short and tradeAction = "Buy":
-                log.info("Not pending we are open_short and tradeaction is buy so lets close out stp and open positions")
+            elif (not (pendingLong or pendingShort)) and open_short and tradeAction == "Buy":
+                log.info("Not pending we are open_short and tradeaction is buy so lets close out stp and open positions  Open Long: {ol} open short: {os} pending long: {pl} pending short: {ps}".format(ol=open_long,os=open_short,pl=pendingLong,ps=pendingShort))
                 allClosed = orders.closeOutMain(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
             if tradeNow:
                 log.info("tradeNow - Tradeing this bar {cci} - {ccibb}".format(cci=cci_key,ccibb=ccibb_key))
@@ -96,7 +96,9 @@ class Algo():
                     #print("ccibb row: ",row1[0],row1[13])
                     if ccibb_key == row1[0] and row1[13] == "Y": #13 is winrisk - whether we trade or not
                         #log.info("we have a match in ccibb.csv")
-                        log.info("found a match in CCIBB ".format(str(row1[0])))
+                        log.info("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+                        log.info(" +++++++++++++++++++++++++++++++++++++++++++++++++ found a match in CCIBB ".format(str(row1[0])))
+                        log.info("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
                         ccibb_trade = True
                         quantity = 2
                         # do we need to close out current order
@@ -114,7 +116,9 @@ class Algo():
                 for row2 in csv_file2:
                     #print("cci   row: ",row2[0],row2[13])
                     if cci_key == row2[0] and row2[13] == "Y":
-                        log.info("we have a match in cci.csv - tradeAction".format(tradeAction))
+                        log.info("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+                        log.info("+++++++++++++++++++++++++++++++++++++++++++++++++ we have a match in cci.csv - tradeAction".format(tradeAction))
+                        log.info("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
                         #log.info("found a match in CCI {}".format(str(row2[0])))
                         cci_trade = True
                         quantity = 2
@@ -150,7 +154,7 @@ class Algo():
             current_time = self.backTestStartDateTime
             current_minute = self.backTestStartDateTime.minute
             self.backTestStartDateTime = current_time + timedelta(minutes=15)
-            print("current time, backteststartdatetime",current_time,self.backTestStartDateTime)
+            #print("current time, backteststartdatetime",current_time,self.backTestStartDateTime)
         else:    
             current_time = localDateTime - timedelta(seconds = twsDiff.seconds, microseconds = twsDiff.microseconds) # trying to augment time differences
             current_minute = datetime.now().minute
@@ -227,7 +231,7 @@ class Algo():
         if (bars_15m.cci < bars_15m.ccia and bars_15m.cci_prior > bars_15m.ccia_prior) or \
                 (bars_15m.cci > bars_15m.ccia and bars_15m.cci_prior < bars_15m.ccia_prior):
                 crossed = True
-                log.info("We have crossed ----------^v")
+                log.info("We have crossed ----------^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v")
                 if abs(bars_15m.cci - bars_15m.ccia) > config.SPREAD:
                     log.info("crossed and outside spread")
                     tradeNow = True
@@ -250,13 +254,13 @@ class Algo():
             pendingShort, pendingSkip, tradeNow = False, False, True
             pendingCnt = 0
         elif (pendingLong or pendingShort) and pendingCnt == config.SPREAD_COUNT:
-            print("pending long or short and cnt = 3 stop pending ",pendingCnt, config.SPREAD_COUNT)
+            log.info("pending long or short and cnt = 3 stop pending. pendingcnt: {pc} config.spread: {sc}".format(pc=pendingCnt, sc=config.SPREAD_COUNT))
             pendingLong, pendingShort, pendingSkip, tradeNow = False, False, False, True
             pendingCnt = 0
         elif pendingLong or pendingShort:
             pendingCnt += 1
             log.info("pending continues cnt: {cnt}".format(cnt = pendingCnt))
-        print("check post cross and we have tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt",tradeNow, tradeAction, pendingLong, pendingShort, pendingSkip, pendingCnt)
+        log.info("check post cross and we have tradeNow: {tn}, tradeAction: {ta}, pendingLong: {pl}, pendingShort: {ps}, pendingSkip: {pskip}, pendingCnt: {pc}".format(tn=tradeNow, ta=tradeAction, pl=pendingLong, ps=pendingShort, pskip=pendingSkip, pc=pendingCnt))
         return pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction, crossed
 
     def justStartedAppDirectionCheck(self):
