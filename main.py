@@ -119,11 +119,13 @@ def main(ib: IB):
             self.num_disconnects += 1
             print(datetime.datetime.now(), 'Connection error exception', self.num_disconnects)
             #self.ib.cancelHistoricalData(bars)
-            print('Sleeping for 10sec...')
+            log.info('Sleeping for 10sec...')
             self.ib.sleep(10)
-    except OSError:
-        logger.getLogger().error("Connection Failed.")
-        sys_exit()
+            ib.disconnect
+            ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
+#    except OSError:
+#        log.info("main try except OS errror > Connection Failed.")
+#        sys_exit()
 
     app = App(ib)
     app.run()
@@ -131,6 +133,8 @@ timeout_retry_flag = 0
 
 def onError(reqId, errorCode, errorString, contract):
     if errorCode == 200:
+        ib.disconnect()
+        ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
         global timeout_retry_flag
         if timeout_retry_flag >= 5:
             log.info("onerror: Request timed out. Setting flag.")

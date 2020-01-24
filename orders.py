@@ -15,7 +15,7 @@ log = logger.getLogger()
 # buy or sell based on trigger with open stp and open position (every open order should have a stp order)
 # no buy or sell but we crossed and need to close stp's and close positions
 #
-def closeOutMain(ib, tradeContract, execute):           # this manages the closing of stp orders and open position
+def closeOutMain(ib, tradeContract, execute, openOrderType):           # this manages the closing of stp orders and open position
     log.info("closeOutMains: logic ")
     qtyCancel = closeOpenOrders(ib)                   # close open STP orders
     log.info("closeOutMain: we just cancelled the following number of orders: {c}".format(c=qtyCancel))
@@ -23,16 +23,16 @@ def closeOutMain(ib, tradeContract, execute):           # this manages the closi
     closeOutPositions = closeOpenPositions(ib, tradeContract)  # we re going to execute (True)
     return
 
-def createOrdersMain(ib,tradeContract,tradeAction,quantity,cciProfile,buyStopLossPrice,sellStopLossPrice):
+def createOrdersMain(ib,tradeContract,tradeAction,quantity,cciProfile,buyStopLossPrice,sellStopLossPrice,openOrderType):
     trademkt, tradestp, parentId, MktOrder, stopLossOrder = buildOrders(ib, tradeContract, tradeAction, quantity, cciProfile, buyStopLossPrice, sellStopLossPrice)    # this places the order.  No confirm it was executed
-    log.info("createOrdersMain: just created MKT: {l} and STP {s} order ".format(l=trademkt,s=tradestp))
+    log.info("createOrdersMain: just created MKT: {l} and STP {s} order.  Order open/close true/false: {oot} ".format(l=trademkt,s=tradestp,oot=openOrderType))
     symbol, orderId, orderType, action, quantity, status, date_order = parseTradeString(ib,trademkt)
-    wroteOrdersToCSV = writeOrdersToCSV(ib, MktOrder, "MktOrder", status)
+    wroteOrdersToCSV = writeOrdersToCSV(ib, MktOrder, "MktOrder", status, openOrderType)
     filledTF, fillStatus = checkForOpenOrderStatus(ib, trademkt, "trademkt", trademkt.orderStatus.status)
     if fillStatus:
         updateOrders = writeTradeToCSV(ib, trademkt, "tradeMkt", status)
     symbol, orderId, orderType, action, quantity, status, date_order = parseTradeString(ib,tradestp)
-    wroteOrdersToCSV = writeOrdersToCSV(ib, stopLossOrder, "stopLossOrder", status)
+    wroteOrdersToCSV = writeOrdersToCSV(ib, stopLossOrder, "stopLossOrder", status, openOrderType)
     
     return fillStatus
 
@@ -137,7 +137,7 @@ def closeOpenPositions(ib, tradeContract):             #we want to close open po
         x += 1
     return 
 
-def writeOrdersToCSV(ib, orderInfo, orderName, status):
+def writeOrdersToCSV(ib, orderInfo, orderName, status, openOrderType):
     # tradestp, "tradestp", tradestp.orderStatus.status
     # Go through open order
     #log.info("\nwriteOrdersToCSV: orderInfo: {oi} and orderId: ".format(oi=orderInfo))
@@ -147,10 +147,10 @@ def writeOrdersToCSV(ib, orderInfo, orderName, status):
     log.info("\nwriteOrdersToCSV: orderId: {oi} and qty: {q} ".format(oi=orderId, q=quantity))
     #csv_row = str(orderInfo) 
     with open('data/orders.csv', mode='a', newline = '') as ordersCSV:
-        fieldnames = ['Order_Id','Order','Status','Date_Pending','Date_Cancelled','Date_Filled']
+        fieldnames = ['Order_Id','Status','To_Open','Date_Pending','Date_Cancelled','Date_Filled','Order']
         histwriter = csv.DictWriter(ordersCSV, fieldnames = fieldnames)
         histwriter.writeheader()
-        histwriter.writerow({'Order_Id': orderId, 'Order': orderInfo, 'Status': 'Cancel Submitted', 'Date_Pending': time, 'Date_Cancelled': '1/1/20', 'Date_Filled': '1/1/20'})
+        histwriter.writerow({'Order_Id': orderId, 'Status': 'Cancel Submitted', 'To_Open': openOrderType, 'Date_Pending': time, 'Date_Cancelled': '1/1/20', 'Date_Filled': '1/1/20', 'Order': orderInfo})
     return
 
 def writeTradeToCSV(ib, orderInfo, orderName, status):
@@ -341,5 +341,5 @@ def closePositionsOrders(ib, tradeContract, account, action, quantity):
     trademkt = ib.placeOrder(tradeContract,MktOrder)
     symbol, orderId, orderType, action, quantity, status, date_order = parseTradeString(ib,trademkt)
     print("closePositionsOrders: trademkt ",trademkt)
-    writeToCsv = writeOrdersToCSV(ib, MktOrder, "MktOrder",status)
+    writeToCsv = writeOrdersToCSV(ib, MktOrder, "MktOrder",status, openOrderType = False)
     return trademkt, MktOrder

@@ -81,13 +81,13 @@ class Algo():
             #handeling existing position
             if crossed and (open_long or open_short) and not (pendingLong or pendingShort):    # need to close stp and open positions
                 log.info("crossed and not pending so lets close stp and open positions.  Open Long: {ol} open short: {os} pending long: {pl} pending short: {ps}".format(ol=open_long,os=open_short,pl=pendingLong,ps=pendingShort))
-                allClosed = orders.closeOutMain(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
+                allClosed = orders.closeOutMain(self.ib,tradeContract,False, openOrderType = False)     # we don't worry about whether we are long or short
             elif (not (pendingLong or pendingShort)) and open_long and tradeAction == "Sell":
                 log.info("Not pending we are open_long and tradeaction is sell so lets close out stp and open positions  Open Long: {ol} open short: {os} pending long: {pl} pending short: {ps}".format(ol=open_long,os=open_short,pl=pendingLong,ps=pendingShort))
-                allClosed = orders.closeOutMain(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
+                allClosed = orders.closeOutMain(self.ib,tradeContract,False, openOrderType = False)     # we don't worry about whether we are long or short
             elif (not (pendingLong or pendingShort)) and open_short and tradeAction == "Buy":
                 log.info("Not pending we are open_short and tradeaction is buy so lets close out stp and open positions  Open Long: {ol} open short: {os} pending long: {pl} pending short: {ps}".format(ol=open_long,os=open_short,pl=pendingLong,ps=pendingShort))
-                allClosed = orders.closeOutMain(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
+                allClosed = orders.closeOutMain(self.ib,tradeContract,False, openOrderType = False)     # we don't worry about whether we are long or short
             if tradeNow:
                 log.info("tradeNow - Tradeing this bar {cci} - {ccibb}".format(cci=cci_key,ccibb=ccibb_key))
                 csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
@@ -104,7 +104,7 @@ class Algo():
                         # do we need to close out current order
                         # do we need to close out current stop loss orders?
                         if not self.backTest:
-                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",modBuyStopLossPrice,modSellStopLossPrice)
+                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",modBuyStopLossPrice,modSellStopLossPrice, openOrderType = True)
                             log.info("logic.CCIbb: order placed, fillStatus: {fs}".format(fs=fillStatus))
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row1,cci_trade,ccibb_trade)
@@ -123,7 +123,7 @@ class Algo():
                         cci_trade = True
                         quantity = 2
                         if not self.backTest:
-                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"cci_day",modBuyStopLossPrice,modSellStopLossPrice)
+                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"cci_day",modBuyStopLossPrice,modSellStopLossPrice, openOrderType = True)
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row2,cci_trade,ccibb_trade)
                         break
@@ -200,7 +200,7 @@ class Algo():
         log.info("* Risk:               {0:.2f}%".format(float(row[12])))
         log.info("* Previous Order:     {}".format(row[6]))
         log.info("* Previous Wins:      {}".format(row[7]))
-        log.info("* Rank (0-100)s:      {0:.2f}".format(float(row[31])))
+        log.info("* Rank (0-100)s:      {0:.2f}".format(float(row[32])))
         log.info("************************************************")
         return
 
@@ -281,7 +281,7 @@ class Algo():
         #print("bars15 cci_third, ccia_third, cci_prior, ccia_prior, cci, ccia",bars_15m.cci_third,bars_15m.ccia_third,bars_15m.cci_prior, bars_15m.ccia_prior, bars_15m.cci, bars_15m.ccia)
         if (bars_15m.cci_prior > bars_15m.ccia_prior and open_short) or (bars_15m.cci_prior < bars_15m.ccia_prior and open_long):
             log.info("we are in app start up and we need to reverse due to wrong direction")
-            allClosed = orders.closeOutMain(self.ib,tradeContract,True)     # we don't worry about whether we are long or short. just passing the contract, need to add order
+            allClosed = orders.closeOutMain(self.ib,tradeContract,True, openOrderType = False)     # we don't worry about whether we are long or short. just passing the contract, need to add order.  Second false is whether this is an opening order.  it is not
             log.info("crossed but not tradeNow so lets close stp and open positions")
         else:
             log.info("we are in app start up and we DO NOT need to reverse due to wrong direction")
