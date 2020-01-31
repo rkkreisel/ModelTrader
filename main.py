@@ -56,6 +56,12 @@ class App:
         
         self.ib.disconnectedEvent += self.disconnectEvent
         self.ib.connectedEvent += self.connectEvent
+        self.ib.orderStatusEvent += self.orderStatusEvent
+        self.ib.newOrderEvent += self.newOrderEvent
+        self.ib.execDetailsEvent += self.execDetailsEvent
+        self.ib.errorEvent += self.onError
+        self.ib.newOrderEvent += self.newOrderEvent
+
 
     def run(self):
         self._onTimeout()
@@ -96,6 +102,33 @@ class App:
     def profitandloss(self):
         pandl = self.objects.PnL()
         logger.getLogger().info("PNL",pandl)
+  
+    def orderStatusEvent(self, Trade):
+        log.info("main.py:orderStatusEvent: we had with the following trade: {t}".format(t=Trade))
+
+    def newOrderEvent(self, Trade):
+        log.info("main.py:newOrderEvent: we had with the following trade: {t}".format(t=Trade))
+
+    def execDetailsEvent(self, Trade, Fill):
+        log.info("main.py:execDetailsEvent: we had with the following trade: {t} and Fill: {f}".format(t=Trade,f=Fill))
+
+    def onError(self, reqId, errorCode, errorString, contract):
+        log.info("main.py:onError:: errorcode: {ec} errorstring: {es}".format(ec=errorCode,es=errorString))
+        if errorCode == 200 or errorCode == 1100:
+            ib.disconnect()
+            ib.sleep(100)
+            ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
+            #global timeout_retry_flag
+            #if timeout_retry_flag >= 5:
+            #    log.info("onerror: Request timed out. Setting flag.")
+            #    print("onerror: Request timed out. Setting flag.")
+            #    set_timeout_flag(True, contract.conId)
+            #    timeout_retry_flag = 0
+            #else:
+            #    timeout_retry_flag += 1
+            #    print(f"onerror: Timeout try {timeout_retry_flag}")
+            #    raise TimeoutError
+
 
     #def barupdateEvent_15m(self, bars: objects.BarDataList, hasNewBar: bool):
         #logger.getLogger().info(f"Got 15m Bars.")
@@ -131,30 +164,6 @@ def main(ib: IB):
     app.run()
 timeout_retry_flag = 0
 
-def ordeStatusEvent(Trade):
-    log.info("main.py:orderStatusEvent: we had with the following trade: {t}".format(t=Trade))
-
-def newOrderEvent(Trade):
-    log.info("main.py:newOrderEvent: we had with the following trade: {t}".format(t=Trade))
-
-def execDetailsEvent(Trade, Fill):
-    log.info("main.py:execDetailsEvent: we had with the following trade: {t} and Fill: {f}".format(t=Trade,f=Fill))
-
-def onError(reqId, errorCode, errorString, contract):
-    log.info("main.py:onError:: errorcode: {ec} errorstring: {es}".format(ec=errorCode,es=errorString))
-    if errorCode == 200 or errorCode == 1100:
-        ib.disconnect()
-        ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
-        global timeout_retry_flag
-        if timeout_retry_flag >= 5:
-            log.info("onerror: Request timed out. Setting flag.")
-            print("onerror: Request timed out. Setting flag.")
-            set_timeout_flag(True, contract.conId)
-            timeout_retry_flag = 0
-        else:
-            timeout_retry_flag += 1
-            print(f"onerror: Timeout try {timeout_retry_flag}")
-            raise TimeoutError
             
 if __name__ == '__main__':
     logger.setup()
