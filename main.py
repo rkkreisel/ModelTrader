@@ -120,8 +120,8 @@ def main(ib: IB):
             print(datetime.datetime.now(), 'Connection error exception', self.num_disconnects)
             #self.ib.cancelHistoricalData(bars)
             log.info('Sleeping for 10sec...')
-            self.ib.sleep(10)
             ib.disconnect
+            self.ib.sleep(10)
             ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
 #    except OSError:
 #        log.info("main try except OS errror > Connection Failed.")
@@ -131,8 +131,18 @@ def main(ib: IB):
     app.run()
 timeout_retry_flag = 0
 
+def ordeStatusEvent(Trade):
+    log.info("main.py:orderStatusEvent: we had with the following trade: {t}".format(t=Trade))
+
+def newOrderEvent(Trade):
+    log.info("main.py:newOrderEvent: we had with the following trade: {t}".format(t=Trade))
+
+def execDetailsEvent(Trade, Fill):
+    log.info("main.py:execDetailsEvent: we had with the following trade: {t} and Fill: {f}".format(t=Trade,f=Fill))
+
 def onError(reqId, errorCode, errorString, contract):
-    if errorCode == 200:
+    log.info("main.py:onError:: errorcode: {ec} errorstring: {es}".format(ec=errorCode,es=errorString))
+    if errorCode == 200 or errorCode == 1100:
         ib.disconnect()
         ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
         global timeout_retry_flag

@@ -36,7 +36,7 @@ def is_open_today(contracthours: Contract):
         hours += ["{0}-{1}".format(match.group(2), match.group(4))]
 
     today_hours = ",".join(hours)
-    log.info("todays trading hours are: {th}".format(th=today_hours))
+    log.debug("todays trading hours are: {th}".format(th=today_hours))
 
     csv_file = csv.reader(open('data/tradinghours.csv', "rt"), delimiter = ",")
     hours_found = False

@@ -15,11 +15,11 @@ log = logger.getLogger()
 # buy or sell based on trigger with open stp and open position (every open order should have a stp order)
 # no buy or sell but we crossed and need to close stp's and close positions
 #
-def closeOutMain(ib, tradeContract, execute, openOrderType):           # this manages the closing of stp orders and open position
+def closeOutMain(ib, tradeContract, execute):           # this manages the closing of stp orders and open position
     log.info("closeOutMains: logic ")
     qtyCancel = closeOpenOrders(ib)                   # close open STP orders
     log.info("closeOutMain: we just cancelled the following number of orders: {c}".format(c=qtyCancel))
-    #log.info("Closed out open orders qty: {qty}".format(qty=qtyCancel))
+    log.debug("Closed out open orders qty: {qty}".format(qty=qtyCancel))
     closeOutPositions = closeOpenPositions(ib, tradeContract)  # we re going to execute (True)
     return
 
@@ -30,7 +30,7 @@ def createOrdersMain(ib,tradeContract,tradeAction,quantity,cciProfile,buyStopLos
     wroteOrdersToCSV = writeOrdersToCSV(ib, MktOrder, "MktOrder", status, openOrderType)
     filledTF, fillStatus = checkForOpenOrderStatus(ib, trademkt, "trademkt", trademkt.orderStatus.status)
     if fillStatus:
-        updateOrders = writeTradeToCSV(ib, trademkt, "tradeMkt", status)
+        updateOrders = writeTradeToCSV(ib, trademkt, "tradeMkt", status, openOrderType = True)
     symbol, orderId, orderType, action, quantity, status, date_order = parseTradeString(ib,tradestp)
     wroteOrdersToCSV = writeOrdersToCSV(ib, stopLossOrder, "stopLossOrder", status, openOrderType)
     
@@ -38,22 +38,25 @@ def createOrdersMain(ib,tradeContract,tradeAction,quantity,cciProfile,buyStopLos
 
 # this is counting for top of the loop for information only
 def countOpenOrders(ib):                 # This is to find open STP orders only
-    log.info("************** in the findOpenOrder function *****************")
+    log.info("countOpenOrders ************** in the findOpenOrder function *****************")
     openOrdersList = ib.openTrades()
     x, stpSell, stpBuy = 0, 0, 0
     # if we are to execute, we need to create closing orders for each order we scroll throug
     # not sure we need to differentiate between buy or sell stop orders below
+    log.debug("countOpenOrders openOrdersList: {ool}".format(ool=openOrdersList))
     while x < len(openOrdersList):
         symbol, orderId, orderType, action, quantity, status, date_order = parseTradeString(ib,openOrdersList[x])
+        log.debug("countOpenOrders:: symbol: {s} orderId: {oi} orderType: {ot} action: {a} quantity: {q} status: {status} date_order: {do}".format(s=symbol,oi=orderId,ot=orderType,a=action,q=quantity,status=status,do=date_order))
         validatedOpenOrders = validateOpenOrdersCSV(ib, orderId, status)
         log.info("findOpenOrder: - we have open order records: opendOrderId: {ooi} ".format(ooi=orderId))
-        if orderType == "STP" and action == "Sell" and status == "PendingSubmit":
+        if orderType == "STP" and action == "SELL" and (status == "PendingSubmit" or status == "PreSubmitted"):
             log.info("findOpenOrder - we have open order records: Sell {one}".format(one=orderType))
             stpSell += quantity                       #        we don't care about qty - just cancel order
-        elif orderType == "STP" and action == "Buy" and status == "PendingSubmit":
+        elif orderType == "STP" and action == "BUY" and (status == "PendingSubmit" or status == "PreSubmitted"):
             log.info("findOpenOrder: - we have open order records: Buy {one}".format(one=orderType))
             stpBuy += quantity
         x += 1
+    log.debug("stpbuy: {sb} stpsell: {ss}".format(sb=stpBuy,ss=stpSell))
     return stpSell, stpBuy
 
 def countOpenPositions(ib):
@@ -128,12 +131,12 @@ def closeOpenPositions(ib, tradeContract):             #we want to close open po
         symbol, orderId, orderType, action, quantity, status, date_order = parseTradeString(ib,trademkt)
         print("\n----------------------- openOrdersList ---------------\n",positions[x])
         print("\n----------------------- TRADEMKT ---------------\n",trademkt)
-        writeToCsv = writeOrdersToCSV(ib, MktOrder, "MktOrder",status)               # writing to orders csv
+        writeToCsv = writeOrdersToCSV(ib, MktOrder, "MktOrder",status, openOrderType = False)               # writing to orders csv
         log.info("closeOpenPositions: cancel order sent -> cv: {cv} and status: {s} ".format(cv=trademkt, s=status))
         # checking status of the order
         filledTF, openOrderStatus = checkForOpenOrderStatus(ib, trademkt, "trademkt", status)
         if filledTF:
-            writeToCsv = writeTradeToCSV(ib,trademkt,"trademkt",status)
+            writeToCsv = writeTradeToCSV(ib,trademkt,"trademkt",status, openOrderType = False)
         x += 1
     return 
 
@@ -153,7 +156,7 @@ def writeOrdersToCSV(ib, orderInfo, orderName, status, openOrderType):
         histwriter.writerow({'Order_Id': orderId, 'Status': 'Cancel Submitted', 'To_Open': openOrderType, 'Date_Pending': time, 'Date_Cancelled': '1/1/20', 'Date_Filled': '1/1/20', 'Order': orderInfo})
     return
 
-def writeTradeToCSV(ib, orderInfo, orderName, status):
+def writeTradeToCSV(ib, orderInfo, orderName, status, openOrderType):
     # Go through open order  trademkt, "tradeMkt", status
     #log.info("\nwriteOrdersToCSV: orderInfo: {oi} and orderId: ".format(oi=orderInfo))
     #log.info("\nwriteOrdersToCSV: orderInfo: {oi} and orderId: {os}".format(oi=orderInfo, os=orderInfo.order.orderId))
@@ -163,10 +166,10 @@ def writeTradeToCSV(ib, orderInfo, orderName, status):
     log.info("writeTradesToCSV: orderInfo: and orderId: {os} and status: oos: {oos}".format(os=orderId,oos=status))
     csv_row = str(orderInfo) 
     with open('data/trades.csv', mode='a', newline = '') as ordersCSV:
-        fieldnames = ['Order_Id','Order','Status','Date_Pending','Date_Cancelled','Date_Filled']
+        fieldnames = ['Order_Id','Order','Status','Date_Pending','Date_Cancelled','Date_Filled','To_Open']
         histwriter = csv.DictWriter(ordersCSV, fieldnames = fieldnames)
         histwriter.writeheader()
-        histwriter.writerow({'Order_Id': orderId, 'Order': orderInfo, 'Status': status, 'Date_Pending': time, 'Date_Cancelled': '1/1/20', 'Date_Filled': datetime.now()})
+        histwriter.writerow({'Order_Id': orderId, 'Order': orderInfo, 'Status': status, 'Date_Pending': time, 'Date_Cancelled': '1/1/20', 'Date_Filled': datetime.now(),'To_Open':openOrderType})
     return
 
 def checkForOpenOrderStatus(ib, orderInfo, orderName, status):
@@ -266,6 +269,7 @@ def parseTradeString(ib,tradeInfo):
     quantity = tradeInfo.order.totalQuantity
     status = tradeInfo.orderStatus.status
     date_order = tradeInfo.log[0].time      # there are nested logs
+    log.info("parseTradeString:: symbol: {s} orderId: {oi} orderType: {ot} action: {a} quantity: {q} status: {status} date_order: {do}".format(s=symbol,oi=orderId,ot=orderType,a=action,q=quantity,status=status,do=date_order))
     return symbol, orderId, orderType, action, quantity, status, date_order
     
 def parsePositionString(ib, positionInfo):
@@ -316,13 +320,6 @@ def buildOrders(ib, tradeContract, action, quantity, cciProfile, buyStopLossPric
         transmit = True
     )
     tradestp = ib.placeOrder(tradeContract,stopLossOrder)
-    #print("buildOrders: Order placed  ",action,quantity)
-    #print("")
-    
-    #print("buildOrders: did place order",trademkt)
-    #print("")
-    #print("buildOrders: placed stop order ",tradestp)
-
     return trademkt, tradestp, parentId, MktOrder, stopLossOrder
 
 def closePositionsOrders(ib, tradeContract, account, action, quantity):

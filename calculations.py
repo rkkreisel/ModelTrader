@@ -36,35 +36,22 @@ class Calculations():
   
         """ Execute the calculations """
     def run(self):    
-        #print("\n bar_duration, bar size date time ",self.dataContract, self.bar_duration, self.bar_size, self.datetime_period)
         bars_period = self.get_bars_data()
-        #print("bar data close - this is what stoplossprice comes from: ",bars_period[-1].close)
-        #x = np.array(bars_period)
-        #log.debug("bars {bars} ".format(bars=bars_period))
         self.closePrice = bars_period[-1].close
         self.cci, self.ccia, self.cci_prior, self.ccia_prior, self.cci_third, self.ccia_third, self.cci_four, self.ccia_four = self.calculate_cci(bars_period)
         self.atr =  self.calculate_atr(bars_period)
         self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
-        #logged_it = self.log_value("Starting ")
         temp = self.atr*4
         if self.getNewClose:
-            #self.buyStopLossPrice = (self.bar15MinClose - self.atr) * 4
-            #print('first',self.buyStopLossPrice)
-            #self.buyStopLossPrice = round(self.buyStopLossPrice,0)
-            #print('second',self.buyStopLossPrice)
-            #self.buyStopLossPrice = self.buyStopLossPrice/4
-            #print('second',self.buyStopLossPrice)
             self.sellStopLossPrice = round((self.bar15MinClose + self.atr)*4,0)/4
             self.buyStopLossPrice = round((self.bar15MinClose - self.atr)*4,0)/4
-            #print("calculations: getting new close bar15minclose self.atr",self.bar15MinClose,self.atr,self.atr*4,self.buyStopLossPrice,self.sellStopLossPrice)
         else:
             self.sellStopLossPrice = round((self.closePrice + self.atr)*4,0)/4
             self.buyStopLossPrice = round((self.closePrice - self.atr)*4,0)/4
-            #print("calculations: getting old close bar15minclose self.atr",self.bar15MinClose,self.atr,self.atr*4,temp,self.buyStopLossPrice,self.sellStopLossPrice)
             
         self.ATRBuyStopLossAmount = round((self.atr*4),0)/4
         self.ATRSellStopLossAmount = round((self.atr*4),0)/4
-        log.info("Calculation: {bs} getNewClose: {gnc} bar15minclose: {c} buystop: {b} sellstop: {s} atrbuy: {ab} atrsell: {aas}".format(bs=self.bar_size,gnc=self.getNewClose,c=self.bar15MinClose,b=self.buyStopLossPrice,s=self.sellStopLossPrice,ab=self.ATRBuyStopLossAmount,aas=self.ATRSellStopLossAmount))
+        log.debug("Calculation: {bs} getNewClose: {gnc} bar15minclose: {c} buystop: {b} sellstop: {s} atrbuy: {ab} atrsell: {aas}".format(bs=self.bar_size,gnc=self.getNewClose,c=self.bar15MinClose,b=self.buyStopLossPrice,s=self.sellStopLossPrice,ab=self.ATRBuyStopLossAmount,aas=self.ATRSellStopLossAmount))
 
         if self.bar_size == "15 mins":
             if self.self.cci > self.ccia and self.cci_prior < self.ccia_prior:
@@ -78,13 +65,10 @@ class Calculations():
                 self.buyStopLossPrice = 0
                 self.sellStopLossPrice = 0
             if abs(self.cci - self.ccia) > config.SPREAD:
-                log.info("Pending ".format(cci-ccia))
+                log.debug("Pending ".format(cci-ccia))
                 pendinglong = True
                 pendingshort = True
-            log.info("calculations: Buy Stop loss set:{sl} sell stop loss: {stp} close was: {c}".format(sl=self.buyStopLossPrice,stp=self.sellStopLossPrice,c=bars_period[-1].close))
-        #else:
-        #    print("\n non 15m bars",self.bar_size,bars_period)
-
+            log.debug("calculations: Buy Stop loss set:{sl} sell stop loss: {stp} close was: {c}".format(sl=self.buyStopLossPrice,stp=self.sellStopLossPrice,c=bars_period[-1].close))
             
     def get_bars_data(self):
         #log.debug("inputs to request hist for get bars - {}".format(self.bar_duration, self.bar_size, self.datetime_period))
