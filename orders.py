@@ -4,6 +4,7 @@ import config
 import constants
 import logger
 import csv
+import os
 import pandas as pd
 from datetime import datetime, timedelta
 
@@ -141,10 +142,6 @@ def closeOpenPositions(ib, tradeContract):             #we want to close open po
     return 
 
 def writeOrdersToCSV(ib, orderInfo, orderName, status, openOrderType):
-    # tradestp, "tradestp", tradestp.orderStatus.status
-    # Go through open order
-    #log.info("\nwriteOrdersToCSV: orderInfo: {oi} and orderId: ".format(oi=orderInfo))
-    #log.info("\nwriteOrdersToCSV: orderInfo: {oi} and orderId: {os}".format(oi=orderInfo, os=orderInfo.order.orderId))
     orderId, orderType, action, quantity = parseOrderString(ib,orderInfo)
     time = datetime.now()
     log.info("\nwriteOrdersToCSV: orderId: {oi} and qty: {q} ".format(oi=orderId, q=quantity))
@@ -152,14 +149,12 @@ def writeOrdersToCSV(ib, orderInfo, orderName, status, openOrderType):
     with open('data/orders.csv', mode='a', newline = '') as ordersCSV:
         fieldnames = ['Order_Id','Status','To_Open','Date_Pending','Date_Cancelled','Date_Filled','Order']
         histwriter = csv.DictWriter(ordersCSV, fieldnames = fieldnames)
-        histwriter.writeheader()
+        if os.stat("data/orders.csv").st_size < 50: #don't want to keep repeating the header
+            histwriter.writeheader()
         histwriter.writerow({'Order_Id': orderId, 'Status': 'Cancel Submitted', 'To_Open': openOrderType, 'Date_Pending': time, 'Date_Cancelled': '1/1/20', 'Date_Filled': '1/1/20', 'Order': orderInfo})
     return
 
 def writeTradeToCSV(ib, orderInfo, orderName, status, openOrderType):
-    # Go through open order  trademkt, "tradeMkt", status
-    #log.info("\nwriteOrdersToCSV: orderInfo: {oi} and orderId: ".format(oi=orderInfo))
-    #log.info("\nwriteOrdersToCSV: orderInfo: {oi} and orderId: {os}".format(oi=orderInfo, os=orderInfo.order.orderId))
     orderId = orderInfo.order.orderId
     status = orderInfo.orderStatus.status
     time = datetime.now()
@@ -168,7 +163,8 @@ def writeTradeToCSV(ib, orderInfo, orderName, status, openOrderType):
     with open('data/trades.csv', mode='a', newline = '') as ordersCSV:
         fieldnames = ['Order_Id','Order','Status','Date_Pending','Date_Cancelled','Date_Filled','To_Open']
         histwriter = csv.DictWriter(ordersCSV, fieldnames = fieldnames)
-        histwriter.writeheader()
+        if os.stat("data/trades.csv").st_size < 50: #don't want to keep repeating the header
+            histwriter.writeheader()
         histwriter.writerow({'Order_Id': orderId, 'Order': orderInfo, 'Status': status, 'Date_Pending': time, 'Date_Cancelled': '1/1/20', 'Date_Filled': datetime.now(),'To_Open':openOrderType})
     return
 

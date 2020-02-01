@@ -79,7 +79,7 @@ def parseAdvisorConfig(xml):
 
 def build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow, ccibb_trade, cci_trade, ccibb_key, cci_key):
     #csv_header = "Time,Status,Crossed,CCI15,CCIA15,CCI15P,CCIA15P,ATR15,BBw15,BBB15"
-    if os.stat("data/hist15.csv").st_size < 10:
+    if os.stat("data/hist15.csv").st_size < 50:
         csv_header = 'wait_time,tradeAction,'
         csv_header += 'bars_15m.cci,bars_15m.ccia,bars_15m.atr,bars_15m.bband_width,bars_15m.bband_b,'
         csv_header += 'bars_1h.cci,bars_1h.ccia,bars_1h.atr,bars_1h.bband_width,bars_1h.bband_b,'
