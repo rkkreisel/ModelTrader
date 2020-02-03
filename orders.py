@@ -27,11 +27,11 @@ def closeOutMain(ib, tradeContract, execute):           # this manages the closi
 def createOrdersMain(ib,tradeContract,tradeAction,quantity,cciProfile,buyStopLossPrice,sellStopLossPrice,openOrderType):
     trademkt, tradestp, parentId, MktOrder, stopLossOrder = buildOrders(ib, tradeContract, tradeAction, quantity, cciProfile, buyStopLossPrice, sellStopLossPrice)    # this places the order.  No confirm it was executed
     log.info("createOrdersMain: just created MKT: {l} and STP {s} order.  Order open/close true/false: {oot} ".format(l=trademkt,s=tradestp,oot=openOrderType))
-    symbol, orderId, orderType, action, quantity, status, date_order = parseTradeString(ib,trademkt)
-    wroteOrdersToCSV = writeOrdersToCSV(ib, MktOrder, "MktOrder", status, openOrderType)
-    filledTF, fillStatus = checkForOpenOrderStatus(ib, trademkt, "trademkt", trademkt.orderStatus.status)
-    if fillStatus:
-        updateOrders = writeTradeToCSV(ib, trademkt, "tradeMkt", status, openOrderType = True)
+    #symbol, orderId, orderType, action, quantity, status, date_order = parseTradeString(ib,trademkt)
+    #wroteOrdersToCSV = writeOrdersToCSV(ib, MktOrder, "MktOrder", status, openOrderType)
+    #filledTF, fillStatus = checkForOpenOrderStatus(ib, trademkt, "trademkt", trademkt.orderStatus.status)    # moving to event driven trade updates
+    #if fillStatus:
+    #    updateOrders = writeTradeToCSV(ib, trademkt, "tradeMkt", status, openOrderType = True)
     symbol, orderId, orderType, action, quantity, status, date_order = parseTradeString(ib,tradestp)
     wroteOrdersToCSV = writeOrdersToCSV(ib, stopLossOrder, "stopLossOrder", status, openOrderType)
     
@@ -135,9 +135,9 @@ def closeOpenPositions(ib, tradeContract):             #we want to close open po
         writeToCsv = writeOrdersToCSV(ib, MktOrder, "MktOrder",status, openOrderType = False)               # writing to orders csv
         log.info("closeOpenPositions: cancel order sent -> cv: {cv} and status: {s} ".format(cv=trademkt, s=status))
         # checking status of the order
-        filledTF, openOrderStatus = checkForOpenOrderStatus(ib, trademkt, "trademkt", status)
-        if filledTF:
-            writeToCsv = writeTradeToCSV(ib,trademkt,"trademkt",status, openOrderType = False)
+        #filledTF, openOrderStatus = checkForOpenOrderStatus(ib, trademkt, "trademkt", status)  # doing with event driven trade info
+        #if filledTF:
+        #    writeToCsv = writeTradeToCSV(ib,trademkt,"trademkt",status, openOrderType = False)
         x += 1
     return 
 
@@ -185,6 +185,49 @@ def checkForOpenOrderStatus(ib, orderInfo, orderName, status):
         log.info("\ncheckForOpenOrderStatus: going to sleep {s}\n".format(s=(datetime.now() - startTime).total_seconds()))
         ib.sleep(1.0)
     return filledTF, fillStatus
+
+def createTradesCSVFromEvent(ib, Trade, eventType):    # called from main.py as events come in RE trades
+    log.info("updateTradesCSVFromEvent: updating CSV file with event type {et} expecting only one record ".format(et=eventType))
+    symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice = parseTradeString(ib,Trade)
+    csv_row = str(Trade) 
+    tmpPresubmitted, tmpPendingSubmit, tmpFilled, tmpCancelled, tmpParentId, tmpAvgFillPrice = "", "", "", "", "", 0
+    if status == "PreSubmitted": tmpPreSubmitted = datetime.now()
+    if status == "PendingSubmit": tmpPendingSubmit = datetime.now()
+    if status == "Filled": tmpFilled = datetime.now()
+    if status == "Cancelled": tmpCancelled = datetime.now()
+    if status == "Filled": tmpAvgFillPrice = avgFillPrice
+    if orderType == "STP": tmpParentId = parentId
+    with open('data/trades.csv', mode='a', newline = '') as ordersCSV:
+        fieldnames = ['Order_Id','Action','Status','PreSubmitted','PendingSubmit','Cancelled','Submitted','Cancelled','Filled','ToOpen','ParentId','FAProfile','AvgFillPrice','TotalQty','Trade']
+        histwriter = csv.DictWriter(ordersCSV, fieldnames = fieldnames)
+        if os.stat("data/trades.csv").st_size < 50: #don't want to keep repeating the header
+            histwriter.writeheader()
+        histwriter.writerow({'Order_Id': orderId, 'Action': action,'Status':status, 'PreSubmitted': tmpPreSubmitted,'PendingSubmit':tmpPendingSubmit,'Cancelled':tmpCancelled, 'Filled':tmpFilled,'ToOpen':'True', 'ParentId': tmpParentId, 'AvgFillPrice': tmpAvgFillPrice, 'TotalQty':quantity, 'Order': Trade})
+    return 
+
+def updateTradesCSVFromEvent(ib, Trade, eventType):    # called from main.py as events come in RE trades
+    # we have an open order from IB.  Going to run through our CSV file and make sure it exists.
+    # if it doesn't exist, we will add it
+    #log.info("we are looking for openOrderId")
+    # REFERENCE fieldnames = ['Order_Id','Order','Status','Date_Pending','Date_Cancelled','Date_Filled','Date_Updated]
+    symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice = parseTradeString(ib,Trade)
+    foundOrderInCSV = False
+    with open('data/trades.csv', newline ='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row['Order_Id'] == orderId:
+                csvfile.close()
+                df = pd.read_csv("data/trades.csv")   # https://stackoverflow.com/questions/11033590/change-specific-value-in-csv-file-via-python
+                #df.head(5)   #prints first 5 rows
+                if status == "Filled": df.loc[df['Order_Id']==orderId, 'AvgFillPrice'] = avgFillPrice
+                if status == 'PreSubmitted': df.loc[df['Order_Id']==orderId, 'Presubmitted'] = datetime.now()
+                if status == 'PendingSubmit': df.loc[df['Order_Id']==orderId, 'PendingSubmit'] = datetime.now()        
+                if status == 'Cancelled': df.loc[df['Order_Id']==orderId, 'Cancelled'] = datetime.now()        
+                if status == 'Submitted': df.loc[df['Order_Id']==orderId, 'Submitted'] = datetime.now()        
+                if status == 'Filled': df.loc[df['Order_Id']==orderId, 'Filled'] = datetime.now()        
+                df.loc[df['Order_Id']==orderId, 'Status'] = status
+                df.to_csv("data/trades.csv", index=False)
+    return
 
 def updateCanceledOpenOrders(ib, orderId, trademkt):     # I don't think this creates a new order but just cancels and existing order.  No new csv records created but updated.
     startTime = datetime.now()
@@ -256,17 +299,21 @@ def parseOrderString(ib,tradeInfo):
     quantity = tradeInfo.totalQuantity
     return orderId, orderType, action, quantity
     
-def parseTradeString(ib,tradeInfo):
-    log.debug("parseTradeString: tradeInfo: {to} ".format(to=tradeInfo))
-    symbol = tradeInfo.contract.symbol
-    orderId = tradeInfo.order.orderId
-    orderType = tradeInfo.order.orderType
-    action = tradeInfo.order.action
-    quantity = tradeInfo.order.totalQuantity
-    status = tradeInfo.orderStatus.status
-    date_order = tradeInfo.log[0].time      # there are nested logs
+def parseTradeString(ib,Trade):
+    log.debug("parseTradeString: tradeInfo ")
+    symbol = Trade.contract.symbol
+    orderId = Trade.order.orderId
+    orderType = Trade.order.orderType
+    action = Trade.order.action
+    quantity = Trade.order.totalQuantity
+    status = Trade.orderStatus.status
+    faProfile = Trade.order.faProfile
+    parentId, avgFillPrice = "", 0
+    if orderType == "STP": parentId = Trade.order.parentId
+    if status == "Filled": avgFillPrice = Trade.orderStatus.avgFillPrice
+    date_order = Trade.log[0].time      # there are nested logs
     log.info("parseTradeString:: symbol: {s} orderId: {oi} orderType: {ot} action: {a} quantity: {q} status: {status} date_order: {do}".format(s=symbol,oi=orderId,ot=orderType,a=action,q=quantity,status=status,do=date_order))
-    return symbol, orderId, orderType, action, quantity, status, date_order
+    return symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice
     
 def parsePositionString(ib, positionInfo):
     #print("parsePositionString.  Here are the positions {p}".format(p=positionInfo))

@@ -227,6 +227,7 @@ class Algo():
         return
 
     def crossoverPending(self, bars_15m, pendingLong, pendingShort, pendingSkip, pendingCnt):   # this is from excel macro.  Changes here should be changed there as well.
+        log.info("crossoverPending:")
         tradeNow, crossed = False, False
         tradeAction = "Sell"
         if bars_15m.cci > bars_15m.ccia:

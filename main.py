@@ -7,6 +7,7 @@ import tkinter as tk
 import pytz
 from datetime import datetime, timedelta
 import categories
+import orders
 import config
 import logger
 import logic
@@ -101,16 +102,19 @@ class App:
 
     def profitandloss(self):
         pandl = self.objects.PnL()
-        logger.getLogger().info("PNL",pandl)
+        log.info("main.py:PNL {p}".format(p=pandl))
   
     def orderStatusEvent(self, Trade):
         log.info("main.py:orderStatusEvent: we had with the following trade: {t}".format(t=Trade))
+        orders.updateTradesCSVFromEvent(self.ib, Trade, eventType = "Update")
 
     def newOrderEvent(self, Trade):
         log.info("main.py:newOrderEvent: we had with the following trade: {t}".format(t=Trade))
+        orders.createTradesCSVFromEvent(self.ib, Trade, eventType = "New")
 
     def execDetailsEvent(self, Trade, Fill):
         log.info("main.py:execDetailsEvent: we had with the following trade: {t} and Fill: {f}".format(t=Trade,f=Fill))
+        orders.updateTradesCSVFromEvent(self.ib, Trade, eventType = "Update")
 
     def onError(self, reqId, errorCode, errorString, contract):
         log.info("main.py:onError:: errorcode: {ec} errorstring: {es}".format(ec=errorCode,es=errorString))
