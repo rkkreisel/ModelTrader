@@ -204,7 +204,7 @@ def createTradesCSVFromEvent(ib, Trade, eventType):    # called from main.py as 
         histwriter = csv.DictWriter(ordersCSV, fieldnames = fieldnames)
         if os.stat("data/trades.csv").st_size < 50: #don't want to keep repeating the header
             histwriter.writeheader()
-        histwriter.writerow({'Order_Id':orderId,'Account':account,'Type':orderType, 'Action':action,'Status':status,'PendingSubmit':tmpPendingSubmit, 'PreSubmitted':tmpPreSubmitted, 'Submitted':tmpPreSubmitted,'PendingCancel':tmpPendingCancel,'Cancelled':tmpCancelled, 'Filled':tmpFilled,'ToOpen':'True', 'ParentId': tmpParentId, 'FAProfile': faProfile,'AvgFillPrice': tmpAvgFillPrice, 'TotalQty':quantity, 'Trade': Trade})
+        histwriter.writerow({'Order_Id':orderId,'Account':account,'Type':orderType, 'Action':action,'Status':status,'PendingSubmit':tmpPendingSubmit, 'PreSubmitted':tmpPreSubmitted, 'Submitted':tmpSubmitted,'PendingCancel':tmpPendingCancel,'Cancelled':tmpCancelled, 'Filled':tmpFilled,'ToOpen':'True', 'ParentId': tmpParentId, 'FAProfile': faProfile,'AvgFillPrice': tmpAvgFillPrice, 'TotalQty':quantity, 'Trade': Trade})
     return 
 
 def updateTradesCSVFromEvent(ib, Trade, eventType):    # called from main.py as events come in RE trades

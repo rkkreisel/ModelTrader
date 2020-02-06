@@ -119,13 +119,19 @@ class App:
     def onError(self, reqId, errorCode, errorString, contract):
         log.info("main.py:onError:: errorcode: {ec} errorstring: {es}".format(ec=errorCode,es=errorString))
         if errorCode == 200 or errorCode == 1100:
-            log.info("main.py:onError:: errorcode going to disconnect")
-            self.ib.disconnect()
-            log.info("main.py:onError:: finished disconnect going into sleep")
-            self.ib.sleep(10)
-            log.info("main.py:onError:: waking up")
-            self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
-            log.info("main.py:onError:: attempted reconnect")
+            try:
+                log.info("main.py:onError:: errorcode going to disconnect")
+                self.ib.disconnect()
+                log.info("main.py:onError:: finished disconnect going into sleep")
+                self.ib.sleep(10)
+                log.info("main.py:onError:: waking up")
+                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
+                log.info("main.py:onError:: attempted reconnect")
+            except:
+                log.info("main.py:onError:: in except - try wasn't successful.  Going to sleep a bit")
+                self.ib.sleep(20)
+            finally:
+                log.info("main.py:onError:: Finally exiting")
             #global timeout_retry_flag
             #if timeout_retry_flag >= 5:
             #    log.info("onerror: Request timed out. Setting flag.")
