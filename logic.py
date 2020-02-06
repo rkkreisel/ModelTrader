@@ -48,10 +48,10 @@ class Algo():
             open_long, open_short, long_position_qty, short_position_qty = orders.countOpenPositions(self.ib)   # do we have an open position?
             open_today = helpers.is_open_today(contracthours)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
-            log.debug("Got Contract: {}".format(dataContract.localSymbol))
+            log.info("Got Contract: {}".format(dataContract.localSymbol))
             self.app.contract.update(dataContract.localSymbol)
             wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d, self.log_time = self.define_times(self.ib)
-            log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
+            log.info("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
             #
             # debug 
             #current_time = datetime.now()
@@ -59,14 +59,14 @@ class Algo():
             #
             self.ib.waitUntil(wait_time)
             
-            log.debug("before loop start:{ls}".format(ls=datetime.now()))
+            #log.debug("before loop start:{ls}".format(ls=datetime.now()))
             self.ib.loopUntil(condition=self.ib.isConnected())   # rying to fix 1100 error on nightly reset
-            #if datetime.now().hour == 0:
-            #    log.info("0 hour and disconnecting".format(datetime.now(),datetime.now().hour))
-            #    self.ib.disconnect()
-            #    self.ib.sleep(100)
-            #    self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
-            #    log.info("0 hour and re-connecting".format(datetime.now(),datetime.now().hour))
+            if datetime.now().hour == 0:
+                log.info("0 hour and disconnecting".format(datetime.now(),datetime.now().hour))
+                self.ib.disconnect()
+                self.ib.sleep(100)
+                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
+                log.info("0 hour and re-connecting".format(datetime.now(),datetime.now().hour))
             #log.debug("after loop start:{ls}".format(ls=datetime.now()))
             #log.debug("requesting info for the following timeframe today: {} ".format(wait_time))
             bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15,False, 0)
