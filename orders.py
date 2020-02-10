@@ -130,8 +130,8 @@ def closeOpenPositions(ib, tradeContract):             #we want to close open po
         #temp = temphold(orderId=openOrder[x].permId)
         trademkt, MktOrder = closePositionsOrders(ib,tradeContract, account, action, abs(quantity))
         symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account = parseTradeString(ib,trademkt)
-        print("\n----------------------- openOrdersList ---------------\n",positions[x])
-        print("\n----------------------- TRADEMKT ---------------\n",trademkt)
+        #print("\n----------------------- openOrdersList ---------------\n",positions[x])
+        #print("\n----------------------- TRADEMKT ---------------\n",trademkt)
         writeToCsv = writeOrdersToCSV(ib, MktOrder, "MktOrder",status, openOrderType = False)               # writing to orders csv
         log.info("closeOpenPositions: cancel order sent -> cv: {cv} and status: {s} ".format(cv=trademkt, s=status))
         # checking status of the order
@@ -190,7 +190,7 @@ def createTradesCSVFromEvent(ib, Trade, eventType):    # called from main.py as 
     log.info("updateTradesCSVFromEvent: updating CSV file with event type {et} expecting only one record ".format(et=eventType))
     symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account = parseTradeString(ib,Trade)
     csv_row = str(Trade) 
-    tmpPreSubmitted, tmpPendingSubmit, tmpFilled, tmpCancelled, tmpParentId, tmpPendingCancel, tmpAvgFillPrice = "", "", "", "", "", "", 0
+    tmpPreSubmitted, tmpPendingSubmit, tmpFilled, tmpCancelled, tmpParentId, tmpPendingCancel, tmpSubmitted, tmpAvgFillPrice = "","", "", "", "", "", "", 0
     if status == "PreSubmitted": tmpPreSubmitted = datetime.now()
     if status == "PendingSubmit": tmpPendingSubmit = datetime.now()
     if status == "Submitted": tmpSubmitted = datetime.now()
@@ -235,7 +235,7 @@ def updateTradesCSVFromEvent(ib, Trade, eventType):    # called from main.py as 
 def updateCanceledOpenOrders(ib, orderId, trademkt):     # I don't think this creates a new order but just cancels and existing order.  No new csv records created but updated.
     startTime = datetime.now()
     cancelledTF = False
-    log.info("updateCanceledOpenOrders: trademkt: {tm}".format(tm=trademkt))
+    log.debug("updateCanceledOpenOrders: trademkt: {tm}".format(tm=trademkt))
     while True:
         log.info("updateCanceledOpenOrders: in loop trademkt: {tm} seconds start {sd} end {ed}".format(tm=trademkt.orderStatus.status,sd=datetime.now(),ed=startTime))
         status = trademkt.orderStatus.status

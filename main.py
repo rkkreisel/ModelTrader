@@ -105,15 +105,15 @@ class App:
         log.info("main.py:PNL {p}".format(p=pandl))
   
     def orderStatusEvent(self, Trade):
-        log.info("main.py:orderStatusEvent: we had with the following trade: {t}".format(t=Trade))
+        log.info("main.py:orderStatusEvent: we had with the following trade")
         orders.createTradesCSVFromEvent(self.ib, Trade, eventType = "Update")
 
     def newOrderEvent(self, Trade):
-        log.info("main.py:newOrderEvent: we had with the following trade: {t}".format(t=Trade))
+        log.info("main.py:newOrderEvent: we had with the following trade")
         orders.createTradesCSVFromEvent(self.ib, Trade, eventType = "New")
 
     def execDetailsEvent(self, Trade, Fill):
-        log.info("main.py:execDetailsEvent: we had with the following trade: {t} and Fill: {f}".format(t=Trade,f=Fill))
+        log.info("main.py:execDetailsEvent: we had with the following trade:  Fill: {f}".format(f=Fill))
         orders.createTradesCSVFromEvent(self.ib, Trade, eventType = "Update")
 
     def onError(self, reqId, errorCode, errorString, contract):
@@ -123,13 +123,18 @@ class App:
                 log.info("main.py:onError:: errorcode going to disconnect")
                 self.ib.disconnect()
                 log.info("main.py:onError:: finished disconnect going into sleep")
-                self.ib.sleep(10)
+                self.ib.sleep(300)
                 log.info("main.py:onError:: waking up")
                 self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
                 log.info("main.py:onError:: attempted reconnect")
             except:
                 log.info("main.py:onError:: in except - try wasn't successful.  Going to sleep a bit")
-                self.ib.sleep(20)
+                log.info("main.py:onError:: errorcode going to disconnect")
+                self.ib.disconnect()
+                self.ib.sleep(300)
+                log.info("main.py:onError:: waking up")
+                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
+                log.info("main.py:onError:: attempted reconnect")
             finally:
                 log.info("main.py:onError:: Finally exiting")
             #global timeout_retry_flag
