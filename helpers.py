@@ -23,10 +23,11 @@ def is_open_today(contracthours: Contract):
     yesterday = (datetime.today() - timedelta(days=1)).strftime("%Y%m%d")
     tomorrow = (datetime.today() + timedelta(days=1)).strftime("%Y%m%d")
     #print("yesterday: ",yesterday)
-    #print("today:     ",today)
+    print("today:     ",today)
     #print("tomorrow:  ",tomorrow)
     hours = []
-
+    tradingDayType = checkDayType(today)
+    log.info("Trading date: {td} day type: {dt}".format(td=today,dt=tradingDayType))
     for day in days:
         match = date_re.match(day)
         #print("date re: ",date_re.match(day))
@@ -52,6 +53,20 @@ def is_open_today(contracthours: Contract):
     if today_hours == config.NORMAL_TRADING_HOURS:
         return True
     return False
+
+def checkDayType(checkDate):
+    with open('data/tradingday.csv', 'r') as csvfile:
+        header = ['Today','DayType']
+        reader = csv.DictReader(csvfile, fieldnames = header, delimiter = ',')
+        #reader = csv.DictReader(csvfile)
+        dayType = False
+        for row in reader:
+            log.debug("checkDate: {cd} today: {t} DayType {dt}".format(cd=checkDate,t=row['Today'],dt=row['DayType']))
+            if checkDate == row['Today']: 
+                log.info("we have a match in tradingday.csv: {td}".format(td=row['DayType']))
+                dayType = row['DayType']
+                break
+    return dayType
 
 def parseAdvisorConfig(xml):
     """ Get # Of Contracts from Current Advisor Profile """
