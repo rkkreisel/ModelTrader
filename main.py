@@ -113,17 +113,17 @@ class App:
         orders.createTradesCSVFromEvent(self.ib, Trade, eventType = "New")
 
     def execDetailsEvent(self, Trade, Fill):
-        log.info("main.py:execDetailsEvent: we had with the following trade:  Fill: {f}".format(f=Fill))
+        log.info("main.py:execDetailsEvent: we had with the following trade")
         orders.createTradesCSVFromEvent(self.ib, Trade, eventType = "Update")
 
     def onError(self, reqId, errorCode, errorString, contract):
         log.info("main.py:onError:: errorcode: {ec} errorstring: {es}".format(ec=errorCode,es=errorString))
-        if errorCode == 200 or errorCode == 1100 or errorCode == 2100:
+        if errorCode == 200 or errorCode == 1100 or errorCode == 2100 or errorCode == 162:
             try:
                 log.info("main.py:onError:: errorcode going to disconnect")
                 self.ib.disconnect()
                 log.info("main.py:onError:: finished disconnect going into sleep")
-                self.ib.sleep(600)
+                self.ib.sleep(700)
                 log.info("main.py:onError:: waking up")
                 self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
                 log.info("main.py:onError:: attempted reconnect")
@@ -131,7 +131,7 @@ class App:
                 log.info("main.py:onError:: in except - try wasn't successful.  Going to sleep a bit")
                 log.info("main.py:onError:: errorcode going to disconnect")
                 self.ib.disconnect()
-                self.ib.sleep(600)
+                self.ib.sleep(700)
                 log.info("main.py:onError:: waking up")
                 self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
                 log.info("main.py:onError:: attempted reconnect")

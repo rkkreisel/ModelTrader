@@ -45,7 +45,7 @@ class Algo():
                 #top of logic - want to check status as we enter a new bar/hour/day/contract
             contContract, contracthours = get_contract(self) #basic information on continuious contact
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
-            open_long, open_short, long_position_qty, short_position_qty = orders.countOpenPositions(self.ib)   # do we have an open position?
+            open_long, open_short, long_position_qty, short_position_qty, account_qty = orders.countOpenPositions(self.ib,"")   # do we have an open position?
             open_today = helpers.is_open_today(contracthours)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.info("Got Contract: {}".format(dataContract.localSymbol))
@@ -277,7 +277,7 @@ class Algo():
         
         contContract, contracthours = get_contract(self) #basic information on continuious contact
         tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
-        open_long, open_short, long_position_qty, short_position_qty = orders.countOpenPositions(self.ib)   # do we have an open position - not orders but positions?
+        open_long, open_short, long_position_qty, short_position_qty, account_qty = orders.countOpenPositions(self.ib,"")   # do we have an open position - not orders but positions?
         open_today = helpers.is_open_today(contracthours)
         wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d, self.log_time = self.define_times(self.ib)
         dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)

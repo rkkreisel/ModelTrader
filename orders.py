@@ -60,12 +60,12 @@ def countOpenOrders(ib):                 # This is to find open STP orders only
     log.debug("stpbuy: {sb} stpsell: {ss}".format(sb=stpBuy,ss=stpSell))
     return stpSell, stpBuy
 
-def countOpenPositions(ib):
+def countOpenPositions(ib,accountName):
     log.info("countOpenPositions: ")
     x = 0
     position_long_tf = False
     position_short_tf = False
-    long_position_qty, short_position_qty = 0, 0
+    long_position_qty, short_position_qty, account_qty = 0, 0, 0
     positions = ib.positions()
     log.info("countOpenPositions: positions: {p} ".format(p=positions))
     #updatedPositions = updatePositionsCSV(ib,positions)
@@ -73,6 +73,8 @@ def countOpenPositions(ib):
         account, symbol, quantity, avgCost = parsePositionString(ib,positions[x])
         log.info("countOpenPositions: positions account should be:{a} ".format(a=account))
         if (symbol) == "ES":
+            if account == accountName:
+                account_qty = account_qty + quantity
             if quantity > 0:
                 long_position_qty += quantity
                 position_long_tf = True
@@ -81,7 +83,7 @@ def countOpenPositions(ib):
                 position_short_tf = True
         x += + 1
     log.info("Have a position: long qty: {lqty} and short qty: {sqty} ".format(lqty = long_position_qty,sqty = short_position_qty))    
-    return position_long_tf, position_short_tf, long_position_qty, short_position_qty 
+    return position_long_tf, position_short_tf, long_position_qty, short_position_qty, account_qty
 
 def closeOpenOrders(ib):                 # This is to find open STP orders and cancel 
     log.info("************** in the closeOpenOrder function *****************")
@@ -189,6 +191,7 @@ def checkForOpenOrderStatus(ib, orderInfo, orderName, status):
 def createTradesCSVFromEvent(ib, Trade, eventType):    # called from main.py as events come in RE trades
     log.info("updateTradesCSVFromEvent: updating CSV file with event type {et} expecting only one record ".format(et=eventType))
     symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account = parseTradeString(ib,Trade)
+    position_long_tf, position_short_tf, long_position_qty, short_position_qty, account_qty = countOpenPositions(ib,account)
     csv_row = str(Trade) 
     tmpPreSubmitted, tmpPendingSubmit, tmpFilled, tmpCancelled, tmpParentId, tmpPendingCancel, tmpSubmitted, tmpAvgFillPrice = "","", "", "", "", "", "", 0
     if status == "PreSubmitted": tmpPreSubmitted = datetime.now()
@@ -200,11 +203,11 @@ def createTradesCSVFromEvent(ib, Trade, eventType):    # called from main.py as 
     if status == "Filled": tmpAvgFillPrice = avgFillPrice
     if orderType == "STP": tmpParentId = parentId
     with open('data/trades.csv', mode='a', newline = '') as ordersCSV:
-        fieldnames = ['Order_Id','Account','Type', 'Action','Status','PendingSubmit','PreSubmitted','Submitted','PendingCancel','Cancelled','Filled','ToOpen','ParentId','FAProfile','AvgFillPrice','TotalQty','Trade']
+        fieldnames = ['Order_Id','Account','Type', 'Action','Status','EndingQty','PendingSubmit','PreSubmitted','Submitted','PendingCancel','Cancelled','Filled','ToOpen','ParentId','FAProfile','AvgFillPrice','TotalQty','Trade']
         histwriter = csv.DictWriter(ordersCSV, fieldnames = fieldnames)
         if os.stat("data/trades.csv").st_size < 50: #don't want to keep repeating the header
             histwriter.writeheader()
-        histwriter.writerow({'Order_Id':orderId,'Account':account,'Type':orderType, 'Action':action,'Status':status,'PendingSubmit':tmpPendingSubmit, 'PreSubmitted':tmpPreSubmitted, 'Submitted':tmpSubmitted,'PendingCancel':tmpPendingCancel,'Cancelled':tmpCancelled, 'Filled':tmpFilled,'ToOpen':'True', 'ParentId': tmpParentId, 'FAProfile': faProfile,'AvgFillPrice': tmpAvgFillPrice, 'TotalQty':quantity, 'Trade': Trade})
+        histwriter.writerow({'Order_Id':orderId,'Account':account,'Type':orderType, 'Action':action,'Status':status,'EndingQty':account_qty,'PendingSubmit':tmpPendingSubmit, 'PreSubmitted':tmpPreSubmitted, 'Submitted':tmpSubmitted,'PendingCancel':tmpPendingCancel,'Cancelled':tmpCancelled, 'Filled':tmpFilled,'ToOpen':'True', 'ParentId': tmpParentId, 'FAProfile': faProfile,'AvgFillPrice': tmpAvgFillPrice, 'TotalQty':quantity, 'Trade': Trade})
     return 
 
 def updateTradesCSVFromEvent(ib, Trade, eventType):    # called from main.py as events come in RE trades
