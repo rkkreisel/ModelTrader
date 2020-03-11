@@ -44,10 +44,10 @@ def countOpenOrders(ib):                 # This is to find open STP orders only
     x, stpSell, stpBuy = 0, 0, 0
     # if we are to execute, we need to create closing orders for each order we scroll throug
     # not sure we need to differentiate between buy or sell stop orders below
-    log.debug("countOpenOrders openOrdersList: {ool}".format(ool=openOrdersList))
+    log.info("countOpenOrders openOrdersList: {ool}".format(ool=openOrdersList))
     while x < len(openOrdersList):
         symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account = parseTradeString(ib,openOrdersList[x])
-        log.debug("countOpenOrders:: symbol: {s} orderId: {oi} orderType: {ot} action: {a} quantity: {q} status: {status} date_order: {do}".format(s=symbol,oi=orderId,ot=orderType,a=action,q=quantity,status=status,do=date_order))
+        log.info("countOpenOrders:: symbol: {s} orderId: {oi} orderType: {ot} action: {a} quantity: {q} status: {status} date_order: {do}".format(s=symbol,oi=orderId,ot=orderType,a=action,q=quantity,status=status,do=date_order))
         validatedOpenOrders = validateOpenOrdersCSV(ib, orderId, status)
         log.info("findOpenOrder: - we have open order records: opendOrderId: {ooi} ".format(ooi=orderId))
         if orderType == "STP" and action == "SELL" and (status == "PendingSubmit" or status == "PreSubmitted"):

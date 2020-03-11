@@ -144,13 +144,14 @@ class Algo():
     def define_times(self,ib):
         # This whole block is trying to deal with the time differences between the server and TWS gateway.
         # we have noticed a 1 second drift and it impacts our data calls
-        log.debug("TWS time is: {tws} ".format(tws=self.ib.reqCurrentTime()))
-        log.debug("PTH time is: {st}".format(st=datetime.now()))
+        log.info("TWS time is: {tws} ".format(tws=self.ib.reqCurrentTime()))
+        log.info("PTH time is: {st}".format(st=datetime.now()))
         localDateTime = datetime.now()
         twsTime = self.ib.reqCurrentTime()
         twsTime = twsTime.replace(tzinfo=None)
-        twsTimeLocal = twsTime - timedelta(hours=5)
-        log.debug("tws time in local time zone format: {t} ".format(t=twsTimeLocal))
+        # this has to be changed for changes to day light savings time.
+        twsTimeLocal = twsTime - timedelta(hours=4)
+        log.info("tws time in local time zone format: {t} ".format(t=twsTimeLocal))
         twsDiff = localDateTime - twsTimeLocal 
         log.debug("tws to server time diff:{diff} in seconds {s} microsecond {m}".format(diff=twsDiff,s=twsDiff.seconds,m=twsDiff.microseconds))
         
