@@ -64,7 +64,7 @@ class Algo():
             if datetime.now().hour == 0:
                 log.info("0 hour and disconnecting".format(datetime.now(),datetime.now().hour))
                 self.ib.disconnect()
-                self.ib.sleep(100)
+                self.ib.sleep(500)
                 self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
                 log.info("0 hour and re-connecting".format(datetime.now(),datetime.now().hour))
             #log.debug("after loop start:{ls}".format(ls=datetime.now()))

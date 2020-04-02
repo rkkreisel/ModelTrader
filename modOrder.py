@@ -31,15 +31,18 @@ while x < len(openOrdersList):
     #validatedOpenOrders = validateOpenOrdersCSV(ib, orderId, status)
     #log.info("closeOpenOrder: - we have open order records: opendOrderId: {ooi} orderType: {ot} ".format(ooi=orderId, ot=orderType))
     print(" blank ")
-    print("closeOpenOrder: closing all open orders - currently working on: ",openOrdersList[x])
+    #print("closeOpenOrder: closing all open orders - currently working on: ",openOrdersList[x])
     #trademkt = ib.cancelOrder(openOrdersList[x])            # don't need to place order when cancelling
     #print("\n----------------------- openOrdersList ---------------\n",openOrdersList[x])
     print("----------------------- TRADEMKT ---------------: ",openOrdersList)
     #validatedOpenOrders = validateOpenOrdersCSV(ib, orderId, status)
     #orderId, orderType, action, quantity = orders.parseOrderString(ib,openOrdersList)      
     #checkOrderStatus = updateCanceledOpenOrders(ib, orderId, trademkt)   # update each order that we cancelled
-    print("action ",openOrdersList[x].order.action)
-    #if openOrdersList[x].order.action = "SELL"
+    print("action ",openOrdersList[x].action)
+    if openOrdersList[x].action == "BUY" and openOrdersList[x].orderType == "STP":
+        print("new auxPrice",openOrdersList[x].auxPrice)
+        openOrdersList[x].auxPrice = 2577
+        ib.placeOrder(contract,openOrdersList[x])
         #openOrdersList
 
     x += 1
