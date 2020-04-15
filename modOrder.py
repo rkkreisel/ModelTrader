@@ -1,5 +1,5 @@
 from ib_insync import IB
-from ib_insync.contract import ContFuture, Contract 
+from ib_insync.contract import ContFuture, Future
 from ib_insync.objects import BarDataList
 import datetime
 import asyncio
@@ -14,14 +14,17 @@ from indicator import Indicator
 ib = IB()
 ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
 
-buyPrice = '3023.25'
+buyPrice = '2720.00'
 
-contract = ib.reqContractDetails(
-        ContFuture(symbol=config.SYMBOL, exchange=config.EXCHANGE)
-    )
-
+contContract = ib.reqContractDetails(ContFuture(symbol=config.SYMBOL, exchange=config.EXCHANGE))
+tradeContract = contContract[0].contract
+print("tradecontract ",tradeContract)
+print("")
+#contract = ib.Future(symbol = contract.symbol)
+#print("contract for symbol",contract)
+print("")
 openOrdersList = ib.openOrders()
-print("contract",contract)
+#print("contract",contract)
 print("open orders",openOrdersList)
 print("length of orders ",len(openOrdersList))
 x = 0
@@ -39,10 +42,16 @@ while x < len(openOrdersList):
     #orderId, orderType, action, quantity = orders.parseOrderString(ib,openOrdersList)      
     #checkOrderStatus = updateCanceledOpenOrders(ib, orderId, trademkt)   # update each order that we cancelled
     print("action ",openOrdersList[x].action)
-    if openOrdersList[x].action == "BUY" and openOrdersList[x].orderType == "STP":
+    if openOrdersList[x].action == "SELL" and openOrdersList[x].orderType == "STP":
+        openOrdersList[x].auxPrice = 2777
         print("new auxPrice",openOrdersList[x].auxPrice)
-        openOrdersList[x].auxPrice = 2577
-        ib.placeOrder(contract,openOrdersList[x])
+        openOrder = openOrdersList[x]
+        print("type openOrder ",type(openOrder))
+        print("")
+        #print("type contract ",type(contract))
+        print("")
+        print("open Order ",openOrder)
+        ib.placeOrder(tradeContract,openOrder)
         #openOrdersList
 
     x += 1

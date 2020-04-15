@@ -199,12 +199,13 @@ class Algo():
         log.info("* CCI Trade:          {0:.2f}".format(float(cci_trade)))
         log.info("* CCIbb Trade:        {0:.2f}".format(float(ccibb_trade)))
         log.info("* Do we buy this one: {}".format(row[13]))
-        log.info("* Profit:             {0:,.2f}".format(float(row[5])))
-        log.info("* Winning %:          {0:.2f}%".format(float(row[11])*100))
-        log.info("* Risk:               {0:.2f}%".format(float(row[12])))
-        log.info("* Previous Order:     {}".format(row[6]))
-        log.info("* Previous Wins:      {}".format(row[7]))
-        log.info("* Rank (0-100)s:      {0:.2f}".format(float(row[32])))
+        if row[11] > 0 and row[5] > 0:
+            log.info("* Profit:             {0:,.2f}".format(float(row[5])))
+            log.info("* Winning %:          {0:.2f}%".format(float(row[11])*100))
+            log.info("* Risk:               {0:.2f}%".format(float(row[12])))
+            log.info("* Previous Order:     {}".format(row[6]))
+            log.info("* Previous Wins:      {}".format(row[7]))
+            log.info("* Rank (0-100)s:      {0:.2f}".format(float(row[32])))
         log.info("************************************************")
         return
 
