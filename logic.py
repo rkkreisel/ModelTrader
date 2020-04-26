@@ -140,6 +140,7 @@ class Algo():
             #csv_row_add = helpers.build_csv_bars_row(","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort),True)
             wrote_bar_to_csv = helpers.build_csv_bars_row(self.log_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow, ccibb_trade, cci_trade,ccibb_key, cci_key)
             tradenow, cci_trade, ccibb_trade = False, False, False
+            changed = orders.modifySTPOrder(self.ib,modBuyStopLossPrice,modSellStopLossPrice,bars_15m.closePrice)
 
     def define_times(self,ib):
         # This whole block is trying to deal with the time differences between the server and TWS gateway.

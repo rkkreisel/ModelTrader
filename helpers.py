@@ -15,7 +15,7 @@ log = logger.getLogger()
 def is_open_today(contracthours: Contract):
     # a return of NONE is when the market is not opern for the given day
     """ Parse contract Trading Hours to Check if Valid Trading Day"""
-    #print("contract hours",contracthours)
+    print("contract hours",contracthours)
     date_re = compile_re(r"([0-9]{8}):([0-9]+)-([0-9]{8}):([0-9]+)")
     #print("date_re: ",date_re)
     days = contracthours.split(";")                         #parse the list

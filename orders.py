@@ -2,6 +2,7 @@
 from ib_insync.order import Order
 import config
 import constants
+from ib_insync.contract import ContFuture, Future
 import logger
 import csv
 import os
@@ -391,3 +392,28 @@ def closePositionsOrders(ib, tradeContract, account, action, quantity):
     print("closePositionsOrders: trademkt ",trademkt)
     writeToCsv = writeOrdersToCSV(ib, MktOrder, "MktOrder",status, openOrderType = False)
     return trademkt, MktOrder
+
+def modifySTPOrder(ib, openSTPOrder,modBuyStopLossPrice,modSellStopLossPrice):
+    log.info("modifySTPOrder:: openSTPOrder: stp".format(stp=openSTPOrder))
+    contContract = ib.reqContractDetails(ContFuture(symbol=config.SYMBOL, exchange=config.EXCHANGE))
+    tradeContract = contContract[0].contract
+    openOrdersList = ib.openOrders()
+    x = 0
+    while x < len(openOrdersList):
+        log.info("----------------------- modify stop orders ---------------: {ord}".format(ord=orderopenOrdersList))
+        print("action ",openOrdersList[x].action)
+        if openOrdersList[x].action == "BUY" and openOrdersList[x].orderType == "STP" and openOrdersList[x].auxPrice > modBuyStopLossPrice:
+            log.info("new auxPrice buy: {ap} from: {pp}".format(ap=modBuyStopLossPrice,pp=openOrdersList[x].auxPrice))
+            openOrdersList[x].auxPrice = modBuyStopLossPrice
+            openOrder = openOrdersList[x]
+            ib.placeOrder(tradeContract,openOrdersList[x])
+        elif openOrdersList[x].action == "SELL" and openOrdersList[x].orderType == "STP" and openOrdersList[x].auxPrice < modSellStopLossPrice:
+            log.info("new auxPrice buy: {ap} from: {pp}".format(ap=modSellStopLossPrice,pp=openOrdersList[x].auxPrice))
+            openOrdersList[x].auxPrice = modSellStopLossPrice
+            openOrder = openOrdersList[x]
+            ib.placeOrder(tradeContract,openOrdersList[x])
+        else:
+            log.info("modifySTPOrder:: we have open orders but either they were not better stops or not STP orders.  order action: {oa} type: {t} aux price: {ap} mod pricebuy: {mpb} mod price sell: {mps}".format(oa = openOrdersList[x].action, t = openOrdersList[x].orderType, ap = openOrdersList[x].auxPrice, mpb = modBuyStopLossPrice, mps = modBuyStopLossPrice))
+        x += 1
+        print(" x is ",x)
+        return True

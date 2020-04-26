@@ -47,7 +47,7 @@ while x < len(openOrdersList):
     #checkOrderStatus = updateCanceledOpenOrders(ib, orderId, trademkt)   # update each order that we cancelled
     print("action ",openOrdersList[x].action)
     if openOrdersList[x].action == "BUY" and openOrdersList[x].orderType == "STP":
-        openOrdersList[x].auxPrice = 2750.75
+        openOrdersList[x].auxPrice = 2787.50
         print("new auxPrice",openOrdersList[x].auxPrice)
         openOrder = openOrdersList[x]
         print("type openOrder ",type(openOrder))
@@ -55,8 +55,11 @@ while x < len(openOrdersList):
         #print("type contract ",type(contract))
         print("")
         print("open Order ",openOrder)
-        ib.placeOrder(tradeContract,openOrder)
+        ib.placeOrder(tradeContract,openOrdersList[x])
         #openOrdersList
-
+        print("open orders",openOrdersList)
+        print("open orders",ib.openTrades())
+        print("open trades ",ib.trades())
+        print("orders ",ib.orders())
     x += 1
     print(" x is ",x)
