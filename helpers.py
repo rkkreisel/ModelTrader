@@ -15,7 +15,7 @@ log = logger.getLogger()
 def is_open_today(contracthours: Contract):
     # a return of NONE is when the market is not opern for the given day
     """ Parse contract Trading Hours to Check if Valid Trading Day"""
-    print("contract hours",contracthours)
+    #print("contract hours",contracthours)
     date_re = compile_re(r"([0-9]{8}):([0-9]+)-([0-9]{8}):([0-9]+)")
     #print("date_re: ",date_re)
     days = contracthours.split(";")                         #parse the list
@@ -26,7 +26,7 @@ def is_open_today(contracthours: Contract):
     print("today:     ",today)
     #print("tomorrow:  ",tomorrow)
     hours = []
-    tradingDayType = checkDayType(today)
+    tradingDayType, tradingDayRules = checkDayType(today)
     log.info("Trading date: {td} day type: {dt}".format(td=today,dt=tradingDayType))
     for day in days:
         match = date_re.match(day)
@@ -51,8 +51,8 @@ def is_open_today(contracthours: Contract):
             histwriter.writerow([today_hours])
         
     if today_hours == config.NORMAL_TRADING_HOURS:
-        return True
-    return False
+        return True, tradingDayRules
+    return False, tradingDayRules
 
 def checkDayType(checkDate):
     with open('data/tradingday.csv', 'r') as csvfile:
@@ -66,7 +66,17 @@ def checkDayType(checkDate):
                 log.info("we have a match in tradingday.csv: {td}".format(td=row['DayType']))
                 dayType = row['DayType']
                 break
-    return dayType
+    if dayType != False:
+        with open('data/tradingdayrules.csv', 'r') as csvfile:
+            header = ['Today','NightClose','DayOpen','DayClose','NightOpen','DayCutOffHour']
+            reader = csv.DictReader(csvfile, fieldnames = header, delimiter = ',')
+            for row in reader:
+                log.info("Today: {to} row {t}".format(to=row['Today'],t=row))
+                if dayType == row['Today']: 
+                    log.info("we have a match in tradingdayrules.csv: {td}".format(td=row))
+                    #dayTypeRules = row
+                    break    
+    return dayType, row
 
 def parseAdvisorConfig(xml):
     """ Get # Of Contracts from Current Advisor Profile """

@@ -46,7 +46,14 @@ class Algo():
             contContract, contracthours = get_contract(self) #basic information on continuious contact
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
             open_long, open_short, long_position_qty, short_position_qty, account_qty = orders.countOpenPositions(self.ib,"")   # do we have an open position?
-            open_today = helpers.is_open_today(contracthours)
+            open_today, tradingDayRules = helpers.is_open_today(contracthours)
+            dayNightProfileCCI = "cci_day"
+            dayNightProfileCCIBB = "ccibb_day"
+            currentHour = datetime.now()
+            if currentHour.hour >= int(tradingDayRules['DayCutOffHour']):
+                dayNightProfileCCI = "cci_night"
+                dayNightProfileCCIBB = "ccibb_night"
+            log.info("finished tradingrules - row now is today: {t} and nightclose: {nc} and dayNightProfileCCI: {cci} and dayNightProfileCCIBB: {ccibb} ".format(t=tradingDayRules['Today'],nc = tradingDayRules['NightClose'], cci = dayNightProfileCCI, ccibb = dayNightProfileCCIBB))
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.info("Got Contract: {}".format(dataContract.localSymbol))
             self.app.contract.update(dataContract.localSymbol)
@@ -280,7 +287,7 @@ class Algo():
         contContract, contracthours = get_contract(self) #basic information on continuious contact
         tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
         open_long, open_short, long_position_qty, short_position_qty, account_qty = orders.countOpenPositions(self.ib,"")   # do we have an open position - not orders but positions?
-        open_today = helpers.is_open_today(contracthours)
+        open_today, tradingDayRules = helpers.is_open_today(contracthours)
         wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d, self.log_time = self.define_times(self.ib)
         dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
         bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15, False, 0)

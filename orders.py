@@ -400,7 +400,7 @@ def modifySTPOrder(ib, openSTPOrder,modBuyStopLossPrice,modSellStopLossPrice):
     openOrdersList = ib.openOrders()
     x = 0
     while x < len(openOrdersList):
-        log.info("----------------------- modify stop orders ---------------: {ord}".format(ord=orderopenOrdersList))
+        log.info("----------------------- modify stop orders ---------------: {ord}".format(ord=openOrdersList))
         print("action ",openOrdersList[x].action)
         if openOrdersList[x].action == "BUY" and openOrdersList[x].orderType == "STP" and openOrdersList[x].auxPrice > modBuyStopLossPrice:
             log.info("new auxPrice buy: {ap} from: {pp}".format(ap=modBuyStopLossPrice,pp=openOrdersList[x].auxPrice))

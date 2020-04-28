@@ -1,0 +1,5 @@
+Today,NightClose,DayOpen,DayClose,NightOpen,DayCutOffHour
+Sunday,0,0,0,18:00,0
+Normal,9:30,9:30,17:15,18:00,15
+DayBeforeClose,9:30,9:30,17:15,0,15
+Closed,0,0,0,0,0
