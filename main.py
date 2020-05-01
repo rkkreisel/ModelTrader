@@ -136,7 +136,12 @@ class App:
                 self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
                 log.info("main.py:onError:: attempted reconnect")
             finally:
-                log.info("main.py:onError:: Finally exiting")
+                log.info("main.py:onError:: Finally exiting - but firs try to reconnect one more time")
+                self.ib.disconnect()
+                self.ib.sleep(800)
+                log.info("main.py:onError:: waking up")
+                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
+                log.info("main.py:onError:: attempted reconnect")
             #global timeout_retry_flag
             #if timeout_retry_flag >= 5:
             #    log.info("onerror: Request timed out. Setting flag.")

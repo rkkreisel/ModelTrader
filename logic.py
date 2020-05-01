@@ -68,12 +68,12 @@ class Algo():
             
             #log.debug("before loop start:{ls}".format(ls=datetime.now()))
             self.ib.loopUntil(condition=self.ib.isConnected())   # rying to fix 1100 error on nightly reset
-            if datetime.now().hour == 0:
-                log.info("0 hour and disconnecting".format(datetime.now(),datetime.now().hour))
-                self.ib.disconnect()
-                self.ib.sleep(500)
-                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
-                log.info("0 hour and re-connecting".format(datetime.now(),datetime.now().hour))
+            #if datetime.now().hour == 0:
+            #    log.info("0 hour and disconnecting".format(datetime.now(),datetime.now().hour))
+            #    self.ib.disconnect()
+            #    self.ib.sleep(500)
+            #    self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
+            #    log.info("0 hour and re-connecting".format(datetime.now(),datetime.now().hour))
             #log.debug("after loop start:{ls}".format(ls=datetime.now()))
             #log.debug("requesting info for the following timeframe today: {} ".format(wait_time))
             bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15,False, 0)
