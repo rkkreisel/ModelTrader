@@ -46,19 +46,14 @@ class Algo():
             contContract, contracthours = get_contract(self) #basic information on continuious contact
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
             open_long, open_short, long_position_qty, short_position_qty, account_qty = orders.countOpenPositions(self.ib,"")   # do we have an open position?
-            open_today, tradingDayRules = helpers.is_open_today(contracthours)
-            dayNightProfileCCI = "cci_day"
-            dayNightProfileCCIBB = "ccibb_day"
-            currentHour = datetime.now()
-            if currentHour.hour >= int(tradingDayRules['DayCutOffHour']):
-                dayNightProfileCCI = "cci_night"
-                dayNightProfileCCIBB = "ccibb_night"
-            log.info("finished tradingrules - row now is today: {t} and nightclose: {nc} and dayNightProfileCCI: {cci} and dayNightProfileCCIBB: {ccibb} ".format(t=tradingDayRules['Today'],nc = tradingDayRules['NightClose'], cci = dayNightProfileCCI, ccibb = dayNightProfileCCIBB))
+            
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.info("Got Contract: {}".format(dataContract.localSymbol))
             self.app.contract.update(dataContract.localSymbol)
             wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d, self.log_time = self.define_times(self.ib)
             log.info("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
+            # need to determine if this is normal trading hours or not
+            dayNightProfileCCI, dayNightProfileCCIBB = self.duringOrAfterHours(self.ib,contracthours)
             #
             # debug 
             #current_time = datetime.now()
@@ -319,6 +314,17 @@ class Algo():
         else:
             log.info("justStartedAppDirectionCheck: we are not in an exiting pending pattern")
             return False, False, 0
+
+    def duringOrAfterHours(self,ib, contracthours):
+        open_today, tradingDayRules = helpers.is_open_today(contracthours)
+        dayNightProfileCCI = "cci_day"
+        dayNightProfileCCIBB = "ccibb_day"
+        currentHour = datetime.now()
+        if currentHour.hour >= int(tradingDayRules['DayCutOffHour']):
+            dayNightProfileCCI = "cci_night"
+            dayNightProfileCCIBB = "ccibb_night"
+        log.info("finished tradingrules - row now is today: {t} and nightclose: {nc} and dayNightProfileCCI: {cci} and dayNightProfileCCIBB: {ccibb} ".format(t=tradingDayRules['Today'],nc = tradingDayRules['NightClose'], cci = dayNightProfileCCI, ccibb = dayNightProfileCCIBB))
+        return dayNightProfileCCI, dayNightProfileCCIBB
         
 def get_contract(client):
     contract = client.ib.reqContractDetails(
@@ -341,3 +347,4 @@ def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
         categories.categorize_BBb1h(bars_1h.bband_b) + categories.categorize_BBW1d(bars_1d.bband_width) + categories.categorize_BBb1d(bars_1d.bband_b)
     summ_key = categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + categories.categorize_cci_1d(bars_1d.ccia)
     return cci_key, ccibb_key, summ_key
+
