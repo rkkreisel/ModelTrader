@@ -22,12 +22,9 @@ def is_open_today(contracthours: Contract):
     today = datetime.today().strftime("%Y%m%d")             #today in fomat matching the list
     yesterday = (datetime.today() - timedelta(days=1)).strftime("%Y%m%d")
     tomorrow = (datetime.today() + timedelta(days=1)).strftime("%Y%m%d")
-    #print("yesterday: ",yesterday)
-    print("today:     ",today)
-    #print("tomorrow:  ",tomorrow)
     hours = []
     tradingDayType, tradingDayRules = checkDayType(today)
-    log.info("Trading date: {td} day type: {dt}".format(td=today,dt=tradingDayType))
+    log.debug("Trading date: {td} day type: {dt}".format(td=today,dt=tradingDayType))
     for day in days:
         match = date_re.match(day)
         #print("date re: ",date_re.match(day))
@@ -37,7 +34,7 @@ def is_open_today(contracthours: Contract):
         hours += ["{0}-{1}".format(match.group(2), match.group(4))]
 
     today_hours = ",".join(hours)
-    log.info("todays trading hours are: {th}".format(th=today_hours))
+    log.debug("todays trading hours are: {th}".format(th=today_hours))
 
     csv_file = csv.reader(open('data/tradinghours.csv', "rt"), delimiter = ",")
     hours_found = False
@@ -63,7 +60,7 @@ def checkDayType(checkDate):
         for row in reader:
             log.debug("checkDate: {cd} today: {t} DayType {dt}".format(cd=checkDate,t=row['Today'],dt=row['DayType']))
             if checkDate == row['Today']: 
-                log.info("we have a match in tradingday.csv: {td}".format(td=row['DayType']))
+                log.debug("we have a match in tradingday.csv: {td}".format(td=row['DayType']))
                 dayType = row['DayType']
                 break
     if dayType != False:
@@ -71,9 +68,9 @@ def checkDayType(checkDate):
             header = ['Today','NightClose','DayOpen','DayClose','NightOpen','DayCutOffHour']
             reader = csv.DictReader(csvfile, fieldnames = header, delimiter = ',')
             for row in reader:
-                log.info("Today: {to} row {t}".format(to=row['Today'],t=row))
+                log.debug("Today: {to} row {t}".format(to=row['Today'],t=row))
                 if dayType == row['Today']: 
-                    log.info("we have a match in tradingdayrules.csv: {td}".format(td=row))
+                    log.debug("we have a match in tradingdayrules.csv: {td}".format(td=row))
                     #dayTypeRules = row
                     break    
     return dayType, row

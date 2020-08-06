@@ -89,6 +89,7 @@ class Calculations():
             np.array([bar.close for bar in bars]),
             timeperiod=config.CCI_PERIODS
         )
+        #log.info("high ",np.array([bar.high for bar in bars]))
         ccia = statistics.mean(cci[-config.CCI_AVERAGE_PERIODS:])
         ccia_prior = statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):][:-1])
         ccia_third = statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):][:-2])

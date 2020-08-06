@@ -39,19 +39,17 @@ class Algo():
 
         while not_finished:
             log.debug("top of algo run self*************************************************")
-            if not self.backTest:
-                stpSell, stpBuy = orders.countOpenOrders(self.ib) # don't want to execute covering
-                log.info("we have the follow number of open stp orders for Sell: {sell} and Buy: {buy} ".format(sell=stpSell, buy=stpBuy))
+            
                 #top of logic - want to check status as we enter a new bar/hour/day/contract
             contContract, contracthours = get_contract(self) #basic information on continuious contact
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
             open_long, open_short, long_position_qty, short_position_qty, account_qty = orders.countOpenPositions(self.ib,"")   # do we have an open position?
             
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
-            log.info("Got Contract: {}".format(dataContract.localSymbol))
+            log.debug("Got Contract: {}".format(dataContract.localSymbol))
             self.app.contract.update(dataContract.localSymbol)
             wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d, self.log_time = self.define_times(self.ib)
-            log.info("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
+            log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
             # need to determine if this is normal trading hours or not
             dayNightProfileCCI, dayNightProfileCCIBB = self.duringOrAfterHours(self.ib,contracthours)
             #
@@ -62,7 +60,25 @@ class Algo():
             self.ib.waitUntil(wait_time)
             
             #log.debug("before loop start:{ls}".format(ls=datetime.now()))
-            self.ib.loopUntil(condition=self.ib.isConnected())   # rying to fix 1100 error on nightly reset
+            #self.ib.loopUntil(condition=self.ib.isConnected())   # rying to fix 1100 error on nightly reset
+            #
+            # first attempt at fix
+            try:
+                logger.getLogger().info("Connecting...")
+                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
+                self.ib.reqMarketDataType(config.DATATYPE.value)
+            except NameError:    # got this block from https://groups.io/g/insync/message/4045
+                #self.num_disconnects += 1
+                print(datetime.now(), 'Connection error exception', self.num_disconnects)
+                #self.ib.cancelHistoricalData(bars)
+                log.info('Sleeping for 10sec...')
+                self.ib.disconnect
+                self.ib.sleep(10)
+                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
+            #
+            if not self.backTest:
+                stpSell, stpBuy = orders.countOpenOrders(self.ib) # don't want to execute covering
+                log.info("we have the follow number of open stp orders for Sell: {sell} and Buy: {buy} ".format(sell=stpSell, buy=stpBuy))
             #if datetime.now().hour == 0:
             #    log.info("0 hour and disconnecting".format(datetime.now(),datetime.now().hour))
             #    self.ib.disconnect()
@@ -85,8 +101,8 @@ class Algo():
             pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction, crossed = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
             cci_key, ccibb_key, summ_key = build_key_array(tradeAction, bars_15m, bars_1h, bars_1d)
             setsum = self.setupsummary(summ_key)
-            log.info("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
-            log.info("going into tradenow: {tn}, backtest: {bt}, open long: {ol} and short: {os}".format(tn=tradeNow, bt=self.backTest, ol=open_long, os=open_long))
+            log.debug("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
+            log.debug("going into tradenow: {tn}, backtest: {bt}, open long: {ol} and short: {os}".format(tn=tradeNow, bt=self.backTest, ol=open_long, os=open_long))
             #handeling existing position
             if crossed and (open_long or open_short) and not (pendingLong or pendingShort):    # need to close stp and open positions
                 log.info("crossed and not pending so lets close stp and open positions.  Open Long: {ol} open short: {os} pending long: {pl} pending short: {ps}".format(ol=open_long,os=open_short,pl=pendingLong,ps=pendingShort))
@@ -143,6 +159,8 @@ class Algo():
             wrote_bar_to_csv = helpers.build_csv_bars_row(self.log_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow, ccibb_trade, cci_trade,ccibb_key, cci_key)
             tradenow, cci_trade, ccibb_trade = False, False, False
             changed = orders.modifySTPOrder(self.ib,modBuyStopLossPrice,modSellStopLossPrice,bars_15m.closePrice)
+            log.info("end of process for this time interval - goint to disconnect")
+            self.ib.disconnect
 
     def define_times(self,ib):
         # This whole block is trying to deal with the time differences between the server and TWS gateway.
@@ -231,7 +249,7 @@ class Algo():
         return
 
     def crossoverPending(self, bars_15m, pendingLong, pendingShort, pendingSkip, pendingCnt):   # this is from excel macro.  Changes here should be changed there as well.
-        log.info("crossoverPending:")
+        log.debug("crossoverPending:")
         tradeNow, crossed = False, False
         tradeAction = "Sell"
         if bars_15m.cci > bars_15m.ccia:
@@ -251,28 +269,28 @@ class Algo():
                     pendingCnt = 0
                     pendingSkip = True
                     log.info("crossoverpending: crossed but not meet spread requirement, pendingSkip: {skip}, pendingCnt: {cnt}".format(skip = pendingSkip, cnt = pendingCnt))
-        log.info("crossoverpending: crossed {cross}, pendingSkip: {skip}, pendingCnt: {cnt}".format(cross=crossed, skip = pendingSkip, cnt = pendingCnt))
+        log.debug("crossoverpending: crossed {cross}, pendingSkip: {skip}, pendingCnt: {cnt}".format(cross=crossed, skip = pendingSkip, cnt = pendingCnt))
         # deal with existing pending
         if pendingLong and pendingCnt < config.SPREAD_COUNT and bars_15m.cci - bars_15m.ccia > config.SPREAD:
-            log.info("crossoverpending: pending long cnt < 3 and > spread")
+            log.debug("crossoverpending: pending long cnt < 3 and > spread")
             pendingLong, pendingSkip, tradeNow = False, False, True
             pendingCnt = 0
         elif pendingShort and pendingCnt < config.SPREAD_COUNT and abs(bars_15m.cci - bars_15m.ccia) > config.SPREAD:
-            log.info("crossoverpending: pending short cnt < 3 and > spread")
+            log.debug("crossoverpending: pending short cnt < 3 and > spread")
             pendingShort, pendingSkip, tradeNow = False, False, True
             pendingCnt = 0
         elif (pendingLong or pendingShort) and pendingCnt == config.SPREAD_COUNT:
-            log.info("crossoverpending: pending long or short and cnt = 3 stop pending. pendingcnt: {pc} config.spread: {sc}".format(pc=pendingCnt, sc=config.SPREAD_COUNT))
+            log.debug("crossoverpending: pending long or short and cnt = 3 stop pending. pendingcnt: {pc} config.spread: {sc}".format(pc=pendingCnt, sc=config.SPREAD_COUNT))
             pendingLong, pendingShort, pendingSkip, tradeNow = False, False, False, True
             pendingCnt = 0
         elif pendingLong or pendingShort:
             pendingCnt += 1
-            log.info("crossoverpending: pending continues cnt: {cnt}".format(cnt = pendingCnt))
-        log.info("crossoverpending: check post cross and we have tradeNow: {tn}, tradeAction: {ta}, pendingLong: {pl}, pendingShort: {ps}, pendingSkip: {pskip}, pendingCnt: {pc}".format(tn=tradeNow, ta=tradeAction, pl=pendingLong, ps=pendingShort, pskip=pendingSkip, pc=pendingCnt))
+            log.debug("crossoverpending: pending continues cnt: {cnt}".format(cnt = pendingCnt))
+        log.debug("crossoverpending: check post cross and we have tradeNow: {tn}, tradeAction: {ta}, pendingLong: {pl}, pendingShort: {ps}, pendingSkip: {pskip}, pendingCnt: {pc}".format(tn=tradeNow, ta=tradeAction, pl=pendingLong, ps=pendingShort, pskip=pendingSkip, pc=pendingCnt))
         return pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction, crossed
 
     def justStartedAppDirectionCheck(self):
-        log.info("justStartedAppDirectionCheck: Application just restarted.  Going through our checks")
+        log.debug("justStartedAppDirectionCheck: Application just restarted.  Going through our checks")
         # do we need to reverse positions?
         # first check to see if we have positions or open orders.  If not exit otherwise continue
         # Are we positioned in the wrong direction (i.e. long when we should be short?)  If so, we need to close STP and open open trades.
@@ -288,31 +306,31 @@ class Algo():
         bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15, False, 0)
         #print("bars15 cci_third, ccia_third, cci_prior, ccia_prior, cci, ccia",bars_15m.cci_third,bars_15m.ccia_third,bars_15m.cci_prior, bars_15m.ccia_prior, bars_15m.cci, bars_15m.ccia)
         if (bars_15m.cci_prior > bars_15m.ccia_prior and open_short) or (bars_15m.cci_prior < bars_15m.ccia_prior and open_long):
-            log.info("justStartedAppDirectionCheck: we are in app start up and we need to reverse due to wrong direction")
+            log.debug("justStartedAppDirectionCheck: we are in app start up and we need to reverse due to wrong direction")
             allClosed = orders.closeOutMain(self.ib,tradeContract,True)     # we don't worry about whether we are long or short. just passing the contract, need to add order.  Second false is whether this is an opening order.  it is not
-            log.info("justStartedAppDirectionCheck: crossed but not tradeNow so lets close stp and open positions")
+            log.debug("justStartedAppDirectionCheck: crossed but not tradeNow so lets close stp and open positions")
         else:
-            log.info("justStartedAppDirectionCheck: we are in app start up and we DO NOT need to reverse due to wrong direction")
+            log.debug("justStartedAppDirectionCheck: we are in app start up and we DO NOT need to reverse due to wrong direction")
         # now check if we should be pending on restart
         
         if (bars_15m.cci_four > bars_15m.ccia_four and bars_15m.cci_third < bars_15m.ccia_third and bars_15m.cci_prior < bars_15m.ccia_prior and \
         abs(bars_15m.cci_third - bars_15m.ccia_third) < config.SPREAD and abs(bars_15m.cci_prior - bars_15m.ccia_prior) < config.SPREAD) or \
         (bars_15m.cci_four < bars_15m.ccia_four and bars_15m.cci_third > bars_15m.ccia_third and bars_15m.cci_prior > bars_15m.ccia_prior and \
         abs(bars_15m.cci_third - bars_15m.ccia_third) < config.SPREAD and abs(bars_15m.cci_prior - bars_15m.ccia_prior) < config.SPREAD):
-            log.info("justStartedAppDirectionCheck: we are in a second leg pending situation on start up")
+            log.debug("justStartedAppDirectionCheck: we are in a second leg pending situation on start up")
             if bars_15m.cci_prior > bars_15m.ccia_prior:
                 return True, False, 2
             else:
                 return False, True, 2
         elif (bars_15m.cci_third > bars_15m.ccia_third and bars_15m.cci_prior < bars_15m.ccia_prior and abs(bars_15m.cci_prior - bars_15m.ccia_prior) < config.SPREAD) or \
         (bars_15m.cci_third < bars_15m.ccia_third and bars_15m.cci_prior > bars_15m.ccia_prior and abs(bars_15m.cci_prior - bars_15m.ccia_prior) < config.SPREAD):
-            log.info("justStartedAppDirectionCheck: we are in a first leg pending situation on start up")
+            log.debug("justStartedAppDirectionCheck: we are in a first leg pending situation on start up")
             if bars_15m.cci_prior > bars_15m.ccia_prior:
                 return True, False, 1
             else:
                 return False, True, 1
         else:
-            log.info("justStartedAppDirectionCheck: we are not in an exiting pending pattern")
+            log.debug("justStartedAppDirectionCheck: we are not in an exiting pending pattern")
             return False, False, 0
 
     def duringOrAfterHours(self,ib, contracthours):
@@ -323,7 +341,7 @@ class Algo():
         if currentHour.hour >= int(tradingDayRules['DayCutOffHour']):
             dayNightProfileCCI = "cci_night"
             dayNightProfileCCIBB = "ccibb_night"
-        log.info("finished tradingrules - row now is today: {t} and nightclose: {nc} and dayNightProfileCCI: {cci} and dayNightProfileCCIBB: {ccibb} ".format(t=tradingDayRules['Today'],nc = tradingDayRules['NightClose'], cci = dayNightProfileCCI, ccibb = dayNightProfileCCIBB))
+        log.debug("finished tradingrules - row now is today: {t} and nightclose: {nc} and dayNightProfileCCI: {cci} and dayNightProfileCCIBB: {ccibb} ".format(t=tradingDayRules['Today'],nc = tradingDayRules['NightClose'], cci = dayNightProfileCCI, ccibb = dayNightProfileCCIBB))
         return dayNightProfileCCI, dayNightProfileCCIBB
         
 def get_contract(client):

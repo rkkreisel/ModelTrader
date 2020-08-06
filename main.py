@@ -118,29 +118,29 @@ class App:
 
     def onError(self, reqId, errorCode, errorString, contract):
         log.info("main.py:onError:: errorcode: {ec} errorstring: {es}".format(ec=errorCode,es=errorString))
-        if errorCode == 200 or errorCode == 1100 or errorCode == 2100 or errorCode == 162:
+        if errorCode == 200 or errorCode == 1100 or errorCode == 2100 or errorCode == 162 or errorCode == 2110:
             try:
                 log.info("main.py:onError:: errorcode going to disconnect")
                 self.ib.disconnect()
                 log.info("main.py:onError:: finished disconnect going into sleep")
-                self.ib.sleep(800)
+                self.ib.sleep(100)
                 log.info("main.py:onError:: waking up")
-                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
+                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
                 log.info("main.py:onError:: attempted reconnect")
             except:
                 log.info("main.py:onError:: in except - try wasn't successful.  Going to sleep a bit")
                 log.info("main.py:onError:: errorcode going to disconnect")
                 self.ib.disconnect()
-                self.ib.sleep(800)
+                self.ib.sleep(100)
                 log.info("main.py:onError:: waking up")
-                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
+                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
                 log.info("main.py:onError:: attempted reconnect")
             finally:
                 log.info("main.py:onError:: Finally exiting - but firs try to reconnect one more time")
                 self.ib.disconnect()
-                self.ib.sleep(800)
+                self.ib.sleep(100)
                 log.info("main.py:onError:: waking up")
-                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
+                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
                 log.info("main.py:onError:: attempted reconnect")
             #global timeout_retry_flag
             #if timeout_retry_flag >= 5:
@@ -152,7 +152,14 @@ class App:
             #    timeout_retry_flag += 1
             #    print(f"onerror: Timeout try {timeout_retry_flag}")
             #    raise TimeoutError
-
+        elif errorCode == 2105:
+            log.info("main.py:onError: not an error we want to restart - doing a quick sleep")
+            self.ib.disconnect()
+            log.info("main.py:onError:: finished disconnect going into sleep")
+            self.ib.sleep(10)
+            log.info("main.py:onError:: waking up")
+            self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
+            log.info("main.py:onError:: attempted reconnect")
 
     #def barupdateEvent_15m(self, bars: objects.BarDataList, hasNewBar: bool):
         #logger.getLogger().info(f"Got 15m Bars.")
@@ -170,16 +177,16 @@ class App:
 def main(ib: IB):
     try:
         logger.getLogger().info("Connecting...")
-        ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
+        ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
         ib.reqMarketDataType(config.DATATYPE.value)
     except NameError:    # got this block from https://groups.io/g/insync/message/4045
-            self.num_disconnects += 1
+            #self.num_disconnects += 1
             print(datetime.datetime.now(), 'Connection error exception', self.num_disconnects)
             #self.ib.cancelHistoricalData(bars)
             log.info('Sleeping for 10sec...')
             ib.disconnect
             self.ib.sleep(10)
-            ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
+            ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
 #    except OSError:
 #        log.info("main try except OS errror > Connection Failed.")
 #        sys_exit()
