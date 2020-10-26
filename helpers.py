@@ -122,3 +122,6 @@ def build_csv_bars_row(wait_time, tradeAction, bars_15m, bars_1h, bars_1d, pendi
             histwriter = csv.writer(hist15, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             histwriter.writerow([csv_row])
     return True
+
+def isNaN(num):
+    return num != num

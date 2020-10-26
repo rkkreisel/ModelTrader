@@ -4,7 +4,7 @@ sudo /usr/bin/x11vnc -ncache 10 -ncache_cr -viewpasswd remote_view_only_pass -pa
 cd /opt/IBController/
 DISPLAY=:0 ./IBControllerGatewayStart.sh
 DISPLAY=:0 ./IBControllerStart.sh
-while ! netstat -tna | grep 'LISTEN\>' | grep -q ':55555\>'; do
+while ! netstat -tna | grep :55555; do
     sleep 10
 done
 cd /home/ubuntu/ModelTrader

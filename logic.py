@@ -225,7 +225,8 @@ class Algo():
         log.info("* Risk:               {0:.2f}%".format(float(row[12])))
         log.info("* Previous Order:     {}".format(row[6]))
         log.info("* Previous Wins:      {}".format(row[7]))
-        log.info("* Rank (0-100)s:      {0:.2f}".format(float(row[32])))
+        log.info("is isNaN ".format(helpers.isNaN(row[33])))
+        log.info("* Rank (0-100)s:      {0:.2f}".format(float(row[33])))
         log.info("************************************************")
         return
 
