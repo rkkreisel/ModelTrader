@@ -123,7 +123,7 @@ class App:
                 log.info("main.py:onError:: errorcode going to disconnect")
                 self.ib.disconnect()
                 log.info("main.py:onError:: finished disconnect going into sleep")
-                self.ib.sleep(100)
+                self.ib.sleep(10)
                 log.info("main.py:onError:: waking up")
                 self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
                 log.info("main.py:onError:: attempted reconnect")
@@ -131,14 +131,14 @@ class App:
                 log.info("main.py:onError:: in except - try wasn't successful.  Going to sleep a bit")
                 log.info("main.py:onError:: errorcode going to disconnect")
                 self.ib.disconnect()
-                self.ib.sleep(100)
+                self.ib.sleep(10)
                 log.info("main.py:onError:: waking up")
                 self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
                 log.info("main.py:onError:: attempted reconnect")
             finally:
                 log.info("main.py:onError:: Finally exiting - but firs try to reconnect one more time")
                 self.ib.disconnect()
-                self.ib.sleep(100)
+                self.ib.sleep(10)
                 log.info("main.py:onError:: waking up")
                 self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
                 log.info("main.py:onError:: attempted reconnect")
@@ -160,6 +160,8 @@ class App:
             log.info("main.py:onError:: waking up")
             self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
             log.info("main.py:onError:: attempted reconnect")
+        elif errorCode == 2107:
+            print("main.py:on Error: not a bad error")
 
     #def barupdateEvent_15m(self, bars: objects.BarDataList, hasNewBar: bool):
         #logger.getLogger().info(f"Got 15m Bars.")

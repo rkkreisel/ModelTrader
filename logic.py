@@ -57,8 +57,9 @@ class Algo():
             #current_time = datetime.now()
             #wait_time = wait_time = current_time.replace(minute = 1,second=0)
             #
+            self.ib.disconnect()
             self.ib.waitUntil(wait_time)
-            
+            self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
             #log.debug("before loop start:{ls}".format(ls=datetime.now()))
             #self.ib.loopUntil(condition=self.ib.isConnected())   # rying to fix 1100 error on nightly reset
             #
@@ -270,7 +271,7 @@ class Algo():
                     pendingCnt = 0
                     pendingSkip = True
                     log.info("crossoverpending: crossed but not meet spread requirement, pendingSkip: {skip}, pendingCnt: {cnt}".format(skip = pendingSkip, cnt = pendingCnt))
-        log.debug("crossoverpending: crossed {cross}, pendingSkip: {skip}, pendingCnt: {cnt}".format(cross=crossed, skip = pendingSkip, cnt = pendingCnt))
+        log.info("crossoverpending: crossed {cross}, pendingSkip: {skip}, pendingCnt: {cnt}, bars 15cci: {cci}, bars 15ccia: {ccia}, bars15 cci prior: {ccip}, bars15 ccia prior: {cciap}".format(cross=crossed, skip = pendingSkip, cnt = pendingCnt, cci=bars_15m.cci ,ccia = bars_15m.ccia, ccip = bars_15m.cci_prior,cciap = bars_15m.ccia_prior))
         # deal with existing pending
         if pendingLong and pendingCnt < config.SPREAD_COUNT and bars_15m.cci - bars_15m.ccia > config.SPREAD:
             log.debug("crossoverpending: pending long cnt < 3 and > spread")
