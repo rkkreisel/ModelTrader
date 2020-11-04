@@ -46,7 +46,7 @@ class Algo():
             open_long, open_short, long_position_qty, short_position_qty, account_qty = orders.countOpenPositions(self.ib,"")   # do we have an open position?
             
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
-            log.debug("Got Contract: {}".format(dataContract.localSymbol))
+            log.info("Got Contract:{dc} local symbol {ls}".format(dc=dataContract,ls=dataContract.localSymbol))
             self.app.contract.update(dataContract.localSymbol)
             wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d, self.log_time = self.define_times(self.ib)
             log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{}".format(wait_time))
@@ -89,7 +89,7 @@ class Algo():
             #log.debug("after loop start:{ls}".format(ls=datetime.now()))
             #log.debug("requesting info for the following timeframe today: {} ".format(wait_time))
             bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15,False, 0)
-            #print("bars15m atr ",bars_15m.atr)
+            #print("bars15m ",bars_15m)
             if bars_15m.atr < config.ATR_STOP_MIN:
                 bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h,True, bars_15m.closePrice)
                 modBuyStopLossPrice = bars_1h.buyStopLossPrice
@@ -172,7 +172,7 @@ class Algo():
         twsTime = self.ib.reqCurrentTime()
         twsTime = twsTime.replace(tzinfo=None)
         # this has to be changed for changes to day light savings time.
-        twsTimeLocal = twsTime - timedelta(hours=4)
+        twsTimeLocal = twsTime - timedelta(hours=5)
         log.info("tws time in local time zone format: {t} ".format(t=twsTimeLocal))
         twsDiff = localDateTime - twsTimeLocal 
         log.debug("tws to server time diff:{diff} in seconds {s} microsecond {m}".format(diff=twsDiff,s=twsDiff.seconds,m=twsDiff.microseconds))
@@ -188,17 +188,21 @@ class Algo():
         if current_minute < 15:
             self.datetime_1h = current_time - timedelta(hours=1)
             wait_time = current_time.replace(minute = 15,second=0, microsecond=0) 
+            #self.datetime_15 = current_time.replace(minute = 0, second = 0, microsecond=0)
             self.datetime_15 = current_time.replace(minute = 30, second = 0, microsecond=0)
         elif current_minute < 30:
             wait_time = current_time.replace(minute = 30,second=0, microsecond=0) 
+            #self.datetime_15 = current_time.replace(minute = 15, second=0, microsecond=0)
             self.datetime_15 = current_time.replace(minute = 45, second=0, microsecond=0)
         elif current_minute < 45:
             wait_time = current_time.replace(minute = 45,second=0, microsecond=0) 
+            #self.datetime_15 = current_time + timedelta(minutes=(30-current_minute+15))
             self.datetime_15 = current_time + timedelta(minutes=(45-current_minute+15))
             self.datetime_15 =self.datetime_15.replace(second=0, microsecond=0)
         else:
             wait_time = current_time + timedelta(minutes=(60-current_minute))
             wait_time = wait_time.replace(second=0, microsecond=0)
+            #self.datetime_15 = current_time + timedelta(minutes=(45-current_minute+15))
             self.datetime_15 = current_time + timedelta(minutes=(60-current_minute+15))
             self.datetime_15 =self.datetime_15.replace(second=0, microsecond=0)
         if self.backTest:    #added for backtest

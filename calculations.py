@@ -37,7 +37,9 @@ class Calculations():
         """ Execute the calculations """
     def run(self):    
         bars_period = self.get_bars_data()
+        #log.info("self datetime_period: {dtp} and bars_period: {bp}".format(dtp=self.datetime_period,bp=bars_period))
         self.closePrice = bars_period[-1].close
+        #log.info("close 0 and close -1 {c1} or {c2}".format(c1=bars_period[0].close,c2=bars_period[-1].close))
         self.cci, self.ccia, self.cci_prior, self.ccia_prior, self.cci_third, self.ccia_third, self.cci_four, self.ccia_four = self.calculate_cci(bars_period)
         self.atr =  self.calculate_atr(bars_period)
         self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
@@ -51,7 +53,7 @@ class Calculations():
             
         self.ATRBuyStopLossAmount = round((self.atr*4),0)/4
         self.ATRSellStopLossAmount = round((self.atr*4),0)/4
-        log.debug("Calculation: {bs} getNewClose: {gnc} bar15minclose: {c} buystop: {b} sellstop: {s} atrbuy: {ab} atrsell: {aas}".format(bs=self.bar_size,gnc=self.getNewClose,c=self.bar15MinClose,b=self.buyStopLossPrice,s=self.sellStopLossPrice,ab=self.ATRBuyStopLossAmount,aas=self.ATRSellStopLossAmount))
+        log.debug("Calculation: {bs} getNewClose: {gnc} bar15minclose: {c} buystop: {b} sellstop: {s} atrbuy: {ab} atrsell: {aas} close price: {cp}".format(bs=self.bar_size,gnc=self.getNewClose,c=self.bar15MinClose,b=self.buyStopLossPrice,s=self.sellStopLossPrice,ab=self.ATRBuyStopLossAmount,aas=self.ATRSellStopLossAmount,cp=self.closePrice))
 
         if self.bar_size == "15 mins":
             if self.self.cci > self.ccia and self.cci_prior < self.ccia_prior:
@@ -71,7 +73,7 @@ class Calculations():
             log.debug("calculations: Buy Stop loss set:{sl} sell stop loss: {stp} close was: {c}".format(sl=self.buyStopLossPrice,stp=self.sellStopLossPrice,c=bars_period[-1].close))
             
     def get_bars_data(self):
-        log.info("inputs to request hist for get bars - {}".format(self.bar_duration, self.bar_size, self.datetime_period))
+        log.debug("inputs to request hist for get bars - {}".format(self.bar_duration, self.bar_size, self.datetime_period))
         return self.ib.reqHistoricalData(
                 contract=self.dataContract,
                 endDateTime=self.datetime_period,
@@ -89,12 +91,25 @@ class Calculations():
             np.array([bar.close for bar in bars]),
             timeperiod=config.CCI_PERIODS
         )
+        for x in range(3):
+            #rint("x bar size and cci value: {xv} {v} {bs} ".format(xv=x,v=cci[-x],bs=self.datetime_period))
+            startx = (config.CCI_AVERAGE_PERIODS + (x + 0))
+            stopx = (x + 0)
+            #rint("stop/startx ",startx,stopx)
+            #rint("cci value {v}".format(v=cci[-startx:][:-stopx]))
+            #rint("cci ",cci)
+        #log.info("high {a} lasthigh {l} ".format(a=np.array([bar.high for bar in bars]),l=bars[-1].high))
+        #log.info(" ")
+        #log.info("low {a} lastlow {l}".format(a=np.array([bar.low for bar in bars]),l=bars[-1].low))
+        #log.info(" ")
+        #log.info("close {a} last close {l}".format(a=np.array([bar.close for bar in bars]),l=bars[-1].close))
         #log.info("high ",np.array([bar.high for bar in bars]))
-        ccia = statistics.mean(cci[-config.CCI_AVERAGE_PERIODS:])
-        ccia_prior = statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):][:-1])
-        ccia_third = statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):][:-2])
-        ccia_four = statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):][:-2])
-        return cci[-1], ccia, cci[-2], ccia_prior, cci[-3], ccia_third, cci[-4], ccia_four
+        ccia =          statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):][:-1])
+        ccia_prior =    statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 2):][:-2])
+        ccia_third =    statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 3):][:-3])
+        ccia_four =     statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 4):][:-4])
+        log.info("first and last CCI {i1} {i2}".format(i1=cci[-33],i2=cci[-1]))
+        return cci[-2],ccia, cci[-3], ccia_prior, cci[-4], ccia_third, cci[-5], ccia_four
 
     def calculate_atr(self, bars):
         atr =  talib.ATR(
