@@ -45,16 +45,16 @@ def countOpenOrders(ib):                 # This is to find open STP orders only
     x, stpSell, stpBuy = 0, 0, 0
     # if we are to execute, we need to create closing orders for each order we scroll throug
     # not sure we need to differentiate between buy or sell stop orders below
-    log.info("countOpenOrders openOrdersList: {ool}".format(ool=openOrdersList))
+    log.debug("countOpenOrders openOrdersList: {ool}".format(ool=openOrdersList))
     while x < len(openOrdersList):
         symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account = parseTradeString(ib,openOrdersList[x])
-        log.info("countOpenOrders:: symbol: {s} orderId: {oi} orderType: {ot} action: {a} quantity: {q} status: {status} date_order: {do}".format(s=symbol,oi=orderId,ot=orderType,a=action,q=quantity,status=status,do=date_order))
+        log.info("countOpenOrders:: symbol: {s} orderId: {oi} orderType: {ot} action: {a} quantity: {q} status: {status} date_order: {do} number of open orders: {os}".format(s=symbol,oi=orderId,ot=orderType,a=action,q=quantity,status=status,do=date_order,os=len(openOrdersList)))
         validatedOpenOrders = validateOpenOrdersCSV(ib, orderId, status)
         log.info("findOpenOrder: - we have open order records: opendOrderId: {ooi} ".format(ooi=orderId))
-        if orderType == "STP" and action == "SELL" and (status == "PendingSubmit" or status == "PreSubmitted"):
+        if orderType == "STP" and action == "Sell" and (status == "PendingSubmit" or status == "PreSubmitted"):
             log.info("findOpenOrder - we have open order records: Sell {one}".format(one=orderType))
             stpSell += quantity                       #        we don't care about qty - just cancel order
-        elif orderType == "STP" and action == "BUY" and (status == "PendingSubmit" or status == "PreSubmitted"):
+        elif orderType == "STP" and action == "Buy" and (status == "PendingSubmit" or status == "PreSubmitted"):
             log.info("findOpenOrder: - we have open order records: Buy {one}".format(one=orderType))
             stpBuy += quantity
         x += 1
@@ -98,7 +98,8 @@ def closeOpenOrders(ib):                 # This is to find open STP orders and c
         log.info("closeOpenOrder: closing all open orders - currently working on: {oo}".format(oo=openOrdersList[x]))
         trademkt = ib.cancelOrder(openOrdersList[x])            # don't need to place order when cancelling
         #print("\n----------------------- openOrdersList ---------------\n",openOrdersList[x])
-        log.info("----------------------- TRADEMKT ---------------: {t}".format(t=trademkt))
+        #log.info("----------------------- TRADEMKT ---------------: {t}".format(t=trademkt))
+        log.info("----------------------- TRADEMKT ---------------: ")
         #validatedOpenOrders = validateOpenOrdersCSV(ib, orderId, status)
         symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account = parseTradeString(ib,trademkt)      
         checkOrderStatus = updateCanceledOpenOrders(ib, orderId, trademkt)   # update each order that we cancelled
@@ -280,7 +281,7 @@ def updateOrderWithCancelledSTP(ib, openOrderId, orderName, newstatus):
 def validateOpenOrdersCSV(ib, openOrderId, status):
     # we have an open order from IB.  Going to run through our CSV file and make sure it exists.
     # if it doesn't exist, we will add it
-    log.info("we are looking for openOrderId")
+    log.info("we are looking for openOrderId from IB open orders in our CSV file")
     # REFERENCE fieldnames = ['Order_Id','Order','Status','Date_Pending','Date_Cancelled','Date_Filled','Date_Updated]
     foundOrderInCSV = False
     with open('data/orders.csv', newline ='') as csvfile:
