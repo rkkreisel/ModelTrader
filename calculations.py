@@ -37,9 +37,9 @@ class Calculations():
         """ Execute the calculations """
     def run(self):    
         bars_period = self.get_bars_data()
-        #log.info("self datetime_period: {dtp} and bars_period: {bp}".format(dtp=self.datetime_period,bp=bars_period))
+        log.info("self datetime_period: {dtp} and bars_period: ".format(dtp=self.datetime_period,bp=bars_period))
         self.closePrice = bars_period[-1].close
-        #log.info("close 0 and close -1 {c1} or {c2}".format(c1=bars_period[0].close,c2=bars_period[-1].close))
+        log.info("close 0 and close -1 {c1} or {c2}".format(c1=bars_period[0].close,c2=bars_period[-1].close))
         self.cci, self.ccia, self.cci_prior, self.ccia_prior, self.cci_third, self.ccia_third, self.cci_four, self.ccia_four = self.calculate_cci(bars_period)
         self.atr =  self.calculate_atr(bars_period)
         self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
@@ -53,7 +53,7 @@ class Calculations():
             
         self.ATRBuyStopLossAmount = round((self.atr*4),0)/4
         self.ATRSellStopLossAmount = round((self.atr*4),0)/4
-        log.debug("Calculation: {bs} getNewClose: {gnc} bar15minclose: {c} buystop: {b} sellstop: {s} atrbuy: {ab} atrsell: {aas} close price: {cp}".format(bs=self.bar_size,gnc=self.getNewClose,c=self.bar15MinClose,b=self.buyStopLossPrice,s=self.sellStopLossPrice,ab=self.ATRBuyStopLossAmount,aas=self.ATRSellStopLossAmount,cp=self.closePrice))
+        log.info("Calculation: {bs} getNewClose: {gnc} bar15minclose: {c} buystop: {b} sellstop: {s} atrbuy: {ab} atrsell: {aas} close price: {cp}".format(bs=self.bar_size,gnc=self.getNewClose,c=self.bar15MinClose,b=self.buyStopLossPrice,s=self.sellStopLossPrice,ab=self.ATRBuyStopLossAmount,aas=self.ATRSellStopLossAmount,cp=self.closePrice))
 
         if self.bar_size == "15 mins":
             if self.self.cci > self.ccia and self.cci_prior < self.ccia_prior:
@@ -108,7 +108,7 @@ class Calculations():
         ccia_prior =    statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 2):][:-2])
         ccia_third =    statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 3):][:-3])
         ccia_four =     statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 4):][:-4])
-        log.info("first and last CCI {i1} {i2}".format(i1=cci[-33],i2=cci[-1]))
+        log.debug("first and last CCI {i1} {i2}".format(i1=cci[-33],i2=cci[-1]))
         return cci[-2],ccia, cci[-3], ccia_prior, cci[-4], ccia_third, cci[-5], ccia_four
 
     def calculate_atr(self, bars):
