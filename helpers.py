@@ -2,7 +2,8 @@
     ModelTrader Helper Functions
 """
 import xml.etree.ElementTree as ET
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date, time
+#import datetime
 from re import compile as compile_re
 from ib_insync.contract import Contract
 import csv
@@ -23,7 +24,7 @@ def is_open_today(contracthours: Contract):
     yesterday = (datetime.today() - timedelta(days=1)).strftime("%Y%m%d")
     tomorrow = (datetime.today() + timedelta(days=1)).strftime("%Y%m%d")
     hours = []
-    tradingDayType, tradingDayRules = checkDayType(today)
+    tradingDayType, tradingDayRules, currentTimeFrame = checkDayType(today)
     log.debug("Trading date: {td} day type: {dt}".format(td=today,dt=tradingDayType))
     for day in days:
         match = date_re.match(day)
@@ -48,10 +49,11 @@ def is_open_today(contracthours: Contract):
             histwriter.writerow([today_hours])
         
     if today_hours == config.NORMAL_TRADING_HOURS:
-        return True, tradingDayRules
-    return False, tradingDayRules
+        return True, tradingDayRules, currentTimeFrame
+    return False, tradingDayRules, currentTimeFrame
 
 def checkDayType(checkDate):
+    log.info("checkDayTYpe: {c}".format(c=checkDate))
     with open('data/tradingday.csv', 'r') as csvfile:
         header = ['Today','DayType']
         reader = csv.DictReader(csvfile, fieldnames = header, delimiter = ',')
@@ -63,17 +65,54 @@ def checkDayType(checkDate):
                 log.debug("we have a match in tradingday.csv: {td}".format(td=row['DayType']))
                 dayType = row['DayType']
                 break
+    currentTimeFrame = "Pre Market Hours"
     if dayType != False:
         with open('data/tradingdayrules.csv', 'r') as csvfile:
-            header = ['Today','NightClose','DayOpen','DayClose','NightOpen','DayCutOffHour']
+            header = ['Today','DayStartHour','DayStartMin','DayStopHour','DayStopMin','NightStartPreHour','NightStartPreMin','NightStopPreHour','NightStopPreMin','NightStartPostHour','NightStartPostMin','NightStopPostHour','NightStopPostMin']
             reader = csv.DictReader(csvfile, fieldnames = header, delimiter = ',')
             for row in reader:
                 log.debug("Today: {to} row {t}".format(to=row['Today'],t=row))
                 if dayType == row['Today']: 
+                    print("Today ",row['Today'])
+                    print("DayStartHour ",row['DayStartHour'])
+                    print("DayStartMin ",row['DayStartMin'])
+                    print("DayStopHour ",row['DayStopHour'])
+                    print("DayStopMin ",row['DayStopMin'])
+                    print("'NightStartPreHour' ",row['NightStartPreHour'])
+                    print("'NightStartPreMin' ", row['NightStartPreMin'])
+                    print("'NightStopPreHour' ",row['NightStopPreHour'])
+                    print("'NightStopPreMin' ",row['NightStopPreMin'])
+                    print("'NightStartPostHour' ",row['NightStartPostHour'])
+                    print("'NightStartPostMin' ", row['NightStartPostMin'])
+                    print("'NightStopPostHour' ",row['NightStopPostHour'])
+                    print("'NightStopPostMin' ",row['NightStopPostMin'])
                     log.debug("we have a match in tradingdayrules.csv: {td}".format(td=row))
-                    #dayTypeRules = row
+                    #
+                    nightPreStart = datetime.now()
+                    nightPreStart = nightPreStart.replace(hour=int(row['NightStartPreHour']),minute=int(row['NightStartPreMin']))
+                    nightPreStop = datetime.now()
+                    nightPreStop = nightPreStop.replace(hour=int(row['NightStopPreHour']),minute=int(row['NightStopPreMin']))
+                    currentTimeFrame = ""
+                    if datetime.now() >= nightPreStart and datetime.now() <= nightPreStop:
+                        currentTimeFrame = "Pre Market Hours"
+                    #
+                    dayStart = datetime.now()
+                    dayStart = dayStart.replace(hour=int(row['DayStartHour']),minute=int(row['DayStopMin']))
+                    dayStop = datetime.now()
+                    dayStop = dayStop.replace(hour=int(row['DayStopHour']),minute=int(row['DayStopMin']))
+                    if datetime.now() >= dayStart and datetime.now() <= dayStop:
+                        currentTimeFrame = "Market Hours"
+                    #
+                    nightPostStart = datetime.now()
+                    nightPostStart = nightPostStart.replace(hour=int(row['NightStartPostHour']),minute=int(row['NightStartPostMin']))
+                    nightPostStop = datetime.now()
+                    nightPostStop = nightPostStop.replace(hour=int(row['NightStopPostHour']),minute=int(row['NightStopPostMin']))
+                    if datetime.now() >= nightPostStart and datetime.now() <= nightPostStop:
+                        currentTimeFrame = "After Market Hours"
+                    log.info("Market hours are currently: {d}".format(d=currentTimeFrame))
+                    dayTypeRules = row
                     break    
-    return dayType, row
+    return dayType, row, currentTimeFrame
 
 def parseAdvisorConfig(xml):
     """ Get # Of Contracts from Current Advisor Profile """

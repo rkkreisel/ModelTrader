@@ -46,7 +46,7 @@ class Algo():
             contContract, contracthours = get_contract(self) #basic information on continuious contact
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
             open_long, open_short, long_position_qty, short_position_qty, account_qty = orders.countOpenPositions(self.ib,"")   # do we have an open position?
-            
+            self.app.shares.update(long_position_qty + short_position_qty)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.debug("Got Contract:{dc} local symbol {ls}".format(dc=dataContract,ls=dataContract.localSymbol))
             self.app.contract.update(dataContract.localSymbol)
@@ -96,11 +96,14 @@ class Algo():
                 bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h,True, bars_15m.closePrice)
                 modBuyStopLossPrice = bars_1h.buyStopLossPrice
                 modSellStopLossPrice = bars_1h.sellStopLossPrice
+                modTrailStopLoss = (bars_1h.sellStopLossPrice - bars_1h.buyStopLossPrice)/2
             else:
                 bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h,False, 0)
                 modBuyStopLossPrice = bars_15m.buyStopLossPrice
                 modSellStopLossPrice = bars_15m.sellStopLossPrice
+                modTrailStopLoss = (bars_1h.sellStopLossPrice - bars_1h.buyStopLossPrice)/2
             bars_1d = calculations.Calculations(self.ib, dataContract, "75 D", "1 day", self.datetime_1d,False, 0)
+            updated = self.update_tk(bars_15m, bars_1h, bars_1d)
             pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction, crossed = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
             cci_key, ccibb_key, summ_key = build_key_array(tradeAction, bars_15m, bars_1h, bars_1d)
             #setsum = self.setupsummary(summ_key)
@@ -131,13 +134,19 @@ class Algo():
                         # do we need to close out current order
                         # do we need to close out current stop loss orders?
                         if not self.backTest:
-                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"ccibb_day",modBuyStopLossPrice,modSellStopLossPrice, openOrderType = True)
+                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,dayNightProfileCCI,modBuyStopLossPrice,modSellStopLossPrice,False, modTrailStopLoss, bars_15m.closePrice)
                             log.info("logic.CCIbb: order placed, fillStatus: {fs}".format(fs=fillStatus))
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row1,cci_trade,ccibb_trade)
                         break
                     elif ccibb_key == row1[0] and row1[13] == "N":
                         log.info("Entry found in CCIBB but not traded.  See if this changes")
+                        self.app.status1.update("Entry found in CCIBB but not traded.")
+                        log.info("Profit: {p}".format(p=row1[6]))
+                        log.info("Orders: {p}".format(p=row1[7]))
+                        log.info("Wins: {p}".format(p=row1[8]))
+                        log.info("Losses: {p}".format(p=row1[9]))
+                        log.info("Win %: {p}".format(p=row1[11]))
                         ccibb_trade = False
                 csv_file2 = csv.reader(open('data/cci.csv', "rt"), delimiter = ",")
                 for row2 in csv_file2:
@@ -149,12 +158,18 @@ class Algo():
                         cci_trade = True
                         quantity = 2
                         if not self.backTest:
-                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,"cci_day",modBuyStopLossPrice,modSellStopLossPrice, openOrderType = True)
+                            fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,dayNightProfileCCIBB,modBuyStopLossPrice,modSellStopLossPrice, False, modTrailStopLoss,bars_15m.closePrice)
                         open_long, open_short, tradenow = False, False, False
                         status_done = self.row_results(row2,cci_trade,ccibb_trade)
                         break
                     elif cci_key == row2[0] and row2[13] == "N":
                         log.info("Entry found in CCI but not traded.  See if this changes")
+                        self.app.status1.update("Entry found in CCI but not traded.")
+                        log.info("Profit: {p}".format(p=row2[6]))
+                        log.info("Orders: {p}".format(p=row2[7]))
+                        log.info("Wins: {p}".format(p=row2[8]))
+                        log.info("Losses: {p}".format(p=row2[9]))
+                        log.info("Win %: {p}".format(p=row2[11]))
                         cci_trade = True
                 if tradeNow:
                     log.info("we did not find a match in CCI: {cci} or CCI BB: {ccib}".format(cci=cci_trade,ccib=ccibb_trade))
@@ -196,27 +211,32 @@ class Algo():
         else:    
             current_time = localDateTime - timedelta(seconds = twsDiff.seconds, microseconds = twsDiff.microseconds) # trying to augment time differences
             current_minute = datetime.now().minute
-            log.debug("current adjusted time is: {ct} ".format(ct=current_time))
+            log.info("current adjusted time is: {ct} ".format(ct=current_time))
         if current_minute < 15:
             self.datetime_1h = current_time - timedelta(hours=1)
             wait_time = current_time.replace(minute = 15,second=0, microsecond=0) 
             #self.datetime_15 = current_time.replace(minute = 0, second = 0, microsecond=0)
-            self.datetime_15 = current_time.replace(minute = 30, second = 0, microsecond=0)
+            self.datetime_15 = current_time.replace(minute = 15, second = 0, microsecond=0)
+            print(" < 15 self.datetime_15 ",self.datetime_15)
         elif current_minute < 30:
             wait_time = current_time.replace(minute = 30,second=0, microsecond=0) 
             #self.datetime_15 = current_time.replace(minute = 15, second=0, microsecond=0)
-            self.datetime_15 = current_time.replace(minute = 45, second=0, microsecond=0)
+            self.datetime_15 = current_time.replace(minute = 30, second=0, microsecond=0)
+            print(" < 30 self.datetime_15 ",self.datetime_15)
         elif current_minute < 45:
             wait_time = current_time.replace(minute = 45,second=0, microsecond=0) 
             #self.datetime_15 = current_time + timedelta(minutes=(30-current_minute+15))
-            self.datetime_15 = current_time + timedelta(minutes=(45-current_minute+15))
-            self.datetime_15 =self.datetime_15.replace(second=0, microsecond=0)
+            #self.datetime_15 = current_time + timedelta(minute=45)
+            self.datetime_15 =current_time.replace(minute=45,second=0, microsecond=0)
+            print(" < 45 self.datetime_15 ",self.datetime_15)
         else:
             wait_time = current_time + timedelta(minutes=(60-current_minute))
             wait_time = wait_time.replace(second=0, microsecond=0)
             #self.datetime_15 = current_time + timedelta(minutes=(45-current_minute+15))
-            self.datetime_15 = current_time + timedelta(minutes=(60-current_minute+15))
+            self.datetime_15 = current_time + timedelta(minutes=(60-current_minute))
             self.datetime_15 =self.datetime_15.replace(second=0, microsecond=0)
+            print("current_time {t}".format(t=current_time))
+            print(" < 60 self.datetime_15 ",self.datetime_15)
         if self.backTest:    #added for backtest
             wait_time = datetime.now() + timedelta(seconds=3)
             self.log_time = self.backTestStartDateTime
@@ -230,6 +250,7 @@ class Algo():
         self.datetime_1h = self.datetime_1h.replace(minute=0, second=0, microsecond=0)
         self.datetime_1d = current_time -  timedelta(days = 1)
         self.datetime_1d =self.datetime_1d.replace(hour = 0, minute=0, second=0, microsecond=0)
+        self.app.qtrhour.update(wait_time)
         log.debug("log time: {lt} wait time: {wt} 1 hour: {one} day: {day}".format(lt = self.log_time,wt=wait_time,one=self.datetime_1h,day=self.datetime_1d))
         return wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d,self.log_time
 
@@ -243,8 +264,8 @@ class Algo():
         log.info("* Risk:               {0:.2f}%".format(float(row[12])))
         log.info("* Previous Order:     {}".format(row[6]))
         log.info("* Previous Wins:      {}".format(row[7]))
-        log.info("is isNaN ".format(helpers.isNaN(row[33])))
-        log.info("* Rank (0-100)s:      {0:.2f}".format(float(row[33])))
+        log.info("is isNaN ".format(helpers.isNaN(row[34])))
+        log.info("* Rank (0-100)s:      {0:.2f}".format(float(row[34])))
         log.info("************************************************")
         return
 
@@ -279,16 +300,19 @@ class Algo():
                 log.info("crossoverpending: We have crossed ----------^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v")
                 if abs(bars_15m.cci - bars_15m.ccia) > config.SPREAD:
                     log.info("crossoverpending: crossed and outside spread")
+                    self.app.spread.update("Good")
                     tradeNow = True
                 else:
                     if bars_15m.cci < bars_15m.ccia:
                         pendingShort, pendingLong = True, False
                     else:
                         pendingShort, pendingLong = False, True   
+                    self.app.spread.update("Pending")
                     pendingCnt = 0
                     pendingSkip = True
                     log.info("crossoverpending: crossed but not meet spread requirement, pendingSkip: {skip}, pendingCnt: {cnt}".format(skip = pendingSkip, cnt = pendingCnt))
-        log.info("crossoverpending: crossed {cross}, pendingSkip: {skip}, pendingCnt: {cnt}, bars 15cci: {cci}, bars 15ccia: {ccia}, bars15 cci prior: {ccip}, bars15 ccia prior: {cciap}".format(cross=crossed, skip = pendingSkip, cnt = pendingCnt, cci=bars_15m.cci ,ccia = bars_15m.ccia, ccip = bars_15m.cci_prior,cciap = bars_15m.ccia_prior))
+        log.info("crossoverpending: crossed {cross}, pendingSkip: {skip}, pendingCnt: {cnt}, bars 15cci: {cci}, bars 15ccia: {ccia}, bars15 cci prior: {ccip}, bars15 ccia prior: {cciap}, third: {c3} {c3a}, forth: {c4} {c4a}"\
+            .format(cross=crossed, skip = pendingSkip, cnt = pendingCnt, cci=bars_15m.cci ,ccia = bars_15m.ccia, ccip = bars_15m.cci_prior,cciap = bars_15m.ccia_prior, c3=bars_15m.cci_third, c3a=bars_15m.ccia_third, c4=bars_15m.cci_four, c4a=bars_15m.ccia_four))
         # deal with existing pending
         if pendingLong and pendingCnt < config.SPREAD_COUNT and bars_15m.cci - bars_15m.ccia > config.SPREAD:
             log.debug("crossoverpending: pending long cnt < 3 and > spread")
@@ -320,10 +344,16 @@ class Algo():
         contContract, contracthours = get_contract(self) #basic information on continuious contact
         tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
         open_long, open_short, long_position_qty, short_position_qty, account_qty = orders.countOpenPositions(self.ib,"")   # do we have an open position - not orders but positions?
-        open_today, tradingDayRules = helpers.is_open_today(contracthours)
+        open_today, tradingDayRules, currentTimeFrame = helpers.is_open_today(contracthours)
         wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d, self.log_time = self.define_times(self.ib)
         dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
         bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15, False, 0)
+        
+        #
+        bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h,True, bars_15m.closePrice)
+        bars_1d = calculations.Calculations(self.ib, dataContract, "75 D", "1 day", self.datetime_1d,False, 0)
+        updated = self.update_tk(bars_15m, bars_1h, bars_1d)
+        #
         #rint("bars15 cci_third, ccia_third, cci_prior, ccia_prior, cci, ccia",bars_15m.cci_third,bars_15m.ccia_third,bars_15m.cci_prior, bars_15m.ccia_prior, bars_15m.cci, bars_15m.ccia)
         if bars_15m.cci_prior > bars_15m.ccia_prior and open_short and abs(bars_15m.cci - bars_15m.ccia) > config.SPREAD:
             log.info("justStartedAppDirectionCheck: we are in app start up and we need to reverse due to wrong direction")
@@ -375,16 +405,37 @@ class Algo():
         #    return False, False, 0
 
     def duringOrAfterHours(self,ib, contracthours):
-        open_today, tradingDayRules = helpers.is_open_today(contracthours)
+        open_today, tradingDayRules, currentTimeFrame = helpers.is_open_today(contracthours)
         dayNightProfileCCI = "cci_day"
         dayNightProfileCCIBB = "ccibb_day"
         currentHour = datetime.now()
-        if currentHour.hour >= int(tradingDayRules['DayCutOffHour']):
+        if currentTimeFrame == "Pre Market Hours" or currentTimeFrame =="After Market Hours":
             dayNightProfileCCI = "cci_night"
             dayNightProfileCCIBB = "ccibb_night"
-        log.debug("finished tradingrules - row now is today: {t} and nightclose: {nc} and dayNightProfileCCI: {cci} and dayNightProfileCCIBB: {ccibb} ".format(t=tradingDayRules['Today'],nc = tradingDayRules['NightClose'], cci = dayNightProfileCCI, ccibb = dayNightProfileCCIBB))
+        log.info("finished tradingrules - dayNightProfileCCI: {cci} and dayNightProfileCCIBB: {ccibb} ".format(cci = dayNightProfileCCI, ccibb = dayNightProfileCCIBB))
         return dayNightProfileCCI, dayNightProfileCCIBB
-        
+    
+    def update_tk(self,bars_15m, bars_1h, bars_1d):
+        self.app.cci15.update(f"{bars_15m.cci:.02f}")        
+        self.app.cci15_av.update(f"{bars_15m.ccia:.02f}")
+        self.app.atr15.update(f"{bars_15m.atr:.02f}")
+        self.app.bband15_width.update(f"{bars_15m.bband_width:.02f}")
+        self.app.bband15_b.update(f"{bars_15m.bband_b:.02f}")
+        self.app.cci15p.update(f"{bars_15m.bband_b:.02f}")
+        self.app.cci15p_av.update(f"{bars_15m.ccia:.02f}")
+        self.app.cci1h.update(f"{bars_1h.cci:.02f}")
+        self.app.cci1h_av.update(f"{bars_1h.ccia:.02f}")
+        self.app.atr1h.update(f"{bars_1h.atr:.02f}")
+        self.app.bband1h_width.update(f"{bars_1h.bband_width:.02f}")
+        self.app.bband1h_b.update(f"{bars_1h.bband_b:.02f}")
+        self.app.cci1d.update(f"{bars_1d.cci:.02f}")
+        self.app.cci1d_av.update(f"{bars_1d.ccia:.02f}")
+        self.app.atr1d.update(f"{bars_1d.atr:.02f}")
+        self.app.bband1d_width.update(f"{bars_1d.bband_width:.02f}")
+        self.app.bband1d_b.update(f"{bars_1d.bband_b:.02f}")
+        self.app.status1.update("new bar")
+        return
+
 def get_contract(client):
     contract = client.ib.reqContractDetails(
         ContFuture(symbol=config.SYMBOL, exchange=config.EXCHANGE)
@@ -406,3 +457,4 @@ def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
         categories.categorize_BBb1h(bars_1h.bband_b) + categories.categorize_BBW1d(bars_1d.bband_width) + categories.categorize_BBb1d(bars_1d.bband_b)
     summ_key = categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + categories.categorize_cci_1d(bars_1d.ccia)
     return cci_key, ccibb_key, summ_key
+

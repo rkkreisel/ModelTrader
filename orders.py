@@ -26,8 +26,8 @@ def closeOutMain(ib, tradeContract, execute):           # this manages the closi
     closeOutPositions = closeOpenPositions(ib, tradeContract)  # we re going to execute (True)
     return
 
-def createOrdersMain(ib,tradeContract,tradeAction,quantity,cciProfile,buyStopLossPrice,sellStopLossPrice,openOrderType):
-    trademkt, tradestp, parentId, MktOrder, stopLossOrder = buildOrders(ib, tradeContract, tradeAction, quantity, cciProfile, buyStopLossPrice, sellStopLossPrice)    # this places the order.  No confirm it was executed
+def createOrdersMain(ib, tradeContract, tradeAction, quantity, cciProfile, buyStopLossPrice, sellStopLossPrice, openOrderType, modTrailStopLoss, bars_15mclosePrice):
+    trademkt, tradestp, parentId, MktOrder, stopLossOrder = buildOrders(ib, tradeContract, tradeAction, quantity, cciProfile, buyStopLossPrice, sellStopLossPrice, modTrailStopLoss, bars_15mclosePrice)    # this places the order.  No confirm it was executed
     log.info("createOrdersMain: just created MKT: {l} and STP {s} order.  Order open/close true/false: {oot} ".format(l=trademkt,s=tradestp,oot=openOrderType))
     #symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account, permID = parseTradeString(ib,trademkt)
     #wroteOrdersToCSV = writeOrdersToCSV(ib, MktOrder, "MktOrder", status, openOrderType)
@@ -84,7 +84,8 @@ def countOpenPositions(ib,accountName):
                 position_short_tf = True
             log.info("Have a position in : {a}".format(a=account))
             log.info ("long qty:           {lqty}".format(lqty = long_position_qty))
-            log.info("short qty:           {sqty} ".format(sqty = short_position_qty))    
+            log.info("short qty:           {sqty} ".format(sqty = short_position_qty))  
+            log.info("account qty:           {sqty} ".format(sqty = account_qty))
             x += + 1
     return position_long_tf, position_short_tf, long_position_qty, short_position_qty, account_qty
 
@@ -336,7 +337,7 @@ def parsePositionString(ib, positionInfo):
     avgCost = positionInfo.avgCost
     return account, symbol, quantity, avgCost
 
-def buildOrders(ib, tradeContract, action, quantity, cciProfile, buyStopLossPrice, sellStopLossPrice):
+def buildOrders(ib, tradeContract, action, quantity, cciProfile, buyStopLossPrice, sellStopLossPrice, modTrailStopLoss, bars_15mclosePrice):
     #STP order
     #closeOpen = findOpenOrders(ib, True)
     parentId = ib.client.getReqId()
@@ -347,9 +348,12 @@ def buildOrders(ib, tradeContract, action, quantity, cciProfile, buyStopLossPric
     log.info("buildOrders: cciprofile: {p} ".format(p=cciProfile))
     log.info("buildOrders: buystoplossprice: {sl} ".format(sl=buyStopLossPrice))
     log.info("buildOrders: sellstoplossprice: {stl} ".format(stl=sellStopLossPrice))
+    log.info("buildOrders: bars_15mclosePrice: {cp}".format(cp=bars_15mclosePrice))
+    
     MktOrder = Order(
         action = action,
         orderType = "MKT",
+        #lmtPrice = limitPrice,
         orderId = parentId,
         faProfile = cciProfile,
         totalQuantity = quantity,
@@ -367,9 +371,10 @@ def buildOrders(ib, tradeContract, action, quantity, cciProfile, buyStopLossPric
     #Stop Loss Order
     stopLossOrder = Order(
         action = stopAction,
-        orderType = "STP LMT",
+        orderType = "STP",
         auxPrice = stoplossprice,
         lmtPrice = stoplimitprice,
+        #trailStopPrice = modTrailStopLoss,
         faProfile = cciProfile,
         totalQuantity = quantity,
         orderId = ib.client.getReqId(),
@@ -410,14 +415,14 @@ def modifySTPOrder(ib, modBuyStopLossPrice,modSellStopLossPrice, closePrice):
         log.info("Action: {a} orderType: {ot} auxPrice: {ap} modBuyStopLossPrice: {mbslp} modSellStopLossPrice: {msslp} # of orders: {no} close: {c}" \
             .format(a=openOrdersList[x].action,ot=openOrdersList[x].orderType,ap=openOrdersList[x].auxPrice,mbslp=modBuyStopLossPrice,msslp=modSellStopLossPrice,no=len(openOrdersList),c=closePrice))
         
-        if openOrdersList[x].action.upper() == "BUY" and openOrdersList[x].orderType == "STP LMT" and openOrdersList[x].auxPrice > modBuyStopLossPrice:
-            log.info("new auxPrice buy: {ap} from: {pp} new lmtprice {lt}".format(ap=modBuyStopLossPrice,pp=openOrdersList[x].auxPrice,lt=modBuyStopLossPrice - 1))
+        if openOrdersList[x].action.upper() == "BUY" and openOrdersList[x].orderType == "STP" and openOrdersList[x].auxPrice > modSellStopLossPrice:
+            log.info("new auxPrice buy: {ap} from: {pp} new lmtprice {lt}".format(ap=modBuyStopLossPrice,pp=openOrdersList[x].auxPrice,lt=modSellStopLossPrice - 1))
             openOrdersList[x].auxPrice = modSellStopLossPrice
             openOrdersList[x].lmtPrice = modSellStopLossPrice - 10
             openOrder = openOrdersList[x]
             ib.placeOrder(tradeContract,openOrdersList[x])
-        elif openOrdersList[x].action.upper() == "SELL" and openOrdersList[x].orderType == "STP LMT" and openOrdersList[x].auxPrice < modSellStopLossPrice:
-            log.info("new auxPrice buy: {ap} from: {pp} new lmtprice {lt}".format(ap=modSellStopLossPrice,pp=openOrdersList[x].auxPrice,lt=modSellStopLossPrice +1))
+        elif openOrdersList[x].action.upper() == "SELL" and openOrdersList[x].orderType == "STP" and openOrdersList[x].auxPrice < modBuyStopLossPrice:
+            log.info("new auxPrice buy: {ap} from: {pp} new lmtprice {lt}".format(ap=modSellStopLossPrice,pp=openOrdersList[x].auxPrice,lt=modBuyStopLossPrice +1))
             openOrdersList[x].auxPrice = modBuyStopLossPrice
             openOrdersList[x].lmtPrice = modBuyStopLossPrice + 10
             openOrder = openOrdersList[x]
@@ -441,18 +446,18 @@ def getListOfTrades(ib):
 
 def ListOfTradesReadCsv(recentTradesListItem):
     log.info("New permId {p}".format(p=recentTradesListItem.order.permId))
-    with open('data/trades.csv', "rt") as csv_trades:
-        csv_dict_reader = DictReader(csv_trades)
-        notfoundIt = True
-        for csvTrade in csv_dict_reader:
-            if csvTrade['PermID'] == recentTradesListItem.order.permId:
-                log.info("we found it")
-                #log.info("dict reader permID {pi} {t}".format(pi=csvTrade['PermID'],t=csvTrade['Trade']))
-                notfoundIt = False
-                exit
-        if notfoundIt:
-            log.info("not found and going to write record")
-            ListOfTradesWriteCsv(recentTradesListItem)
+    #with open('data/trades.csv', "rt") as csv_trades:
+    #    csv_dict_reader = DictReader(csv_trades)
+    #    notfoundIt = True
+    #    for csvTrade in csv_dict_reader:
+    #        if csvTrade['PermID'] == recentTradesListItem.order.permId:
+    #            log.info("we found it")
+    #            #log.info("dict reader permID {pi} {t}".format(pi=csvTrade['PermID'],t=csvTrade['Trade']))
+    #            notfoundIt = False
+    #            exit
+    #    if notfoundIt:
+    #        log.info("not found and going to write record")
+    #        ListOfTradesWriteCsv(recentTradesListItem)
 
 
     return

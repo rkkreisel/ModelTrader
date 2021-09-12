@@ -1,5 +1,6 @@
-Today,NightClose,DayOpen,DayClose,NightOpen,DayCutOffHour
+Today,DayStartHour,DayStartMin,DayStopHour,DayStopMin,NightStartPreHour,NightStartPreMin,NightStopPreHour,NightStopPreMin,NightStartPostHour,NightStartPostMin,NightStopPostHour,NightStopPostMin
 Sunday,0,0,0,18:00,0
-Normal,9:30,9:30,17:15,18:00,15
+Normal,9,45,15,0,0,0,9,30,15,0,23,59
 DayBeforeClose,9:30,9:30,17:15,0,15
 Closed,0,0,0,0,0
+Friday,9,30,3,0,0,0,0,9,30,0,0
