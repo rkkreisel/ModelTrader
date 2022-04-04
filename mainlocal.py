@@ -1,7 +1,7 @@
 import asyncio
 from sys import exit as sys_exit
 import sys
-from ib_insync import IB, util, objects, Ticker
+from ib_insync import IB, util, objects, Ticker, Watchdog
 from datetime import *
 import tkinter as tk
 import pytz
@@ -11,6 +11,7 @@ import orders
 import config
 import logger
 import logic
+import random
 from indicator import Indicator
 
 log = logger.getLogger()
@@ -19,6 +20,12 @@ class App:
     def __init__(self, ib: IB):
         self.ib = ib
         self.root = tk.Tk()
+        #new code
+        #ibc = IBC(twsVersion=972, gateway=True, tradingMode='paper')
+        #ib.connectedEvent += onConnected
+        #watchdog = Watchdog(ibc, ib, port=4002)
+        #watchdog.start()
+        #end new code
         self.loop = asyncio.get_event_loop()
 
         self.root.title("ModelTrader Indicators")
@@ -119,35 +126,41 @@ class App:
         orders.createTradesCSVFromEvent(self.ib, Trade, eventType = "Update")
 
     def onError(self, reqId, errorCode, errorString, contract):
-        log.info("main.py:onError:: errorcode: {ec} errorstring: {es}".format(ec=errorCode,es=errorString))
-        if errorCode == 200 or errorCode == 1100 or errorCode == 2100 or errorCode == 162 or errorCode == 2110:
+        #log.info("main.py:onError:: errorcode: {ec} errorstring: {es}".format(ec=errorCode,es=errorString))
+        randomClientID = random.randint(1,250)
+        log.info("random client ID: {CI}".format(CI=randomClientID))
+        if errorCode == 200 or errorCode == 1100 or errorCode == 2100 or errorCode == 162 or errorCode == 2110:# or errorCode == 2107:
             try:
-                log.info("main.py:onError:: errorcode going to disconnect")
+                log.info("main.py:Error 200, 1100, 2100, 162, 2110:onError:: errorcode going to disconnect")
                 self.ib.disconnect()
-                self.connected.update("Disconnected")
-                log.info("main.py:onError:: finished disconnect going into sleep")
-                self.ib.sleep(10)
-                log.info("main.py:onError:: waking up")
-                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
-                log.info("main.py:onError:: attempted reconnect")
+                self.ib.waitOnUpdate(timeout=0.5)   #added to handle is client already in use https://github.com/erdewit/ib_insync/issues/76
+                self.connected.update("DError 200, 1100, 2100, 162, 2110:isconnected")
+                log.info("main.py:onError:Error 200, 1100, 2100, 162, 2110: finished disconnect going into sleep")
+                self.ib.sleep(300)
+                log.info("main.py:onError:Error 200, 1100, 2100, 162, 2110:: waking up")
+                #self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
+                self.ib.connect(config.HOST, config.PORT, clientId=randomClientID,timeout=0)
+                log.info("main.py:onError:Error 200, 1100, 2100, 162, 2110:: attempted reconnect")
             except:
-                log.info("main.py:onError:: in except - try wasn't successful.  Going to sleep a bit")
-                log.info("main.py:onError:: errorcode going to disconnect")
+                log.info("main.py:onError:Error 200, 1100, 2100, 162, 2110:: in except - try wasn't successful.  Going to sleep a bit")
+                log.info("main.py:onError:Error 200, 1100, 2100, 162, 2110:: errorcode going to disconnect")
                 self.ib.disconnect()
-                self.connected.update("Disconnected")
-                self.ib.sleep(10)
+                self.ib.waitOnUpdate(timeout=0.5)   #added to handle is client already in use https://github.com/erdewit/ib_insync/issues/76
+                self.connected.update("Error 200, 1100, 2100, 162, 2110:Disconnected")
+                self.ib.sleep(300)
                 log.info("main.py:onError:: waking up")
-                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
-                log.info("main.py:onError:: attempted reconnect")
+                self.ib.connect(config.HOST, config.PORT, clientId=randomClientID,timeout=0)
+                log.info("main.py:onError:Error 200, 1100, 2100, 162, 2110: attempted reconnect")
             finally:
-                log.info("main.py:onError:: Finally exiting - but firs try to reconnect one more time")
+                log.info("main.py:onError:Error 200, 1100, 2100, 162, 2110: Finally exiting - but firs try to reconnect one more time")
                 self.ib.disconnect()
-                self.connected.update("Disconnected")
-                self.ib.sleep(10)
-                log.info("main.py:onError:: waking up")
-                self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
-                log.info("main.py:onError:: attempted reconnect")
-           #global timeout_retry_flag
+                self.ib.waitOnUpdate(timeout=0.5)   #added to handle is client already in use https://github.com/erdewit/ib_insync/issues/76
+                self.connected.update("Error 200, 1100, 2100, 162, 2110:Disconnected")
+                self.ib.sleep(300)
+                log.info("main.py:onError:Error 200, 1100, 2100, 162, 2110: waking up")
+                self.ib.connect(config.HOST, config.PORT, clientId=randomClientID,timeout=0)
+                log.info("main.py:onError:Error 200, 1100, 2100, 162, 2110: attempted reconnect")
+            #global timeout_retry_flag
             #if timeout_retry_flag >= 5:
             #    log.info("onerror: Request timed out. Setting flag.")
             #    print("onerror: Request timed out. Setting flag.")
@@ -157,17 +170,26 @@ class App:
             #    timeout_retry_flag += 1
             #    print(f"onerror: Timeout try {timeout_retry_flag}")
             #    raise TimeoutError
-        elif errorCode == 2105:
-            log.info("main.py:onError: not an error we want to restart - doing a quick sleep")
-            self.ib.disconnect()
-            self.connected.update("Disconnected")
-            log.info("main.py:onError:: finished disconnect going into sleep")
-            self.ib.sleep(10)
-            log.info("main.py:onError:: waking up")
-            self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
-            log.info("main.py:onError:: attempted reconnect")
-        elif errorCode == 2107:
-            print("main.py:on Error: not a bad error")
+        #else:
+        #    log.info("main.py:onError:NOT > Error 200, 1100, 2100, 162, 2110: Finally exiting - but firs try to reconnect one more time")
+        #    self.ib.disconnect()
+        #    self.ib.waitOnUpdate(timeout=0.5)   #added to handle is client already in use https://github.com/erdewit/ib_insync/issues/76
+        #    self.connected.update("Error 200, 1100, 2100, 162, 2110:Disconnected")
+        #    self.ib.sleep(300)
+        #    log.info("main.py:onError:Error 200, 1100, 2100, 162, 2110: waking up")
+        #    self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
+        #    log.info("main.py:onError:Error 200, 1100, 2100, 162, 2110: attempted reconnect")
+#       elif errorCode == 2105:
+#            log.info("main.py:onError: 2105 not an error we want to restart - doing a quick sleep")
+#            self.ib.disconnect()
+#            self.connected.update("Error Code 2105:Disconnected")
+#            log.info("main.py:onError:Error Code 2105: finished disconnect going into sleep")
+#            self.ib.sleep(100)
+#            log.info("main.py:onError:2105: waking up")
+#            self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID)
+#            log.info("main.py:onError:Error Code 2105: attempted reconnect")
+#        elif errorCode == 2107:
+#            print("main.py:Error Code 2105:on Error: not a bad error")
 
     #def barupdateEvent_15m(self, bars: objects.BarDataList, hasNewBar: bool):
         #logger.getLogger().info(f"Got 15m Bars.")
@@ -183,22 +205,30 @@ class App:
         #self.qtrhour.update(qtrtime)
 
 def main(ib: IB):
-    try:
-        logger.getLogger().info("Connecting...")
-        ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
-        #ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
-        ib.reqMarketDataType(config.DATATYPE.value)
-    except NameError:    # got this block from https://groups.io/g/insync/message/4045
-            #self.num_disconnects += 1
-            print(datetime.datetime.now(), 'Connection error exception', self.num_disconnects)
-            #self.ib.cancelHistoricalData(bars)
-            log.info('Sleeping for 10sec...')
-            ib.disconnect
-            self.ib.sleep(10)
-            ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
-    except OSError:
-        log.info("main try except OS errror > Connection Failed.")
-        sys_exit()
+    logger.getLogger().info("Connecting...")
+    ib.disconnect()
+    ib.waitOnUpdate(timeout=0.5)   #added to handle is client already in use https://github.com/erdewit/ib_insync/issues/76
+    randomClientID = random.randint(1,250)
+    log.info("random client ID: {CI}".format(CI=randomClientID))
+    ib.connect(config.HOST, config.PORT, clientId=randomClientID,timeout=0)
+    #ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
+    ib.reqMarketDataType(config.DATATYPE.value)
+#    try:
+#        logger.getLogger().info("Connecting...")
+#        ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
+#        #ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
+#        ib.reqMarketDataType(config.DATATYPE.value)
+#    except NameError:    # got this block from https://groups.io/g/insync/message/4045
+#            #self.num_disconnects += 1
+#            print(datetime.datetime.now(), 'Connection error exception', self.num_disconnects)
+#            #self.ib.cancelHistoricalData(bars)
+#            log.info('Sleeping for 10sec...')
+#            ib.disconnect
+#            self.ib.sleep(10)
+#            ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
+#    except OSError:
+#        log.info("main try except OS errror > Connection Failed.")
+#        sys_exit()
 
     app = App(ib)
     app.run()

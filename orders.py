@@ -44,9 +44,9 @@ def countOpenOrders(ib):                 # This is to find open STP orders only
     log.info("countOpenOrders ************** in the findOpenOrder function *****************")
     openOrdersList = ib.openTrades()
     x, stpSell, stpBuy = 0, 0, 0
-    # if we are to execute, we need to create closing orders for each order we scroll throug
+    # if we are to execute, we need to create closing orders for each order we scroll through
     # not sure we need to differentiate between buy or sell stop orders below
-    log.debug("countOpenOrders openOrdersList: {ool}".format(ool=openOrdersList))
+    log.info("countOpenOrders openOrdersList: {ool}".format(ool=openOrdersList))
     while x < len(openOrdersList):
         symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account, permID = parseTradeString(ib,openOrdersList[x])
         log.info("countOpenOrders:: account: {act} symbol: {s} orderId: {oi} orderType: {ot} action: {a} quantity: {q} status: {status} date_order: {do} number of open orders: {os} permID: {pi}".format(act=account,s=symbol,oi=orderId,ot=orderType,a=action,q=quantity,status=status,do=date_order,os=len(openOrdersList),pi=permID))
@@ -284,11 +284,12 @@ def updateOrderWithCancelledSTP(ib, openOrderId, orderName, newstatus):
 def validateOpenOrdersCSV(ib, openOrderId, status):
     # we have an open order from IB.  Going to run through our CSV file and make sure it exists.
     # if it doesn't exist, we will add it
-    log.info("we are looking for openOrderId from IB open orders in our CSV file")
+    log.info("we are looking for openOrderId from IB open orders in our CSV file openOrderId: {id}".format(id=openOrderId))
     # REFERENCE fieldnames = ['Order_Id','Order','Status','Date_Pending','Date_Cancelled','Date_Filled','Date_Updated]
     foundOrderInCSV = False
     with open('data/orders.csv', newline ='') as csvfile:
         reader = csv.DictReader(csvfile)
+        log.info("dictionary of orders.csv: ".format(reader))
         for row in reader:
             if row['Order_Id'] == openOrderId:
                 if row['Status'] == status:           # means we have it in the CSV and status matches.  Nothing to do
@@ -414,18 +415,21 @@ def modifySTPOrder(ib, modBuyStopLossPrice,modSellStopLossPrice, closePrice):
         log.info("----------------------- modify stop orders ---------------: ")
         log.info("Action: {a} orderType: {ot} auxPrice: {ap} modBuyStopLossPrice: {mbslp} modSellStopLossPrice: {msslp} # of orders: {no} close: {c}" \
             .format(a=openOrdersList[x].action,ot=openOrdersList[x].orderType,ap=openOrdersList[x].auxPrice,mbslp=modBuyStopLossPrice,msslp=modSellStopLossPrice,no=len(openOrdersList),c=closePrice))
-        
+        # for debugging
+        log.info("openOrdersList: {ool}".format(ool=openOrdersList[x]))
         if openOrdersList[x].action.upper() == "BUY" and openOrdersList[x].orderType == "STP" and openOrdersList[x].auxPrice > modSellStopLossPrice:
             log.info("new auxPrice buy: {ap} from: {pp} new lmtprice {lt}".format(ap=modBuyStopLossPrice,pp=openOrdersList[x].auxPrice,lt=modSellStopLossPrice - 1))
             openOrdersList[x].auxPrice = modSellStopLossPrice
-            openOrdersList[x].lmtPrice = modSellStopLossPrice - 10
-            openOrder = openOrdersList[x]
+            #openOrdersList[x].lmtPrice = modSellStopLossPrice - 10
+            #openOrder = openOrdersList[x]
+            log.info("openOrdersList: {oo}".format(oo=openOrdersList[x]))
             ib.placeOrder(tradeContract,openOrdersList[x])
         elif openOrdersList[x].action.upper() == "SELL" and openOrdersList[x].orderType == "STP" and openOrdersList[x].auxPrice < modBuyStopLossPrice:
             log.info("new auxPrice buy: {ap} from: {pp} new lmtprice {lt}".format(ap=modSellStopLossPrice,pp=openOrdersList[x].auxPrice,lt=modBuyStopLossPrice +1))
             openOrdersList[x].auxPrice = modBuyStopLossPrice
-            openOrdersList[x].lmtPrice = modBuyStopLossPrice + 10
-            openOrder = openOrdersList[x]
+            #openOrdersList[x].lmtPrice = modBuyStopLossPrice + 10
+            #openOrder = openOrdersList[x]
+            log.info("openOrdersList: {oo}".format(oo=openOrdersList[x]))
             ib.placeOrder(tradeContract,openOrdersList[x])
         else:
             log.info("modifySTPOrder:: we have open orders but either they were not better stops or not STP orders.  order action: {oa} type: {t} aux price: {ap} mod pricebuy: {mpb} mod price sell: {mps}".format(oa = openOrdersList[x].action, t = openOrdersList[x].orderType, ap = openOrdersList[x].auxPrice, mpb = modBuyStopLossPrice, mps = modSellStopLossPrice))

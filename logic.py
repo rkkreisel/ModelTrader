@@ -71,9 +71,9 @@ class Algo():
             #    self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
             #    self.ib.reqMarketDataType(config.DATATYPE.value)
             #except NameError:    # got this block from https://groups.io/g/insync/message/4045
-                #self.num_disconnects += 1
-                #rint(datetime.now(), 'Connection error exception', self.num_disconnects)
-                #self.ib.cancelHistoricalData(bars)
+            #    self.num_disconnects += 1
+            #    print(datetime.now(), 'Connection error exception', self.num_disconnects)
+            #    self.ib.cancelHistoricalData(bars)
             #    log.info('Sleeping for 10sec...')
             #    self.ib.disconnect
             #    self.ib.sleep(10)
@@ -130,7 +130,7 @@ class Algo():
                         log.info(" +++++++++++++++++++++++++++++++++++++++++++++++++ found a match in CCIBB ".format(str(row1[0])))
                         log.info("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
                         ccibb_trade = True
-                        quantity = 2
+                        quantity = 1
                         # do we need to close out current order
                         # do we need to close out current stop loss orders?
                         if not self.backTest:
@@ -142,11 +142,12 @@ class Algo():
                     elif ccibb_key == row1[0] and row1[13] == "N":
                         log.info("Entry found in CCIBB but not traded.  See if this changes")
                         self.app.status1.update("Entry found in CCIBB but not traded.")
-                        log.info("Profit: {p}".format(p=row1[6]))
-                        log.info("Orders: {p}".format(p=row1[7]))
-                        log.info("Wins: {p}".format(p=row1[8]))
-                        log.info("Losses: {p}".format(p=row1[9]))
-                        log.info("Win %: {p}".format(p=row1[11]))
+                        log.info("Profit  : {p}".format(p=row1[6]))
+                        log.info("Orders  : {p}".format(p=row1[7]))
+                        log.info("Wins $  : {p}".format(p=row1[10]))
+                        log.info("Losses $: {p}".format(p=row1[11]))
+                        log.info("Wins #  : {p}".format(p=row1[8]))
+                        log.info("Losses #: {p}".format(p=row1[9]))
                         ccibb_trade = False
                 csv_file2 = csv.reader(open('data/cci.csv', "rt"), delimiter = ",")
                 for row2 in csv_file2:
@@ -156,7 +157,7 @@ class Algo():
                         log.info("+++++++++++++++++++++++++++++++++++++++++++++++++ we have a match in cci.csv - tradeAction".format(tradeAction))
                         log.info("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
                         cci_trade = True
-                        quantity = 2
+                        quantity = 1
                         if not self.backTest:
                             fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,dayNightProfileCCIBB,modBuyStopLossPrice,modSellStopLossPrice, False, modTrailStopLoss,bars_15m.closePrice)
                         open_long, open_short, tradenow = False, False, False
@@ -165,11 +166,12 @@ class Algo():
                     elif cci_key == row2[0] and row2[13] == "N":
                         log.info("Entry found in CCI but not traded.  See if this changes")
                         self.app.status1.update("Entry found in CCI but not traded.")
-                        log.info("Profit: {p}".format(p=row2[6]))
-                        log.info("Orders: {p}".format(p=row2[7]))
-                        log.info("Wins: {p}".format(p=row2[8]))
-                        log.info("Losses: {p}".format(p=row2[9]))
-                        log.info("Win %: {p}".format(p=row2[11]))
+                        log.info("Profit  : {p}".format(p=row2[6]))
+                        log.info("Orders  : {p}".format(p=row2[7]))
+                        log.info("Wins $  : {p}".format(p=row2[10]))
+                        log.info("Losses $: {p}".format(p=row2[11]))
+                        log.info("Wins #  : {p}".format(p=row2[8]))
+                        log.info("Losses #: {p}".format(p=row2[9]))
                         cci_trade = True
                 if tradeNow:
                     log.info("we did not find a match in CCI: {cci} or CCI BB: {ccib}".format(cci=cci_trade,ccib=ccibb_trade))
@@ -188,8 +190,9 @@ class Algo():
         localDateTime = datetime.now()
         twsTime = self.ib.reqCurrentTime()
         twsTime = twsTime.replace(tzinfo=None)
-        # this has to be changed for changes to day light savings time.
-        twsTimeLocal = twsTime - timedelta(hours=5)
+        # this has to be changed for changes to day light savings time.  EST DST
+        # 4 for summer and 5 for winter
+        twsTimeLocal = twsTime - timedelta(hours=4) 
         log.debug("tws time in local time zone format: {t} localDateTime: {ldt} twsTimeLocal: {ttl} ".format(t=twsTimeLocal,ldt=localDateTime,ttl=twsTimeLocal))
         #rint("local - diff: ",localDateTime-twsTimeLocal)
         #rint("diff - local: ",twsTimeLocal-localDateTime)
@@ -211,42 +214,42 @@ class Algo():
         else:    
             current_time = localDateTime - timedelta(seconds = twsDiff.seconds, microseconds = twsDiff.microseconds) # trying to augment time differences
             current_minute = datetime.now().minute
-            log.info("current adjusted time is: {ct} ".format(ct=current_time))
+            log.debug("current adjusted time is: {ct} ".format(ct=current_time))
         if current_minute < 15:
             self.datetime_1h = current_time - timedelta(hours=1)
             wait_time = current_time.replace(minute = 15,second=0, microsecond=0) 
             #self.datetime_15 = current_time.replace(minute = 0, second = 0, microsecond=0)
             self.datetime_15 = current_time.replace(minute = 15, second = 0, microsecond=0)
-            print(" < 15 self.datetime_15 ",self.datetime_15)
+            #rint(" < 15 self.datetime_15 ",self.datetime_15)
         elif current_minute < 30:
             wait_time = current_time.replace(minute = 30,second=0, microsecond=0) 
             #self.datetime_15 = current_time.replace(minute = 15, second=0, microsecond=0)
             self.datetime_15 = current_time.replace(minute = 30, second=0, microsecond=0)
-            print(" < 30 self.datetime_15 ",self.datetime_15)
+            #rint(" < 30 self.datetime_15 ",self.datetime_15)
         elif current_minute < 45:
             wait_time = current_time.replace(minute = 45,second=0, microsecond=0) 
             #self.datetime_15 = current_time + timedelta(minutes=(30-current_minute+15))
             #self.datetime_15 = current_time + timedelta(minute=45)
             self.datetime_15 =current_time.replace(minute=45,second=0, microsecond=0)
-            print(" < 45 self.datetime_15 ",self.datetime_15)
+            #rint(" < 45 self.datetime_15 ",self.datetime_15)
         else:
             wait_time = current_time + timedelta(minutes=(60-current_minute))
             wait_time = wait_time.replace(second=0, microsecond=0)
             #self.datetime_15 = current_time + timedelta(minutes=(45-current_minute+15))
             self.datetime_15 = current_time + timedelta(minutes=(60-current_minute))
             self.datetime_15 =self.datetime_15.replace(second=0, microsecond=0)
-            print("current_time {t}".format(t=current_time))
-            print(" < 60 self.datetime_15 ",self.datetime_15)
+            #rint("current_time {t}".format(t=current_time))
+            #rint(" < 60 self.datetime_15 ",self.datetime_15)
         if self.backTest:    #added for backtest
             wait_time = datetime.now() + timedelta(seconds=3)
             self.log_time = self.backTestStartDateTime
         else:
             self.datetime_1h = current_time
             self.log_time = wait_time
-        log.info("wait time going into difference {wt}".format(wt=wait_time))
+        log.debug("wait time going into difference {wt}".format(wt=wait_time))
         wait_time = wait_time - timedelta(seconds = twsDiff.seconds, microseconds = twsDiff.microseconds) # trying to augment time differences
         wait_time = wait_time + timedelta(seconds = 5) # adding 5 seconds just to address fluctuations from wait set to wait execute
-        log.info("Wait time adjusted for differnces in time between TWS and server is now: {t}".format(t=wait_time))
+        log.debug("Wait time adjusted for differnces in time between TWS and server is now: {t}".format(t=wait_time))
         self.datetime_1h = self.datetime_1h.replace(minute=0, second=0, microsecond=0)
         self.datetime_1d = current_time -  timedelta(days = 1)
         self.datetime_1d =self.datetime_1d.replace(hour = 0, minute=0, second=0, microsecond=0)
@@ -259,13 +262,13 @@ class Algo():
         log.info("* CCI Trade:          {0:.2f}".format(float(cci_trade)))
         log.info("* CCIbb Trade:        {0:.2f}".format(float(ccibb_trade)))
         log.info("* Do we buy this one: {}".format(row[13]))
-        log.info("* Profit:             {0:,.2f}".format(float(row[5])))
-        log.info("* Winning %:          {0:.2f}%".format(float(row[11])*100))
-        log.info("* Risk:               {0:.2f}%".format(float(row[12])))
-        log.info("* Previous Order:     {}".format(row[6]))
-        log.info("* Previous Wins:      {}".format(row[7]))
-        log.info("is isNaN ".format(helpers.isNaN(row[34])))
-        log.info("* Rank (0-100)s:      {0:.2f}".format(float(row[34])))
+        #log.info("* Profit:             {0:,.2f}".format(float(row[5])))
+        #log.info("* Winning %:          {0:.2f}%".format(float(row[11])*100))
+        #log.info("* Risk:               {0:.2f}%".format(float(row[12])))
+        #log.info("* Previous Order:     {}".format(row[6]))
+        #log.info("* Previous Wins:      {}".format(row[7]))
+        #log.info("is isNaN ".format(helpers.isNaN(row[34])))
+        #log.info("* Rank (0-100)s:      {0:.2f}".format(float(row[34])))
         log.info("************************************************")
         return
 
@@ -301,6 +304,7 @@ class Algo():
                 if abs(bars_15m.cci - bars_15m.ccia) > config.SPREAD:
                     log.info("crossoverpending: crossed and outside spread")
                     self.app.spread.update("Good")
+                    pendingShort, pendingLong = False, False
                     tradeNow = True
                 else:
                     if bars_15m.cci < bars_15m.ccia:
@@ -311,8 +315,8 @@ class Algo():
                     pendingCnt = 0
                     pendingSkip = True
                     log.info("crossoverpending: crossed but not meet spread requirement, pendingSkip: {skip}, pendingCnt: {cnt}".format(skip = pendingSkip, cnt = pendingCnt))
-        log.info("crossoverpending: crossed {cross}, pendingSkip: {skip}, pendingCnt: {cnt}, bars 15cci: {cci}, bars 15ccia: {ccia}, bars15 cci prior: {ccip}, bars15 ccia prior: {cciap}, third: {c3} {c3a}, forth: {c4} {c4a}"\
-            .format(cross=crossed, skip = pendingSkip, cnt = pendingCnt, cci=bars_15m.cci ,ccia = bars_15m.ccia, ccip = bars_15m.cci_prior,cciap = bars_15m.ccia_prior, c3=bars_15m.cci_third, c3a=bars_15m.ccia_third, c4=bars_15m.cci_four, c4a=bars_15m.ccia_four))
+        log.info("crossoverpending: crossed {cross}, pendingSkip: {skip}, pendingCnt: {cnt}, bars 15cci: {cci}, bars 15ccia: {ccia}, bars15 cci prior: {ccip}, bars15 ccia prior: {cciap}"\
+            .format(cross=crossed, skip = pendingSkip, cnt = pendingCnt, cci=bars_15m.cci ,ccia = bars_15m.ccia, ccip = bars_15m.cci_prior,cciap = bars_15m.ccia_prior))
         # deal with existing pending
         if pendingLong and pendingCnt < config.SPREAD_COUNT and bars_15m.cci - bars_15m.ccia > config.SPREAD:
             log.debug("crossoverpending: pending long cnt < 3 and > spread")
@@ -416,23 +420,23 @@ class Algo():
         return dayNightProfileCCI, dayNightProfileCCIBB
     
     def update_tk(self,bars_15m, bars_1h, bars_1d):
-        self.app.cci15.update(f"{bars_15m.cci:.02f}")        
-        self.app.cci15_av.update(f"{bars_15m.ccia:.02f}")
-        self.app.atr15.update(f"{bars_15m.atr:.02f}")
-        self.app.bband15_width.update(f"{bars_15m.bband_width:.02f}")
-        self.app.bband15_b.update(f"{bars_15m.bband_b:.02f}")
-        self.app.cci15p.update(f"{bars_15m.bband_b:.02f}")
+        self.app.cci15.update(f"{categories.categorize_cci_15(bars_15m.cci)}")        
+        self.app.cci15_av.update(f"{categories.categorize_cci_15_avg(bars_15m.ccia)}")
+        self.app.atr15.update(f"{categories.categorize_atr15(bars_15m.atr)}")
+        #self.app.bband15_width.update(f"{bars_15m.bband_width:.02f}")
+        #self.app.bband15_b.update(f"{bars_15m.bband_b:.02f}")
+        #self.app.cci15p.update(f"{bars_15m.bband_b:.02f}")
         self.app.cci15p_av.update(f"{bars_15m.ccia:.02f}")
-        self.app.cci1h.update(f"{bars_1h.cci:.02f}")
-        self.app.cci1h_av.update(f"{bars_1h.ccia:.02f}")
-        self.app.atr1h.update(f"{bars_1h.atr:.02f}")
-        self.app.bband1h_width.update(f"{bars_1h.bband_width:.02f}")
-        self.app.bband1h_b.update(f"{bars_1h.bband_b:.02f}")
-        self.app.cci1d.update(f"{bars_1d.cci:.02f}")
-        self.app.cci1d_av.update(f"{bars_1d.ccia:.02f}")
-        self.app.atr1d.update(f"{bars_1d.atr:.02f}")
-        self.app.bband1d_width.update(f"{bars_1d.bband_width:.02f}")
-        self.app.bband1d_b.update(f"{bars_1d.bband_b:.02f}")
+        self.app.cci1h.update(f"{categories.categorize_cci_1h(bars_1h.cci)}")
+        self.app.cci1h_av.update(f"{categories.categorize_cci_1h(bars_1h.ccia)}")
+        self.app.atr1h.update(f"{categories.categorize_atr1h(bars_1h.atr)}")
+        #self.app.bband1h_width.update(f"{bars_1h.bband_width:.02f}")
+        #self.app.bband1h_b.update(f"{bars_1h.bband_b:.02f}")
+        self.app.cci1d.update(f"{categories.categorize_cci_1d(bars_1d.cci)}")
+        self.app.cci1d_av.update(f"{ categories.categorize_cci_1d(bars_1d.ccia)}")
+        self.app.atr1d.update(f"{categories.categorize_atr1d(bars_1d.atr)}")
+        #self.app.bband1d_width.update(f"{bars_1d.bband_width:.02f}")
+        #self.app.bband1d_b.update(f"{bars_1d.bband_b:.02f}")
         self.app.status1.update("new bar")
         return
 
@@ -452,9 +456,18 @@ def build_key_array(tradeAction, bars_15m, bars_1h, bars_1d):
         cci_key = "short"
     cci_key += categories.categorize_atr15(bars_15m.atr) + categories.categorize_atr1h(bars_1h.atr) + categories.categorize_atr1d(bars_1d.atr) + \
         categories.categorize_cci_15(bars_15m.cci) + categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + \
-        categories.categorize_cci_1d(bars_1d.ccia)
-    ccibb_key = cci_key + categories.categorize_BBW15(bars_15m.bband_width) + categories.categorize_BBb15(bars_15m.bband_b) + categories.categorize_BBW1h(bars_1h.bband_width) + \
-        categories.categorize_BBb1h(bars_1h.bband_b) + categories.categorize_BBW1d(bars_1d.bband_width) + categories.categorize_BBb1d(bars_1d.bband_b)
-    summ_key = categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + categories.categorize_cci_1d(bars_1d.ccia)
-    return cci_key, ccibb_key, summ_key
+        categories.categorize_cci_1d(bars_1d.ccia) + categories.categorize_spread(bars_15m.cci_ccia_spread)
+        #categories.categorize_cci_1d(bars_1d.ccia) + bars_1h.cci_over_ccia_tf + bars_1d.cci_over_ccia_tf + categories.categorize_spread(bars_15m.cci_ccia_spread)
+    cci_key_no_spread = "long"
+    if tradeAction == "Sell":
+        cci_key_no_spread = "short"
+    cci_key_no_spread += categories.categorize_atr15(bars_15m.atr) + categories.categorize_atr1h(bars_1h.atr) + categories.categorize_atr1d(bars_1d.atr) + \
+        categories.categorize_cci_15(bars_15m.cci) + categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + \
+        categories.categorize_cci_1d(bars_1d.ccia) 
+    #ccibb_key = cci_key_no_spread + categories.categorize_BBW15(bars_15m.bband_width) + categories.categorize_BBb15(bars_15m.bband_b) + categories.categorize_BBW1h(bars_1h.bband_width) + \
+    #    categories.categorize_BBb1h(bars_1h.bband_b) + categories.categorize_BBW1d(bars_1d.bband_width) + categories.categorize_BBb1d(bars_1d.bband_b)
+    summ_key = categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + categories.categorize_cci_1d(bars_1d.ccia) + categories.categorize_spread(bars_15m.cci_ccia_spread)
+    #summ_key = categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + categories.categorize_cci_1d(bars_1d.ccia) + bars_1h.cci_over_ccia_tf + bars_1d.cci_over_ccia_tf + categories.categorize_spread(bars_15m.cci_ccia_spread)
+    #return cci_key, cci_key_no_spread, summ_key
+    return cci_key, cci_key, summ_key
 

@@ -16,9 +16,9 @@ log = logger.getLogger()
 def is_open_today(contracthours: Contract):
     # a return of NONE is when the market is not opern for the given day
     """ Parse contract Trading Hours to Check if Valid Trading Day"""
-    #print("contract hours",contracthours)
+    #rint("contract hours",contracthours)
     date_re = compile_re(r"([0-9]{8}):([0-9]+)-([0-9]{8}):([0-9]+)")
-    #print("date_re: ",date_re)
+    #rint("date_re: ",date_re)
     days = contracthours.split(";")                         #parse the list
     today = datetime.today().strftime("%Y%m%d")             #today in fomat matching the list
     yesterday = (datetime.today() - timedelta(days=1)).strftime("%Y%m%d")
@@ -28,7 +28,7 @@ def is_open_today(contracthours: Contract):
     log.debug("Trading date: {td} day type: {dt}".format(td=today,dt=tradingDayType))
     for day in days:
         match = date_re.match(day)
-        #print("date re: ",date_re.match(day))
+        #rint("date re: ",date_re.match(day))
         if not match: continue
         if match.group(1) not in [today, yesterday]: continue
         if match.group(3) not in [today, yesterday]: continue
@@ -37,23 +37,23 @@ def is_open_today(contracthours: Contract):
     today_hours = ",".join(hours)
     log.debug("todays trading hours are: {th}".format(th=today_hours))
 
-    csv_file = csv.reader(open('data/tradinghours.csv', "rt"), delimiter = ",")
-    hours_found = False
-    for row in csv_file:
-        if today_hours == row[0]:
-            hours_found = True
-            break
-    if not hours_found:
-        with open('data/tradinghours.csv', mode='a') as tradehours:
-            histwriter = csv.writer(tradehours, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            histwriter.writerow([today_hours])
+    #csv_file = csv.reader(open('data/tradinghours.csv', "rt"), delimiter = ",")
+    #hours_found = False
+    #for row in csv_file:
+    #    if today_hours == row[0]:
+    #        hours_found = True
+    #        break
+    #if not hours_found:
+    #    with open('data/tradinghours.csv', mode='a') as tradehours:
+    #        histwriter = csv.writer(tradehours, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    #        histwriter.writerow([today_hours])
         
     if today_hours == config.NORMAL_TRADING_HOURS:
         return True, tradingDayRules, currentTimeFrame
     return False, tradingDayRules, currentTimeFrame
 
 def checkDayType(checkDate):
-    log.info("checkDayTYpe: {c}".format(c=checkDate))
+    log.debug("checkDayTYpe: {c}".format(c=checkDate))
     with open('data/tradingday.csv', 'r') as csvfile:
         header = ['Today','DayType']
         reader = csv.DictReader(csvfile, fieldnames = header, delimiter = ',')
@@ -73,19 +73,19 @@ def checkDayType(checkDate):
             for row in reader:
                 log.debug("Today: {to} row {t}".format(to=row['Today'],t=row))
                 if dayType == row['Today']: 
-                    print("Today ",row['Today'])
-                    print("DayStartHour ",row['DayStartHour'])
-                    print("DayStartMin ",row['DayStartMin'])
-                    print("DayStopHour ",row['DayStopHour'])
-                    print("DayStopMin ",row['DayStopMin'])
-                    print("'NightStartPreHour' ",row['NightStartPreHour'])
-                    print("'NightStartPreMin' ", row['NightStartPreMin'])
-                    print("'NightStopPreHour' ",row['NightStopPreHour'])
-                    print("'NightStopPreMin' ",row['NightStopPreMin'])
-                    print("'NightStartPostHour' ",row['NightStartPostHour'])
-                    print("'NightStartPostMin' ", row['NightStartPostMin'])
-                    print("'NightStopPostHour' ",row['NightStopPostHour'])
-                    print("'NightStopPostMin' ",row['NightStopPostMin'])
+                    #rint("Today ",row['Today'])
+                    #rint("DayStartHour ",row['DayStartHour'])
+                    #rint("DayStartMin ",row['DayStartMin'])
+                    #rint("DayStopHour ",row['DayStopHour'])
+                    #rint("DayStopMin ",row['DayStopMin'])
+                    #rint("'NightStartPreHour' ",row['NightStartPreHour'])
+                    #rint("'NightStartPreMin' ", row['NightStartPreMin'])
+                    #rint("'NightStopPreHour' ",row['NightStopPreHour'])
+                    #rint("'NightStopPreMin' ",row['NightStopPreMin'])
+                    #rint("'NightStartPostHour' ",row['NightStartPostHour'])
+                    #rint("'NightStartPostMin' ", row['NightStartPostMin'])
+                    #rint("'NightStopPostHour' ",row['NightStopPostHour'])
+                    #rint("'NightStopPostMin' ",row['NightStopPostMin'])
                     log.debug("we have a match in tradingdayrules.csv: {td}".format(td=row))
                     #
                     nightPreStart = datetime.now()
@@ -109,7 +109,7 @@ def checkDayType(checkDate):
                     nightPostStop = nightPostStop.replace(hour=int(row['NightStopPostHour']),minute=int(row['NightStopPostMin']))
                     if datetime.now() >= nightPostStart and datetime.now() <= nightPostStop:
                         currentTimeFrame = "After Market Hours"
-                    log.info("Market hours are currently: {d}".format(d=currentTimeFrame))
+                    log.debug("Market hours are currently: {d}".format(d=currentTimeFrame))
                     dayTypeRules = row
                     break    
     return dayType, row, currentTimeFrame

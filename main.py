@@ -28,14 +28,16 @@ class App:
         self.qtrhour = Indicator(self.root, "Time of Check","",1)
         self.connected = Indicator(self.root, "Connected", "True",1)
         self.contract = Indicator(self.root, "Contract", "",1)
+        self.shares = Indicator(self.root, "Shares", "",1)
         self.label3 = Indicator(self.root, "15 Minutes ","",1)
         self.crossover = Indicator(self.root, "Crossover", "False",1)
+        self.spread = Indicator(self.root, "Spread","",1)
 
         self.cci15 = Indicator(self.root, "CCI      ", "",1)        
         self.cci15_av = Indicator(self.root, "CCI Avg ", "",1)
         self.atr15 = Indicator(self.root, "ATR ", "",1)
-        self.bband15_width = Indicator(self.root, "BBAND Width", "",1)
-        self.bband15_b = Indicator(self.root, "BBAND %B ", "",1)
+        #self.bband15_width = Indicator(self.root, "BBAND Width", "",1)
+        #self.bband15_b = Indicator(self.root, "BBAND %B ", "",1)
         self.label1 = Indicator(self.root, " ","",1)
         self.cci15p = Indicator(self.root, "CCI ", "",1)
         self.cci15p_av = Indicator(self.root, "CCIP Avg", "",1)
@@ -44,15 +46,15 @@ class App:
         self.cci1h = Indicator(self.root, "CCI ", "",2)
         self.cci1h_av = Indicator(self.root, "CCI Avg ","",2)
         self.atr1h = Indicator(self.root, "ATR ","",2)
-        self.bband1h_width = Indicator(self.root, "BBand Width ","",2)
-        self.bband1h_b = Indicator(self.root, "BBand %p ","",2)
+        #self.bband1h_width = Indicator(self.root, "BBand Width ","",2)
+        #self.bband1h_b = Indicator(self.root, "BBand %p ","",2)
 
         self.label1 = Indicator(self.root, "1 Day ","",1)
         self.cci1d = Indicator(self.root, "CCI ", "",3)
         self.cci1d_av = Indicator(self.root, "CCI Avg ","",3)
         self.atr1d = Indicator(self.root, "ATR ","",3)
-        self.bband1d_width = Indicator(self.root, "BBand Width ","",3)
-        self.bband1d_b = Indicator(self.root, "BBand %p ","",3)
+        #self.bband1d_width = Indicator(self.root, "BBand Width ","",3)
+        #self.bband1d_b = Indicator(self.root, "BBand %p ","",3)
         self.status1 = Indicator(self.root, "Status1 ","",0)
         
         self.ib.disconnectedEvent += self.disconnectEvent
@@ -185,9 +187,9 @@ def main(ib: IB):
             #self.num_disconnects += 1
             print(datetime.datetime.now(), 'Connection error exception', self.num_disconnects)
             #self.ib.cancelHistoricalData(bars)
-            log.info('Sleeping for 10sec...')
+            log.info('Sleeping for 10000 sec...')
             ib.disconnect
-            self.ib.sleep(10)
+            self.ib.sleep(10000)
             ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
 #    except OSError:
 #        log.info("main try except OS errror > Connection Failed.")

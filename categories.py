@@ -1,3 +1,4 @@
+# remember to manually keep this file in sync with the modelbuilder file
 import datetime
 
 def categorize_cci_15(cci: int):
@@ -46,23 +47,23 @@ def categorize_time(time: datetime.datetime):
     return "Night"
     
 def categorize_atr15(atr: float):
-    if atr < 3:
+    if atr < 1:
         return "ATR15:L"
-    if atr > 7.5:
+    if atr > 2.99:
         return "ATR15:H"
     return "ATR15:A"
 	
 def categorize_atr1h(atr: float):
-    if atr < 5:
+    if atr < 2:
         return "ATR1:L"
-    if atr > 10:
+    if atr > 5:
         return "ATR1:H"
     return "ATR1:A"
 	
 def categorize_atr1d(atr: float):
-    if atr < 15:
+    if atr < 9:
         return "ATRD:L"
-    if atr > 50:
+    if atr > 21:
         return "ATRD:H"
     return "ATRD:A"
 
@@ -114,4 +115,14 @@ def categorize_BBb1d(bbb: float):
     if bbb < 50:
         return "BBb1d:B"
     return "BBb1d:T"	
-	
+
+def categorize_spread(spread: float):
+    if abs(spread) > 78:
+        return "Spread:O"
+    if abs(spread) > 45:
+        return "Spread:H"
+    if abs(spread) > 26:
+        return "Spread:A"
+    if abs(spread) > 12:
+        return "Spread:M"
+    return "Spread:L"

@@ -1,4 +1,4 @@
 :loop
-call python mainlocal.py
+call python mainonce.py
 timeout /t 900 /nobreak
 goto :loop
