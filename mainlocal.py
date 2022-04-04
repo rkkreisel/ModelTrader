@@ -71,7 +71,7 @@ class App:
         self.ib.execDetailsEvent += self.execDetailsEvent
         self.ib.errorEvent += self.onError
         #self.ib.newOrderEvent += self.newOrderEvent
-        #test again and again
+        #test again and again again
 
     def run(self):
         self._onTimeout()
