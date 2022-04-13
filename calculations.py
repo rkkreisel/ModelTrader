@@ -41,7 +41,6 @@ class Calculations():
         self.ib.disconnect()
         self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
         bars_period = self.get_bars_data()
-<<<<<<< HEAD
         if self.bar_duration == "75 D":
             log.info("self datetime_period: {dtp}   ".format(dtp=bars_period))
         fullDateIndex = 1
@@ -63,12 +62,6 @@ class Calculations():
         log.debug("close 0 and close -1 {c1} or {c2}".format(c1=bars_period[0].close,c2=bars_period[-1].close))
         self.cci, self.ccia, self.cci_prior, self.ccia_prior, self.cci_third, self.ccia_third, self.cci_four, self.ccia_four, self.cci_over_ccia_tf, self.cci_ccia_spread = self.calculate_cci(bars_period,fullDateIndex)
         log.debug("Bars we asked for through this date: {d} and the last entry was: {l}".format(d=self.datetime_period,l=bars_period[-1].date))
-=======
-        log.info("self datetime_period: {dtp} and bars_period: ".format(dtp=self.datetime_period,bp=bars_period))
-        self.closePrice = bars_period[-1].close
-        log.info("close 0 and close -1 {c1} or {c2}".format(c1=bars_period[0].close,c2=bars_period[-1].close))
-        self.cci, self.ccia, self.cci_prior, self.ccia_prior, self.cci_third, self.ccia_third, self.cci_four, self.ccia_four = self.calculate_cci(bars_period)
->>>>>>> 64776c71d413e22e51316ddfeb409395dd3ae695
         self.atr =  self.calculate_atr(bars_period)
         self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
         temp = self.atr*4
@@ -123,7 +116,6 @@ class Calculations():
             np.array([bar.close for bar in bars]),
             timeperiod=config.CCI_PERIODS
         )
-<<<<<<< HEAD
         #ccia =          statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 0):])
         #ccia_prior =    statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):-1])
         #ccia_third =    statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 2):-2])
@@ -149,27 +141,6 @@ class Calculations():
         cci_ccia_spread = abs(cci[-fullDateIndex] - ccia[-fullDateIndex])
         log.debug("first and last CCI {i1} {i2}".format(i1=cci[-8],i2=cci[-1]))
         return cci[-fullDateIndex],ccia[-fullDateIndex], cci[-fullDateIndex-1], ccia[-fullDateIndex-1], cci[-fullDateIndex-2], ccia[-fullDateIndex-2], cci[-fullDateIndex-3], ccia[-fullDateIndex-3],cci_over_ccia_tf,cci_ccia_spread
-=======
-        for x in range(3):
-            #rint("x bar size and cci value: {xv} {v} {bs} ".format(xv=x,v=cci[-x],bs=self.datetime_period))
-            startx = (config.CCI_AVERAGE_PERIODS + (x + 0))
-            stopx = (x + 0)
-            #rint("stop/startx ",startx,stopx)
-            #rint("cci value {v}".format(v=cci[-startx:][:-stopx]))
-            #rint("cci ",cci)
-        #log.info("high {a} lasthigh {l} ".format(a=np.array([bar.high for bar in bars]),l=bars[-1].high))
-        #log.info(" ")
-        #log.info("low {a} lastlow {l}".format(a=np.array([bar.low for bar in bars]),l=bars[-1].low))
-        #log.info(" ")
-        #log.info("close {a} last close {l}".format(a=np.array([bar.close for bar in bars]),l=bars[-1].close))
-        #log.info("high ",np.array([bar.high for bar in bars]))
-        ccia =          statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 1):][:-1])
-        ccia_prior =    statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 2):][:-2])
-        ccia_third =    statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 3):][:-3])
-        ccia_four =     statistics.mean(cci[-(config.CCI_AVERAGE_PERIODS + 4):][:-4])
-        log.debug("first and last CCI {i1} {i2}".format(i1=cci[-33],i2=cci[-1]))
-        return cci[-2],ccia, cci[-3], ccia_prior, cci[-4], ccia_third, cci[-5], ccia_four
->>>>>>> 64776c71d413e22e51316ddfeb409395dd3ae695
 
     def calculate_atr(self, bars):
         atr =  talib.ATR(
