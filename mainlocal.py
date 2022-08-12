@@ -20,58 +20,99 @@ class App:
     def __init__(self, ib: IB):
         self.ib = ib
         self.root = tk.Tk()
-        #new code
-        #ibc = IBC(twsVersion=972, gateway=True, tradingMode='paper')
-        #ib.connectedEvent += onConnected
-        #watchdog = Watchdog(ibc, ib, port=4002)
-        #watchdog.start()
-        #end new code
         self.loop = asyncio.get_event_loop()
-
         self.root.title("ModelTrader Indicators")
         self.root.protocol('WM_DELETE_WINDOW', self._onDeleteWindow)
-        self.root.minsize(width=250, height=100)
-        self.label4 = Indicator(self.root, "Positions","",1)
-        self.shares = Indicator(self.root, "Shares", "",1)
-        self.qtrhour = Indicator(self.root, "Time of Check","",1)
-        self.connected = Indicator(self.root, "Connected", "True",1)
-        self.contract = Indicator(self.root, "Contract", "",1)
-        self.label3 = Indicator(self.root, "15 Minutes ","",1)
-        self.crossover = Indicator(self.root, "Crossover", "False",1)
-        self.spread = Indicator(self.root, "CCI/CCIA Spread","",1)
+        #self.root.minsize(width=250, height=600)
+        self.root.geometry("800x600")
 
-        self.cci15 = Indicator(self.root, "CCI      ", "",1)        
-        self.cci15_av = Indicator(self.root, "CCI Avg ", "",1)
-        self.atr15 = Indicator(self.root, "ATR ", "",1)
-        self.bband15_width = Indicator(self.root, "BBAND Width", "",1)
-        self.bband15_b = Indicator(self.root, "BBAND %B ", "",1)
-        self.label1 = Indicator(self.root, " ","",1)
-        self.cci15p = Indicator(self.root, "CCI ", "",1)
-        self.cci15p_av = Indicator(self.root, "CCIP Avg", "",1)
-        
-        self.label2 = Indicator(self.root, "1 Hour ","",1)
-        self.cci1h = Indicator(self.root, "CCI ", "",2)
-        self.cci1h_av = Indicator(self.root, "CCI Avg ","",2)
-        self.atr1h = Indicator(self.root, "ATR ","",2)
-        self.bband1h_width = Indicator(self.root, "BBand Width ","",2)
-        self.bband1h_b = Indicator(self.root, "BBand %p ","",2)
+        #self.frameMain = tk.LabelFrame(self.root, text="This is my FrameMain", width=950, height=550, padx=5, pady=5, bg='blue')
+        #self.frameMain.grid_columnconfigure(0, weight=1)
+        #self.frameMain.grid_columnconfigure(1, weight=1)
+        #self.nameLabel = tk.Label(master=self.frameMain, text='hello hello hello hello hello hello hello ' + ":", anchor="w", padx=5)
+        #self.frameMain.pack()
+  
+        #self.frameLeft = tk.LabelFrame(self.root, text="This is my FrameLeft", width=100, height=100, padx=5, pady=5, bg='blue')
+        #self.frameLeft.grid(row=0, column=0)
+        self.frame1 = tk.LabelFrame(self.root, text="This is my Frame1", width=500, height=500, padx=5, pady=5, bg='green')
+        self.frame1.grid(row=0, column=0,sticky='nw')
+        #self.frameLeft.pack()
+        #self.frame1 = tk.LabelFrame(self.root, text="This is my Frame1", width=300, height=300, padx=5, pady=5, bg='blue')
+        #self.frame1.grid(row=0, column=1)
+        #self.frame1.pack(padx=10, pady=10)
+        self.frame2 = tk.LabelFrame(self.root, text="This is my Frame2", padx=5, pady=5)
+        self.frame2.grid(row=0, column=2,sticky='nw')
+        self.frame3 = tk.LabelFrame(self.root, text="This is my Frame3", padx=5, pady=5)
+        self.frame3.grid(row=0, column=1,sticky='nw')
+        self.frameOrders = tk.LabelFrame(self.root, text="This is my FrameOrder", width=500, height=500, padx=5, pady=5)
+        self.frameOrders.grid(row=1, column=2,sticky='nw')
+        #self.frame2.pack(padx=10, pady=10, anchor="w")
+        self.label4 = Indicator(self.frame1, "Positions","",0)
+        self.shares = Indicator(self.frame1, "Shares", "",1)
+        self.qtrhour = Indicator(self.frame1, "Time of Check","",1)
+        self.connected = Indicator(self.frame1, "Connected", "True",1)
+        self.contract = Indicator(self.frame1, "Contract", "",1)
+        self.label3 = Indicator(self.frame1, "15 Minutes ","",1)
+        self.crossover = Indicator(self.frame1, "Crossover", "False",1)
+        self.spread = Indicator(self.frame1, "CCI/CCIA Spread","",1)
 
-        self.label1 = Indicator(self.root, "1 Day ","",1)
-        self.cci1d = Indicator(self.root, "CCI ", "",3)
-        self.cci1d_av = Indicator(self.root, "CCI Avg ","",3)
-        self.atr1d = Indicator(self.root, "ATR ","",3)
-        self.bband1d_width = Indicator(self.root, "BBand Width ","",3)
-        self.bband1d_b = Indicator(self.root, "BBand %p ","",3)
-        self.status1 = Indicator(self.root, "Status1 ","",0)
+        self.cci15 = Indicator(self.frame1, "CCI      ", "",1)        
+        self.cci15_av = Indicator(self.frame1, "CCI Avg ", "",1)
+        self.atr15 = Indicator(self.frame1, "ATR ", "",1)
+        #self.bband15_width = Indicator(self.frame1, "BBAND Width", "",1)
+        #self.bband15_b = Indicator(self.frame1, "BBAND %B ", "",1)
+        self.label1 = Indicator(self.frame1, " ","",1)
+        self.cci15p = Indicator(self.frame1, "CCI ", "",1)
+        self.cci15p_av = Indicator(self.frame1, "CCIP Avg", "",1)
         
+        self.label2 = Indicator(self.frame1, "1 Hour ","",1)
+        self.cci1h = Indicator(self.frame1, "CCI ", "",2)
+        self.cci1h_av = Indicator(self.frame1, "CCI Avg ","",2)
+        self.atr1h = Indicator(self.frame1, "ATR ","",2)
+        #self.bband1h_width = Indicator(self.frame1, "BBand Width ","",2)
+        #self.bband1h_b = Indicator(self.frame1, "BBand %p ","",2)
+
+        self.label1 = Indicator(self.frame1, "1 Day ","",1)
+        self.cci1d = Indicator(self.frame1, "CCI ", "",3)
+        self.cci1d_av = Indicator(self.frame1, "CCI Avg ","",3)
+        self.atr1d = Indicator(self.frame1, "ATR ","",3)
+        #self.bband1d_width = Indicator(self.frame1, "BBand Width ","",3)
+        #self.bband1d_b = Indicator(self.frame1, "BBand %p ","",3)
+        self.status1 = Indicator(self.frame1, "Status1 ","",0)
+
+        self.profit = Indicator(self.frame1,"Profit ","",3)
+        self.orders = Indicator(self.frame1,"Orders ","",3)
+        self.windollars = Indicator(self.frame1,"Win $ ","",3)
+        self.lossdollars = Indicator(self.frame1,"Loss $ ","",3)
+        self.wincount = Indicator(self.frame1,"Win # ","",3)
+        self.losscount = Indicator(self.frame1,"Loss # ","",3)
+        self.ratio = Indicator(self.frame1,"Ratio ","",3)
+
+        #logic conditions
+        self.logicCrossed = Indicator(self.frame3,"Crossed ",False,3)
+        self.logicOpenLong = Indicator(self.frame3,"OpenLong ",False,3)
+        self.logicOpenShort = Indicator(self.frame3,"OpenShort ",False,3)
+        self.logicPendingLong = Indicator(self.frame3,"Pending Long ",False,3)
+        self.logicPendingShort = Indicator(self.frame3,"Pending Short ",False,3)
+        self.logictradeNow = Indicator(self.frame3,"TradeNow? ",False,3)
+        self.logicpendingCnt = Indicator(self.frame3,"Pending Count:  ",0,3)
+        self.logicspread = Indicator(self.frame3,"15m Spread:  ",0,3)
+
+        self.text1 = tk.Text(self.frame2, height=10, width=200)
+        self.text1.pack()
+        self.OrdersTradesText = tk.Text(self.frameOrders, height=10, width=200)
+        self.OrdersTradesText.insert(tk.INSERT,"Orders/Trades")
+        self.OrdersTradesText.pack()
         self.ib.disconnectedEvent += self.disconnectEvent
         self.ib.connectedEvent += self.connectEvent
         self.ib.orderStatusEvent += self.orderStatusEvent
         self.ib.newOrderEvent += self.newOrderEvent
         self.ib.execDetailsEvent += self.execDetailsEvent
         self.ib.errorEvent += self.onError
+
         #self.ib.newOrderEvent += self.newOrderEvent
         #test again and again again
+
 
     def run(self):
         self._onTimeout()
@@ -95,7 +136,7 @@ class App:
         self.loop.run_forever()
 
     def _onTimeout(self):
-        self.root.update()
+        self.frame1.update()
         self.loop.call_later(0.03, self._onTimeout)
 
     def _onDeleteWindow(self):
