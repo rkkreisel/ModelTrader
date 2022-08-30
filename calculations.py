@@ -13,6 +13,7 @@ import logger
 import categories
 import helpers
 #import orders
+import tkinter as tk
 
 log = logger.getLogger()
 
@@ -38,15 +39,17 @@ class Calculations():
   
         """ Execute the calculations """
     def run(self):
-        if self.bar_duration == "2 D":
-            self.ib.disconnect()
-            self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
+        #if self.bar_duration == "2 D":
+        #    self.ib.disconnect()
+        #    self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
         bars_period = self.get_bars_data()
         #if self.bar_duration == "75 D":
         #    log.info("self datetime_period: {dtp}   ".format(dtp=bars_period))
         fullDateIndex = 1
+        #log.info("self datetime_period: {dtp} means we want through: {tb} and len bars_period: {lbp}  ".format(tb=self.datetime_period - timedelta(minutes=15),dtp=self.datetime_period,lbp=len(bars_period)))
+        #log.info(bars_period)
         if self.bar_duration == "15 mins":
-            log.debug("self datetime_period: {dtp} means we want through: {tb} and bars_period: {bp} and len bars_period: {lbp}  ".format(tb=self.datetime_period - timedelta(minutes=15),dtp=self.datetime_period,bp=bars_period,lbp=len(bars_period)))
+            log.debug("self datetime_period: {dtp} means we want through: {tb} and len bars_period: {lbp}  ".format(tb=self.datetime_period - timedelta(minutes=15),dtp=self.datetime_period,lbp=len(bars_period)))
             log.debug("**************************************************************************************15 mins last datetime: {d}".format(d=bars_period[-1].date))
             foundDate = False
             for fullDateIndex in range(1,5):
@@ -57,6 +60,7 @@ class Calculations():
                     break
             if not foundDate:
                 log.debug("calculations - the date your requesting is not in the bars_period data from IB.  Could be during market closed hours")
+        self.openPrice = bars_period[-1].open
         self.closePrice = bars_period[-1].close
         self.lowPrice = bars_period[-1].low
         self.highPrice = bars_period[-1].high
@@ -65,20 +69,21 @@ class Calculations():
         log.info("Bars we asked for through this date: {d} and the last entry was: {l}".format(d=self.datetime_period,l=bars_period[-1].date))
         self.atr =  self.calculate_atr(bars_period)
         self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
-        temp = min(self.atr,5)
-        if self.getNewClose:
-            log.info("getting newclose.  self.atr: {natr} self.bar15minclose: {bclose} bar duration: {bd}".format(natr=self.atr,bclose=self.bar15MinClose,bd=self.bar_duration))
-            self.sellStopLossPrice = round((self.bar15MinClose + temp)*4,0)/4
-            self.buyStopLossPrice = round((self.bar15MinClose - temp)*4,0)/4
-        else:
-            log.info("NOT getting newclose.  self.atr: {natr} self.high: {high} self.low: {low} bar duration: {bd}".format(natr=self.atr,high=self.highPrice,low=self.lowPrice,bd=self.bar_duration))
-            #self.sellStopLossPrice = round((self.closePrice + self.atr)*4,0)/4
-            #self.buyStopLossPrice = round((self.closePrice - self.atr)*4,0)/4
-            self.sellStopLossPrice = round((self.highPrice + temp)*4,0)/4
-            self.buyStopLossPrice = round((self.lowPrice - temp)*4,0)/4
+#        temp = min(self.atr,5)
+        
+        self.sellStopLossPriceOpen = round((self.openPrice + 5)*4,0)/4
+        self.buyStopLossPriceOpen = round((self.openPrice - 5)*4,0)/4
+        self.sellStopLossPrice = round((self.closePrice + 5)*4,0)/4
+        self.buyStopLossPrice = round((self.closePrice - 5)*4,0)/4
+#        self.sellStopLossPriceOpen = round((self.openPrice + temp)*4,0)/4
+#        self.buyStopLossPriceOpen = round((self.openPrice - temp)*4,0)/4
+#        self.sellStopLossPrice = round((self.closePrice + temp)*4,0)/4
+#        self.buyStopLossPrice = round((self.closePrice - temp)*4,0)/4
+            #self.sellStopLossPrice = round((self.highPrice + temp)*4,0)/4
+            #self.buyStopLossPrice = round((self.lowPrice - temp)*4,0)/4
             
-        self.ATRBuyStopLossAmount = round((temp*4),0)/4
-        self.ATRSellStopLossAmount = round((temp*4),0)/4
+        self.ATRBuyStopLossAmount = round((5*4),0)/4
+        self.ATRSellStopLossAmount = round((5*4),0)/4
         log.info("Calculation: {bs} getNewClose: {gnc} bar15minclose: {c} buystop: {b} sellstop: {s} atrbuy: {ab} atrsell: {aas} close price: {cp}".format(bs=self.bar_size,gnc=self.getNewClose,c=self.bar15MinClose,b=self.buyStopLossPrice,s=self.sellStopLossPrice,ab=self.ATRBuyStopLossAmount,aas=self.ATRSellStopLossAmount,cp=self.closePrice))
 
         if self.bar_size == "15 mins":
@@ -99,7 +104,7 @@ class Calculations():
             log.info("calculations: Buy Stop loss set:{sl} sell stop loss: {stp} close was: {c}".format(sl=self.buyStopLossPrice,stp=self.sellStopLossPrice,c=bars_period[-1].close))
             
     def get_bars_data(self):
-        log.debug("inputs to request hist for get bars - duration: {d} bar size: {bs} and period: {p}".format(d=self.bar_duration, bs=self.bar_size, p=self.datetime_period))
+        log.info("inputs to request hist for get bars - duration: {d} bar size: {bs} and period: {p}".format(d=self.bar_duration, bs=self.bar_size, p=self.datetime_period))
         return self.ib.reqHistoricalData(
                 contract=self.dataContract,
                 endDateTime=self.datetime_period,

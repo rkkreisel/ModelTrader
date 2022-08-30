@@ -34,3 +34,15 @@ SPREAD = 15
 SPREAD_COUNT = 3
 
 ATR_STOP_MIN = 5
+
+hostname = 'localhost'
+username = 'postgres'
+password = 'rkk7879'
+database = 'ModelTrader'
+
+fact_15min = 'fifteenmin'
+fact_hourly = 'hourly'
+fact_daily = 'daily'
+dim_15min = 'fifteenmindim'
+dim_hourly = 'hourlydim'
+dim_daily = 'dailydim'

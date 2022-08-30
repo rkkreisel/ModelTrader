@@ -19,51 +19,46 @@ import tkinter as tk
 log = logger.getLogger()
 
 class Algo():
-    def __init__(self, ib: IB, app, backTest, backTestStartDateTime):
+    def __init__(self, ib: IB, app, backTest, backTestStartDateTime,myConnection):
         self.ib = ib
         self.app = app
         self.backTest = backTest
         self.backTestStartDateTime = backTestStartDateTime
+        self.myConnection = myConnection
+        self.myTest = True
 
     def run(self):
-        """ Execute the algorithm """
-        # check for command line arguments
-        # key_arr = ['blank','ATR15','ATR1','ATRD','CCI15','CCIA15','CCIA1h','CCIA1d','BBW15','BBb15','BBW1h','BBb1h','BBW1d','BBb1d']
-        #log.info("Account values: {av}".format(av=self.ib.accountValues()))
         tradeNow, not_finished, pendingShort, pendingLong, pendingSkip, cci_trade, ccibb_trade, crossed, justStartedApp = False, True, False, False, False, False, False, False, True
         pendingCnt = 0
         # any variable that is used within the class will be defined with self
         if justStartedApp:
             #pendingLong, pendingShort, pendingCnt = self.justStartedAppDirectionCheck()
+            self.justStartedAppDirectionCheck()
             #if not pendingLong and not pendingShort:
             #    pendingLong, pendingShort, pendingCnt = self.justStartedAppPendingCheck()
             justStartedApp = False
             # do we need to reset pending
             reviewIBTrades = orders.getListOfTrades(self.ib)
         while not_finished:
-            log.info("top of algo run self*************************************************")
+            log.debug("top of algo run self*************************************************")
             #top of logic - want to check status as we enter a new bar/hour/day/contract
             contContract, contracthours = get_contract(self) #basic information on continuious contact
             tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
+            orders.checkForFilledOrders(self.ib,self.myConnection)      # see if a stop order was executed during our wait time.
             open_long, open_short, long_position_qty, short_position_qty, account_qty = orders.countOpenPositions(self.ib,"")   # do we have an open position?
             self.app.shares.update(long_position_qty + short_position_qty)
             dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
             log.debug("Got Contract:{dc} local symbol {ls}".format(dc=dataContract,ls=dataContract.localSymbol))
             self.app.contract.update(dataContract.localSymbol)
             wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d, self.log_time = self.define_times(self.ib)
+            self.update_tk_text("wait_time {w} self.datetime_15 {one} self.datetime_1h {h} self.datetime_1d {d} self.log_time {l} ".format(w=wait_time,one=self.datetime_15,h=self.datetime_1h,d=self.datetime_1d,l=self.log_time))
             log.debug("next datetime for 15 minutes - should be 15 minutes ahead of desired nextqtr{wt} and current time {ct}".format(wt=wait_time,ct=datetime.today()))
             # need to determine if this is normal trading hours or not
             dayNightProfileCCI, dayNightProfileCCIBB = self.duringOrAfterHours(self.ib,contracthours)
-            #
-            # debug 
-            #current_time = datetime.now()
-            #wait_time = wait_time = current_time.replace(minute = 1,second=0)
-            #
-            #self.ib.disconnect()
             self.ib.waitUntil(wait_time)
             bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15,False, 0)
-            log.info("15m cci spread: {s}".format(s=bars_15m.cci_ccia_spread))
-            #rint("bars15m ",bars_15m)
+            log.debug("15m cci spread: {s}".format(s=bars_15m.cci_ccia_spread))
+            log.info("going into calculations - what is the datetime 1h: {d}".format(d=self.datetime_1h))
             if bars_15m.atr < config.ATR_STOP_MIN:
                 bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h,True, bars_15m.closePrice)
                 modBuyStopLossPrice = bars_1h.buyStopLossPrice
@@ -74,116 +69,90 @@ class Algo():
                 modBuyStopLossPrice = bars_15m.buyStopLossPrice
                 modSellStopLossPrice = bars_15m.sellStopLossPrice
                 modTrailStopLoss = (bars_1h.sellStopLossPrice - bars_1h.buyStopLossPrice)/2
+            self.update_tk_text("modSellStopLossPrice: {c} modBuyStopLossPrice: {d}".format(c=modSellStopLossPrice,d=modBuyStopLossPrice))
             bars_1d = calculations.Calculations(self.ib, dataContract, "75 D", "1 day", self.datetime_1d,False, 0)
-            #self.update_tk(bars_15m, bars_1h, bars_1d)
+            self.barsCalcUpdateTK(bars_15m,bars_1h,bars_1d)
             pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction, crossed = self.crossoverPending(bars_15m,pendingLong,pendingShort,pendingSkip,pendingCnt)
             cci_key, ccibb_key, summ_key = self.build_key_array(tradeAction, bars_15m, bars_1h, bars_1d)
-            #setsum = self.setupsummary(summ_key)
-            log.info("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
-            log.info("going into tradenow: {tn}, backtest: {bt}, open long: {ol} and short: {os}".format(tn=tradeNow, bt=self.backTest, ol=open_long, os=open_long))
+            log.debug("tradeNow: {trade} pendingSkip {skip}".format(trade = tradeNow, skip = pendingSkip))
+            log.debug("going into tradenow: {tn}, backtest: {bt}, open long: {ol} and short: {os}".format(tn=tradeNow, bt=self.backTest, ol=open_long, os=open_long))
             #handeling existing position
-            self.app.logicCrossed.update(crossed)
             self.app.logicOpenLong.update(open_long)
             self.app.logicOpenShort.update(open_short)
-            self.app.logicPendingLong.update(pendingLong)
-            self.app.logicPendingShort.update(pendingShort)
             self.app.logictradeNow.update(tradeNow)
-            self.app.logicpendingCnt.update(pendingCnt)
             self.app.logicspread.update("{:.2f}".format(bars_15m.cci_ccia_spread))
+            updated = self.update_tk(bars_15m, bars_1h, bars_1d)
             if crossed and (open_long or open_short) and not (pendingLong or pendingShort):    # need to close stp and open positions
-                log.info("crossed and not pending so lets close stp and open positions.  Open Long: {ol} open short: {os} pending long: {pl} pending short: {ps}".format(ol=open_long,os=open_short,pl=pendingLong,ps=pendingShort))
+                log.debug("crossed and not pending so lets close stp and open positions.  Open Long: {ol} open short: {os} pending long: {pl} pending short: {ps}".format(ol=open_long,os=open_short,pl=pendingLong,ps=pendingShort))
                 allClosed = orders.closeOutMain(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
                 self.update_tk_text(" crossed with open position and not pending ")
             elif (not (pendingLong or pendingShort)) and open_long and tradeAction == "Sell":
-                log.info("Not pending we are open_long and tradeaction is sell so lets close out stp and open positions  Open Long: {ol} open short: {os} pending long: {pl} pending short: {ps}".format(ol=open_long,os=open_short,pl=pendingLong,ps=pendingShort))
+                log.debug("Not pending we are open_long and tradeaction is sell so lets close out stp and open positions  Open Long: {ol} open short: {os} pending long: {pl} pending short: {ps}".format(ol=open_long,os=open_short,pl=pendingLong,ps=pendingShort))
                 allClosed = orders.closeOutMain(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
                 self.update_tk_text(" crossed with long position and tradeAction Sell ")
             elif (not (pendingLong or pendingShort)) and open_short and tradeAction == "Buy":
-                log.info("Not pending we are open_short and tradeaction is buy so lets close out stp and open positions  Open Long: {ol} open short: {os} pending long: {pl} pending short: {ps}".format(ol=open_long,os=open_short,pl=pendingLong,ps=pendingShort))
+                log.debug("Not pending we are open_short and tradeaction is buy so lets close out stp and open positions  Open Long: {ol} open short: {os} pending long: {pl} pending short: {ps}".format(ol=open_long,os=open_short,pl=pendingLong,ps=pendingShort))
                 allClosed = orders.closeOutMain(self.ib,tradeContract,False)     # we don't worry about whether we are long or short
                 self.update_tk_text(" crossed with short position and tradeAction Buy ")
             if tradeNow:
-                log.info("tradeNow - Tradeing this bar {cci} - {ccibb}".format(cci=cci_key,ccibb=ccibb_key))
+                log.info("tradeNow - Tradeing this bar")
                 #self.update_tk_text("tradeNow looking for match ")
                 #csv_file1 = csv.reader(open('data/ccibb.csv', "rt"), delimiter = ",")
                 #cci_key, ccibb_key = build_key_array(self, tradeAction, bars_15m, bars_1h, bars_1d)
                 #for row1 in csv_file1:
-                if (tradeAction == "Buy" and bars_1h.cci_over_ccia_tf == 't' and bars_1d.cci_over_ccia_tf == 't') or (tradeAction == "Sell" and bars_1h.cci_over_ccia_tf == 'f' and bars_1d.cci_over_ccia_tf == 'f'):
+                if (tradeAction == "Buy" and bars_1h.cci_over_ccia_tf == 't' and bars_1d.cci_over_ccia_tf == 't') or \
+                    (tradeAction == "Buy" and bars_1h.cci_over_ccia_tf == 't' and bars_1d.cci> 100) or \
+                    (tradeAction == "Sell" and bars_1h.cci_over_ccia_tf == 'f' and bars_1d.cci_over_ccia_tf == 'f') or \
+                    (tradeAction == "Sell" and bars_1h.cci_over_ccia_tf == 'f' and bars_1d.cci < -100):
                     #log.info("we have a match in ccibb.csv")
                     log.info("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-                    log.info(" +++++++++++++++++++++++++++++++++++++++++++++++++ found a match in CCIBB ")
+                    log.info(" +++++++++++++++++++++++++++++++++++++++++++++++++ TRADING ")
                     log.info("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-                    #self.app.profit.update(row1[6])
-                    #self.app.orders.update(row1[7])
-                    #self.app.windollars.update(row1[10])
-                    #self.app.lossdollars.update(row1[11])
-                    #self.app.wincount.update(row1[8])
-                    #self.app.losscount.update(row1[9])
-                    #self.app.ratio.update(row1[12])
                     ccibb_trade = True
                     quantity = 1
-                    # do we need to close out current order
-                    # do we need to close out current stop loss orders?
+                    modBuyStopLossPrice = bars_15m.buyStopLossPriceOpen     # need to set stop loss to open of current bar and not close of prior
+                    modSellStopLossPrice = bars_15m.sellStopLossPriceOpen
                     if not self.backTest:
-                        fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,dayNightProfileCCI,modBuyStopLossPrice,modSellStopLossPrice,False, modTrailStopLoss, bars_15m.closePrice)
-                        log.info("logic.CCIbb: order placed, fillStatus: {fs}".format(fs=fillStatus))
+                        fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,dayNightProfileCCI,modBuyStopLossPrice,modSellStopLossPrice,False, modTrailStopLoss, bars_15m.closePrice,self.myConnection)
+                        log.debug("logic.CCIbb: order placed, fillStatus: {fs}".format(fs=fillStatus))
                     open_long, open_short, tradenow = False, False, False
                     #status_done = self.row_results(row1,cci_trade,ccibb_trade)
                     break
                 else:
-                    log.info("hourly and daily cci_over_ccia is false on one or both")
+                    log.debug("hourly and daily cci_over_ccia is false on one or both")
                     self.app.status1.update("Entry found in CCIBB but not traded.")
                     self.update_tk_text(" ccibbkey not traded ")
-                    #self.app.profit.update(row1[6])
-                    #self.app.orders.update(row1[7])
-                    #self.app.windollars.update(row1[10])
-                    #self.app.lossdollars.update(row1[11])
-                    #self.app.wincount.update(row1[8])
-                    #self.app.losscount.update(row1[9])
-                    #self.app.ratio.update(str(row1[10]/abs(row1[11])))
-                    #log.info("Profit  : {p}".format(p=row1[6]))
-                    #log.info("Orders  : {p}".format(p=row1[7]))
-                    #log.info("Wins $  : {p}".format(p=row1[10]))
-                    #log.info("Losses $: {p}".format(p=row1[11]))
-                    #log.info("Wins #  : {p}".format(p=row1[8]))
-                    #log.info("Losses #: {p}".format(p=row1[9]))
-                    #log.info("Ratio :   {p}".format(p=row1[12]))
                     ccibb_trade = False
 
                 if tradeNow:
-                    log.info("we did not find a match in CCI: {cci} or CCI BB: {ccib}".format(cci=cci_trade,ccib=ccibb_trade))
-            #csv_row_add = helpers.build_csv_bars_row(","+(''.join(key_arr))+","+(''.join(key_arr[0:8]))+","+str(cci_trade)+","+str(ccibb_trade)+","+str(pendingLong)+","+str(pendingShort),True)
-            wrote_bar_to_csv = helpers.build_csv_bars_row(self.log_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow, ccibb_trade, cci_trade,ccibb_key, cci_key)
+                    log.info("not trading this bar")
+            # testing orders and trades
+            #if self.myTest:
+            #    self.myTest = False
+            #quantity = 1
+            #modBuyStopLossPrice = bars_15m.buyStopLossPriceOpen     # need to set stop loss to open of current bar and not close of prior
+            #modSellStopLossPrice = bars_15m.sellStopLossPriceOpen
+            #fillStatus = orders.createOrdersMain(self.ib,tradeContract,tradeAction,quantity,dayNightProfileCCI,modBuyStopLossPrice,modSellStopLossPrice,False, modTrailStopLoss, bars_15m.closePrice,self.myConnection)
+            # end testing
+            # wrote_bar_to_csv = helpers.build_csv_bars_row(self.log_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow, ccibb_trade, cci_trade,ccibb_key, cci_key)
             tradenow, cci_trade, ccibb_trade = False, False, False
-            changed = orders.modifySTPOrder(self.ib,modBuyStopLossPrice,modSellStopLossPrice,bars_15m.closePrice)
-            #log.info("end of process for this time interval - going to disconnect")
-            #self.ib.disconnect
+            changed = orders.modifySTPOrder(self.ib,modBuyStopLossPrice,modSellStopLossPrice,bars_15m.closePrice,self.myConnection)
 
     def define_times(self,ib):
-        # This whole block is trying to deal with the time differences between the server and TWS gateway.
-        # we have noticed a 1 second drift and it impacts our data calls
-        log.info("TWS time is: {tws} ".format(tws=self.ib.reqCurrentTime()))
-        log.info("PTH time is: {st}".format(st=datetime.now()))
+        log.debug("TWS time is: {tws} ".format(tws=self.ib.reqCurrentTime()))
+        log.debug("PTH time is: {st}".format(st=datetime.now()))
         localDateTime = datetime.now()
         twsTime = self.ib.reqCurrentTime()
         twsTime = twsTime.replace(tzinfo=None)
-        # this has to be changed for changes to day light savings time.  EST DST
-        # 4 for summer and 5 for winter
         twsTimeLocal = twsTime - timedelta(hours=4) 
-        log.info("tws time in local time zone format: {t} localDateTime: {ldt} twsTimeLocal: {ttl} ".format(t=twsTimeLocal,ldt=localDateTime,ttl=twsTimeLocal))
-        #rint("local - diff: ",localDateTime-twsTimeLocal)
-        #rint("diff - local: ",twsTimeLocal-localDateTime)
+        log.debug("tws time in local time zone format: {t} localDateTime: {ldt} twsTimeLocal: {ttl} ".format(t=twsTimeLocal,ldt=localDateTime,ttl=twsTimeLocal))
         if localDateTime < twsTimeLocal:
             twsDiff = twsTimeLocal- localDateTime
-            #rint("GT ",twsDiff)
         elif localDateTime > twsTimeLocal:
             twsDiff = localDateTime - twsTimeLocal
-            #rint("LT ",twsDiff)
         else:
             twsDiff = 0
-            #rint("NOT GT or LT ",twsDiff)
-        log.info("tws to server time diff:{diff} in seconds {s} microsecond {m}".format(diff=twsDiff,s=twsDiff.seconds,m=twsDiff.microseconds))
-        
+        log.debug("tws to server time diff:{diff} in seconds {s} microsecond {m}".format(diff=twsDiff,s=twsDiff.seconds,m=twsDiff.microseconds))
         if self.backTest:   # added for backtest
             current_time = self.backTestStartDateTime
             current_minute = self.backTestStartDateTime.minute
@@ -191,9 +160,10 @@ class Algo():
         else:    
             current_time = localDateTime - timedelta(seconds = twsDiff.seconds, microseconds = twsDiff.microseconds) # trying to augment time differences
             current_minute = datetime.now().minute
-            log.info("current adjusted time is: {ct} ".format(ct=current_time))
+            log.debug("current adjusted time is: {ct} ".format(ct=current_time))
+        
         if current_minute < 15:
-            self.datetime_1h = current_time - timedelta(hours=1)
+            #self.datetime_1h = current_time - timedelta(hours=1)
             wait_time = current_time.replace(minute = 15,second=0, microsecond=0) 
             #self.datetime_15 = current_time.replace(minute = 0, second = 0, microsecond=0)
             self.datetime_15 = current_time.replace(minute = 15, second = 0, microsecond=0)
@@ -223,15 +193,17 @@ class Algo():
         else:
             self.datetime_1h = current_time
             self.log_time = wait_time
-        log.info("wait time going into difference {wt}".format(wt=wait_time))
+        #self.update_tk_text(" from define times - 1 hour time is: {o}".format(o=self.datetime_1h))
+        #log.info("wait time going into difference {wt}".format(wt=wait_time))
         wait_time = wait_time - timedelta(seconds = twsDiff.seconds, microseconds = twsDiff.microseconds) # trying to augment time differences
         wait_time = wait_time + timedelta(seconds = 5) # adding 5 seconds just to address fluctuations from wait set to wait execute
-        log.info("Wait time adjusted for differnces in time between TWS and server is now: {t}".format(t=wait_time))
-        self.datetime_1h = self.datetime_1h.replace(minute=0, second=0, microsecond=0)
-        self.datetime_1d = current_time -  timedelta(days = 1)
+        #log.info("Wait time adjusted for differnces in time between TWS and server is now: {t}".format(t=wait_time))
+        #self.datetime_1h = self.datetime_1h.replace(minute=0, second=0, microsecond=0)
+        #self.datetime_1d = current_time -  timedelta(days = 1)
+        self.datetime_1d = current_time
         self.datetime_1d =self.datetime_1d.replace(hour = 0, minute=0, second=0, microsecond=0)
         self.app.qtrhour.update(wait_time)
-        log.info("log time: {lt} wait time: {wt} 1 hour: {one} day: {day}".format(lt = self.log_time,wt=wait_time,one=self.datetime_1h,day=self.datetime_1d))
+        #log.info("log time: {lt} wait time: {wt} 1 hour: {one} day: {day}".format(lt = self.log_time,wt=wait_time,one=self.datetime_1h,day=self.datetime_1d))
         return wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d,self.log_time
 
     def row_results(self, row, cci_trade, ccibb_trade):
@@ -239,13 +211,6 @@ class Algo():
         log.info("* CCI Trade:          {0:.2f}".format(float(cci_trade)))
         log.info("* CCIbb Trade:        {0:.2f}".format(float(ccibb_trade)))
         log.info("* Do we buy this one: {}".format(row[13]))
-        #log.info("* Profit:             {0:,.2f}".format(float(row[5])))
-        #log.info("* Winning %:          {0:.2f}%".format(float(row[11])*100))
-        #log.info("* Risk:               {0:.2f}%".format(float(row[12])))
-        #log.info("* Previous Order:     {}".format(row[6]))
-        #log.info("* Previous Wins:      {}".format(row[7]))
-        #log.info("is isNaN ".format(helpers.isNaN(row[34])))
-        #log.info("* Rank (0-100)s:      {0:.2f}".format(float(row[34])))
         log.info("************************************************")
         return
 
@@ -253,7 +218,6 @@ class Algo():
         csv_file3 = csv.reader(open('data/setupsummary.csv', "rt"), delimiter = ",")
         log.info("key setupsummary: ".format(summ_key))
         for row3 in csv_file3:
-            #rint("setupsummary   row: ",row3[4])
             if summ_key == row3[4]:
                 log.info("++++++++++++++++++++++++++++++++++++")
                 log.info("join key:     {}".format(summ_key))
@@ -269,7 +233,7 @@ class Algo():
         return
 
     def crossoverPending(self, bars_15m, pendingLong, pendingShort, pendingSkip, pendingCnt):   # this is from excel macro.  Changes here should be changed there as well.
-        log.info("crossoverPending:")
+        log.debug("crossoverPending:")
         tradeNow, crossed = False, False
         tradeAction = "Sell"
         if bars_15m.cci > bars_15m.ccia:
@@ -277,6 +241,7 @@ class Algo():
         if (bars_15m.cci < bars_15m.ccia and bars_15m.cci_prior > bars_15m.ccia_prior) or \
                 (bars_15m.cci > bars_15m.ccia and bars_15m.cci_prior < bars_15m.ccia_prior):
                 crossed = True
+                
                 log.info("crossoverpending: We have crossed ----------^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v^v")
                 if abs(bars_15m.cci - bars_15m.ccia) > config.SPREAD:
                     log.info("crossoverpending: crossed and outside spread")
@@ -311,6 +276,10 @@ class Algo():
             pendingCnt += 1
             log.info("crossoverpending: pending continues cnt: {cnt}".format(cnt = pendingCnt))
         log.info("crossoverpending: check post cross and we have tradeNow: {tn}, tradeAction: {ta}, pendingLong: {pl}, pendingShort: {ps}, pendingSkip: {pskip}, pendingCnt: {pc}".format(tn=tradeNow, ta=tradeAction, pl=pendingLong, ps=pendingShort, pskip=pendingSkip, pc=pendingCnt))
+        self.app.logicCrossed.update(crossed)
+        self.app.logicPendingLong.update(pendingLong)
+        self.app.logicPendingShort.update(pendingShort)
+        self.app.logicpendingCnt.update(pendingCnt)
         return pendingLong, pendingShort, pendingCnt, pendingSkip, tradeNow, tradeAction, crossed
 
     def justStartedAppDirectionCheck(self):
@@ -322,30 +291,57 @@ class Algo():
         # the bars data is the current, not completed, bar so we have to go back to get closed bars.
         #
         # checking for wrong direction
+        #
+        # check for what we think is open and really is closed.
+        # lets first check for open orders and get any mods to the stop done first
+        #
+        # setup required to perform following functions
+        #
         contContract, contracthours = get_contract(self) #basic information on continuious contact
-        tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
+        dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
+        wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d, self.log_time = self.define_times(self.ib)
+        bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15, False, 0)
+        bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h,True, bars_15m.closePrice)
+        bars_1d = calculations.Calculations(self.ib, dataContract, "75 D", "1 day", self.datetime_1d,False, 0)
+        tradeInfo = self.ib.openOrders()
+        #
+        # OPEN ORDERS
+        #
+        openOrdersCount = orders.countOpenOrders(self.ib,tradeInfo, self.myConnection)
+        self.app.logicopenOrders.update(str(openOrdersCount))
+        #now that we know we have an open order we need to update stop order
+        #need to calculate stop losses first
+        #
+        # UPDATE STOPS ON OPEN ORDERS
+        #
+        if openOrdersCount > 0:
+            changed = orders.modifySTPOrder(self.ib,bars_15m.buyStopLossPrice,bars_15m.sellStopLossPrice,bars_15m.closePrice,self.myConnection)
+            self.app.status1.update("Open orders where we changed the stop price is " +  str(changed)) 
+        #
+        # UPDATE FILLED ORDERS - now that we have open orders stop prices updates - lets make sure we are update on closed orders and trades
+        #
+        # CHECK FOR FILLED ORDER
+        #
+        orders.checkForFilledOrders(self.ib,self.myConnection)
+        #contContract, contracthours = get_contract(self) #basic information on continuious contact
+        #tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
         open_long, open_short, long_position_qty, short_position_qty, account_qty = orders.countOpenPositions(self.ib,"")   # do we have an open position - not orders but positions?
         open_today, tradingDayRules, currentTimeFrame = helpers.is_open_today(contracthours)
         wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d, self.log_time = self.define_times(self.ib)
-        dataContract = Contract(exchange=config.EXCHANGE, secType="FUT", localSymbol=contContract.localSymbol)
-        bars_15m = calculations.Calculations(self.ib, dataContract, "2 D", "15 mins", self.datetime_15, False, 0)
         
-        #
-        bars_1h = calculations.Calculations(self.ib, dataContract, "5 D", "1 hour", self.datetime_1h,True, bars_15m.closePrice)
-        bars_1d = calculations.Calculations(self.ib, dataContract, "75 D", "1 day", self.datetime_1d,False, 0)
         updated = self.update_tk(bars_15m, bars_1h, bars_1d)
         #
         #rint("bars15 cci_third, ccia_third, cci_prior, ccia_prior, cci, ccia",bars_15m.cci_third,bars_15m.ccia_third,bars_15m.cci_prior, bars_15m.ccia_prior, bars_15m.cci, bars_15m.ccia)
         if bars_15m.cci_prior > bars_15m.ccia_prior and open_short and abs(bars_15m.cci - bars_15m.ccia) > config.SPREAD:
             log.info("justStartedAppDirectionCheck: we are in app start up and we need to reverse due to wrong direction")
-            allClosed = orders.closeOutMain(self.ib,tradeContract,True)     # we don't worry about whether we are long or short. just passing the contract, need to add order.  Second false is whether this is an opening order.  it is not
+            #allClosed = orders.closeOutMain(self.ib,tradeContract,True)     # we don't worry about whether we are long or short. just passing the contract, need to add order.  Second false is whether this is an opening order.  it is not
             log.info("justStartedAppDirectionCheck: crossed but not tradeNow so lets close stp and open positions")
         elif bars_15m.cci_prior > bars_15m.ccia_prior and open_short and abs(bars_15m.cci - bars_15m.ccia) <= config.SPREAD:
             return True, False, 1
             log.info("justStartedAppDirectionCheck: we are in app start up and we crossed but not exceed the spread - going pending")
         elif bars_15m.cci_prior < bars_15m.ccia_prior and open_long and abs(bars_15m.cci - bars_15m.ccia) > config.SPREAD:
             log.info("justStartedAppDirectionCheck: we are in app start up and we need to reverse due to wrong direction. Came in long and crossed down > spread")
-            allClosed = orders.closeOutMain(self.ib,tradeContract,True)     # we don't worry about whether we are long or short. just passing the contract, need to add order.  Second false is whether this is an opening order.  it is not
+            #allClosed = orders.closeOutMain(self.ib,tradeContract,True)     # we don't worry about whether we are long or short. just passing the contract, need to add order.  Second false is whether this is an opening order.  it is not
             log.info("justStartedAppDirectionCheck: crossed but not tradeNow so lets close stp and open positions")
         elif bars_15m.cci_prior < bars_15m.ccia_prior and open_long and abs(bars_15m.cci - bars_15m.ccia) <= config.SPREAD:
             return False, True, 1
@@ -364,26 +360,6 @@ class Algo():
             else:
                 log.info("not going into this session pending")
                 return False, False, 0
-        #
-        #(bars_15m.cci_four > bars_15m.ccia_four and bars_15m.cci_third < bars_15m.ccia_third and bars_15m.cci_prior < bars_15m.ccia_prior and \
-        #abs(bars_15m.cci_third - bars_15m.ccia_third) < config.SPREAD and abs(bars_15m.cci_prior - bars_15m.ccia_prior) < config.SPREAD) or \
-        #(bars_15m.cci_four < bars_15m.ccia_four and bars_15m.cci_third > bars_15m.ccia_third and bars_15m.cci_prior > bars_15m.ccia_prior and \
-        #abs(bars_15m.cci_third - bars_15m.ccia_third) < config.SPREAD and abs(bars_15m.cci_prior - bars_15m.ccia_prior) < config.SPREAD):
-        #    log.info("justStartedAppDirectionCheck: we are in a second leg pending situation on start up")
-        #    if bars_15m.cci_prior > bars_15m.ccia_prior:
-        #        return True, False, 2
-        #    else:
-        #        return False, True, 2
-        #elif (bars_15m.cci_third > bars_15m.ccia_third and bars_15m.cci_prior < bars_15m.ccia_prior and abs(bars_15m.cci_prior - bars_15m.ccia_prior) < config.SPREAD) or \
-        #(bars_15m.cci_third < bars_15m.ccia_third and bars_15m.cci_prior > bars_15m.ccia_prior and abs(bars_15m.cci_prior - bars_15m.ccia_prior) < config.SPREAD):
-        #    log.info("justStartedAppDirectionCheck: we are in a first leg pending situation on start up")
-        #    if bars_15m.cci_prior > bars_15m.ccia_prior:
-        #        return True, False, 1
-        #    else:
-        #        return False, True, 1
-        #else:
-        #    log.info("justStartedAppDirectionCheck: we are not in an exiting pending pattern")
-        #    return False, False, 0
 
     def duringOrAfterHours(self,ib, contracthours):
         open_today, tradingDayRules, currentTimeFrame = helpers.is_open_today(contracthours)
@@ -397,21 +373,30 @@ class Algo():
         return dayNightProfileCCI, dayNightProfileCCIBB
     
     def update_tk(self,bars_15m, bars_1h, bars_1d):
-        self.app.cci15.update(f"{categories.categorize_cci_15(bars_15m.cci)}")        
-        self.app.cci15_av.update(f"{categories.categorize_cci_15_avg(bars_15m.ccia)}")
-        self.app.atr15.update(f"{categories.categorize_atr15(bars_15m.atr)}")
+        self.app.cci15.update(f"{bars_15m.cci:.02f}")        
+        self.app.cci15_av.update(f"{bars_15m.ccia:.02f}")
+        self.app.atr15.update(f"{bars_15m.atr:.02f}")
+        #self.app.cci15.update(f"{categories.categorize_cci_15(bars_15m.cci)}")        
+        #self.app.cci15_av.update(f"{categories.categorize_cci_15_avg(bars_15m.ccia)}")
+        #self.app.atr15.update(f"{categories.categorize_atr15(bars_15m.atr)}")
         #self.app.bband15_width.update(f"{bars_15m.bband_width:.02f}")
         #self.app.bband15_b.update(f"{bars_15m.bband_b:.02f}")
         #self.app.cci15p.update(f"{bars_15m.bband_b:.02f}")
         self.app.cci15p_av.update(f"{bars_15m.ccia:.02f}")
-        self.app.cci1h.update(f"{categories.categorize_cci_1h(bars_1h.cci)}")
-        self.app.cci1h_av.update(f"{categories.categorize_cci_1h(bars_1h.ccia)}")
-        self.app.atr1h.update(f"{categories.categorize_atr1h(bars_1h.atr)}")
+        self.app.cci1h.update(f"{bars_1h.cci:.02f}")
+        self.app.cci1h_av.update(f"{bars_1h.ccia:.02f}")
+        self.app.atr1h.update(f"{bars_1h.atr:.02f}")
+        #self.app.cci1h.update(f"{categories.categorize_cci_1h(bars_1h.cci)}")
+        #self.app.cci1h_av.update(f"{categories.categorize_cci_1h(bars_1h.ccia)}")
+        #self.app.atr1h.update(f"{categories.categorize_atr1h(bars_1h.atr)}")
         #self.app.bband1h_width.update(f"{bars_1h.bband_width:.02f}")
         #self.app.bband1h_b.update(f"{bars_1h.bband_b:.02f}")
-        self.app.cci1d.update(f"{categories.categorize_cci_1d(bars_1d.cci)}")
-        self.app.cci1d_av.update(f"{ categories.categorize_cci_1d(bars_1d.ccia)}")
-        self.app.atr1d.update(f"{categories.categorize_atr1d(bars_1d.atr)}")
+        self.app.cci1d.update(f"{bars_1d.cci:.02f}")
+        self.app.cci1d_av.update(f"{bars_1d.ccia:.02f}")
+        self.app.atr1d.update(f"{bars_1d.atr:.02f}")
+        #self.app.cci1d.update(f"{categories.categorize_cci_1d(bars_1d.cci)}")
+        #self.app.cci1d_av.update(f"{ categories.categorize_cci_1d(bars_1d.ccia)}")
+        #self.app.atr1d.update(f"{categories.categorize_atr1d(bars_1d.atr)}")
         #self.app.bband1d_width.update(f"{bars_1d.bband_width:.02f}")
         #self.app.bband1d_b.update(f"{bars_1d.bband_b:.02f}")
         #self.app.status1.update("new bar")
@@ -425,7 +410,7 @@ class Algo():
         self.app.text1.insert(tk.INSERT,datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
         self.app.text1.insert(tk.INSERT," ")
         self.app.text1.insert(tk.INSERT,insertText)
-        self.app.text1.insert(tk.INSERT," ")
+        self.app.text1.insert(tk.INSERT,'\n')
         self.app.text1.config(state="disabled")
         self.app.text1.pack()
         return
@@ -450,10 +435,15 @@ class Algo():
             summ_key = categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + categories.categorize_cci_1d(bars_1d.ccia) + categories.categorize_spread(bars_15m.cci_ccia_spread)
             #summ_key = categories.categorize_cci_15_avg(bars_15m.ccia) + categories.categorize_cci_1h(bars_1h.ccia) + categories.categorize_cci_1d(bars_1d.ccia) + bars_1h.cci_over_ccia_tf + bars_1d.cci_over_ccia_tf + categories.categorize_spread(bars_15m.cci_ccia_spread)
             #return cci_key, cci_key_no_spread, summ_key
-            self.app.status1.update(cci_key)
+            #self.app.status1.update(cci_key)
             
             return cci_key, cci_key, summ_key
 
+    def barsCalcUpdateTK(self,bars_15m,bars_1h,bars_1d):
+        self.app.logic15over.update(bars_15m.cci_over_ccia_tf)
+        self.app.logic1hover.update(bars_1h.cci_over_ccia_tf)
+        self.app.logic1dover.update(bars_1d.cci_over_ccia_tf)
+        return
 
 def get_contract(client):
     contract = client.ib.reqContractDetails(
@@ -463,5 +453,3 @@ def get_contract(client):
         log.error("Failed to Grab Continuous Future {}".format(config.SYMBOL))
         sysexit()
     return contract[0].contract, contract[0].tradingHours
-
-    
