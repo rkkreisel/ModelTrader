@@ -46,3 +46,7 @@ fact_daily = 'daily'
 dim_15min = 'fifteenmindim'
 dim_hourly = 'hourlydim'
 dim_daily = 'dailydim'
+
+trailStopOffset = 7
+
+stpStopOffset = 5

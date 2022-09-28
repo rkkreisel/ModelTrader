@@ -71,10 +71,10 @@ class Calculations():
         self.bband_width, self.bband_b = self.calculate_bbands(bars_period)
 #        temp = min(self.atr,5)
         
-        self.sellStopLossPriceOpen = round((self.openPrice + 5)*4,0)/4
-        self.buyStopLossPriceOpen = round((self.openPrice - 5)*4,0)/4
-        self.sellStopLossPrice = round((self.closePrice + 5)*4,0)/4
-        self.buyStopLossPrice = round((self.closePrice - 5)*4,0)/4
+        self.sellStopLossPriceOpen = round((self.openPrice + config.stpStopOffset)*4,0)/4
+        self.buyStopLossPriceOpen = round((self.openPrice - config.stpStopOffset)*4,0)/4
+        self.sellStopLossPrice = round((self.closePrice + config.stpStopOffset)*4,0)/4
+        self.buyStopLossPrice = round((self.closePrice - config.stpStopOffset)*4,0)/4
 #        self.sellStopLossPriceOpen = round((self.openPrice + temp)*4,0)/4
 #        self.buyStopLossPriceOpen = round((self.openPrice - temp)*4,0)/4
 #        self.sellStopLossPrice = round((self.closePrice + temp)*4,0)/4
