@@ -72,52 +72,55 @@ def addNewOrders(ib,orderInfo, myConnection,self):                 # This is to 
     log.info("order info coming from main ")
     #log.info(orderInfo)    # we are going to show each row below
     counter = 0
-    cur = myConnection.cursor()
-    log.info("all orders type: {t}: {o}".format(t=type(orderInfo),o=orderInfo))
+#    cur = myConnection.cursor()
+    #log.info("all orders type: {t}: {o}".format(t=type(orderInfo),o=orderInfo)) we get this from mainlocal.py
     for orderRow in orderInfo:
-        log.info("while order {w}".format(w=orderRow))
-        cur.execute("select * from orders where permid = '{oi}'".format(oi=orderRow.permId))
-        orderQueryList = cur.fetchone()
+#        log.info("while order in orderInfo (Trade) {w}".format(w=orderRow))
+#        cur.execute("select * from orders where permid = '{oi}'".format(oi=orderRow.permId))
+#        orderQueryList = cur.fetchone()
+        #updateOrderWhenPlaced(myConnection,"",orderRow,"") no contract information
+        updateOrderOrder(myConnection,orderRow,"")
+        #updateOrderStatus(myConnection,orderInfo) no order status either
         if orderRow.filledQuantity < 1:
             counter=counter + 1
-        if cur.rowcount == 0:
-            log.info(type(orderRow))
+#        if cur.rowcount == 0:
+#            log.info(type(orderRow))
 #            if hasattr(orderRow,"filledQuantity"):    #sometimes modified stp order trigger new trade when it isn't  This didn't work because ibysnc returned this huge number
-            if hasattr(orderRow,"filledQuantity") and orderRow.filledQuantity < 10000:    #sometimes modified stp order trigger new trade when it isn't  This didn't work because ibysnc returned this huge number
-                try:    # this would assume a STP order so there is more data
+#            if hasattr(orderRow,"filledQuantity") and orderRow.filledQuantity < 10000:    #sometimes modified stp order trigger new trade when it isn't  This didn't work because ibysnc returned this huge number
+#                try:    # this would assume a STP order so there is more data
 #                    sql = "insert into orders (order_id,order_type,permid,action,filled_qty,lmtprice,auxprice,tif) VALUES \
 #                        ('{oi}','{ot}','{id}','{a}',{q},{lp},{ap},'{tif}')". \
 #                        format(oi=orderRow.orderId,ot=orderRow.orderType,id=orderRow.permId,a=orderRow.action,q=orderRow.filledQuantity,lp=orderRow.lmtPrice,ap=orderRow.auxPrice,tif=orderRow.tif)
 
  #                   log.info(sql)
-                    cur.execute("insert into orders (order_id,order_type,permid,action,filled_qty,lmtprice,auxprice,tif) VALUES \
-                        ('{oi}','{ot}','{id}','{a}',{q},{lp},{ap},'{tif}')". \
-                        format(oi=orderRow.orderId,ot=orderRow.orderType,id=orderRow.permId,a=orderRow.action,q=orderRow.filledQuantity,lp=orderRow.lmtPrice,ap=orderRow.auxPrice,tif=orderRow.tif))
-                    myConnection.commit()
-                except: # this would assume a MKT order with much less data
+#                    cur.execute("insert into orders (order_id,order_type,permid,action,filled_qty,lmtprice,auxprice,tif) VALUES \
+#                        ('{oi}','{ot}','{id}','{a}',{q},{lp},{ap},'{tif}')". \
+#                        format(oi=orderRow.orderId,ot=orderRow.orderType,id=orderRow.permId,a=orderRow.action,q=orderRow.filledQuantity,lp=orderRow.lmtPrice,ap=orderRow.auxPrice,tif=orderRow.tif))
+#                    myConnection.commit()
+#                except: # this would assume a MKT order with much less data
 #                    log.info("insert into orders (order_id,order_type,permid,action,quantity) VALUES \
 #                        ('{oi}','{ot}','{id}','{a}',{q},'{s})". \
 #                        format(oi=orderRow.orderId,ot=orderRow.orderType,id=orderRow.permId,a=orderRow.action,q=orderRow.totalQuantity))
-                    cur.execute("insert into orders (order_id,order_type,permid,action,quantity) VALUES \
-                        ('{oi}','{ot}','{id}','{a}',{q})". \
-                        format(oi=orderRow.orderId,ot=orderRow.orderType,id=orderRow.permId,a=orderRow.action,q=orderRow.totalQuantity))
-                    myConnection.commit()
-            else:
+#                    cur.execute("insert into orders (order_id,order_type,permid,action,quantity) VALUES \
+#                        ('{oi}','{ot}','{id}','{a}',{q})". \
+#                        format(oi=orderRow.orderId,ot=orderRow.orderType,id=orderRow.permId,a=orderRow.action,q=orderRow.totalQuantity))
+#                    myConnection.commit()
+#            else:
 #                log.info("insert into orders (order_id,order_type,permid,action,quantity) VALUES \
 #                    ('{oi}','{ot}','{id}','{a}',{q})".\heat seatsta
 #                    format(oi=orderRow.orderId,ot=orderRow.orderType,id=orderRow.permId,a=orderRow.action,q=orderRow.totalQuantity))
-                cur.execute("insert into orders (order_id,order_type,permid,action,quantity) VALUES \
-                    ('{oi}','{ot}','{id}','{a}',{q})".\
-                    format(oi=orderRow.orderId,ot=orderRow.orderType,id=orderRow.permId,a=orderRow.action,q=orderRow.totalQuantity))
-                myConnection.commit()
+#                cur.execute("insert into orders (order_id,order_type,permid,action,quantity) VALUES \
+#                    ('{oi}','{ot}','{id}','{a}',{q})".\
+#                    format(oi=orderRow.orderId,ot=orderRow.orderType,id=orderRow.permId,a=orderRow.action,q=orderRow.totalQuantity))
+#                myConnection.commit()
 #           open orders should never had filled information and such
-        elif hasattr(orderRow,"filledQuantity") and orderRow.filledQuantity >= 1:       #maybe the order is in the DB but the order previously was not fill
-            cur.execute("select * from orders where permid = '{oi}' and filled_qty = 0".format(oi=orderRow.permId))
+#        elif hasattr(orderRow,"filledQuantity") and orderRow.filledQuantity >= 1:       #maybe the order is in the DB but the order previously was not fill
+#            cur.execute("select * from orders where permid = '{oi}' and filled_qty = 0".format(oi=orderRow.permId))
 #            cur.execute("select * from orders where permid = '{oi}'".format(oi=orderRow.permId))
-            orderQueryListFilled = cur.fetchone()
-            if cur.rowcount > 0:
-                cur.execute("update orders set filled_qty = {q},lmtprice = {lp},auxprice ={ap} where permid = '{p}'".format(q=orderRow.filledQuantity,p=orderRow.permId,lp=orderRow.lmtPrice,ap=orderRow.auxPrice,))
-            log.info("we already have this order in the db but filled was 0 so we updated it")
+#            orderQueryListFilled = cur.fetchone()
+#            if cur.rowcount > 0:
+#                cur.execute("update orders set filled_qty = {q},lmtprice = {lp},auxprice ={ap} where permid = '{p}'".format(q=orderRow.filledQuantity,p=orderRow.permId,lp=orderRow.lmtPrice,ap=orderRow.auxPrice,))
+#            log.info("we already have this order in the db but filled was 0 so we updated it")
     self.app.logicopenOrders.update(str(counter))
     return
 
@@ -502,7 +505,7 @@ def buildOrders(ib, myConnection, tradeContract, action, quantity, cciProfile, b
         )
         trademkt = ib.placeOrder(tradeContract,MktOrder)
         log.info("market order {l}".format(l=trademkt))
-        updateOrderWhenPlaced(myConnection,"O",trademkt,parentId)
+        updateOrderWhenPlaced(myConnection,"O",trademkt.order,trademkt.contract,trademkt.orderStatus)
     #
         #Stop Loss Order
         
@@ -522,7 +525,7 @@ def buildOrders(ib, myConnection, tradeContract, action, quantity, cciProfile, b
         )
         tradestp = ib.placeOrder(tradeContract,stopLossOrder)
         log.info("stop order {l}".format(l=tradestp))
-        updateOrderWhenPlaced(myConnection,"C",tradestp,parentId)
+        updateOrderWhenPlaced(myConnection,"C",tradestp.order,tradestp.contract,tradestp.orderStatus)
 # Trail Order *************************************************
     elif STPorTRAIL == "TRAIL":
         limitOrder = Order(
@@ -639,11 +642,14 @@ def ListOfTradesWriteCsv(recentTradesListItem):
             'Action':recentTradesListItem.order.action,'Status':recentTradesListItem.orderStatus.status, 'ParentId': recentTradesListItem.orderStatus.parentId, 'Trade': recentTradesListItem})
     return
 
-def updateOrderWhenPlaced(myConnection,oClose,orderInfo,coldata):
+def updateOrderWhenPlaced(myConnection,oClose,orderInfo,contractInfo,orderStatusInfo):
+    log.info(orderInfo)
+    log.info(orderStatusInfo)
+    log.info(contractInfo)
     #we know the order when placed has the following components: contract, order, orderstatus, fills and log
-    updateOrderContract(myConnection,orderInfo)
+    updateOrderContract(myConnection,contractInfo)
     updateOrderOrder(myConnection,orderInfo,oClose)
-    updateOrderStatus(myConnection,orderInfo)
+    updateOrderStatus(myConnection,orderStatusInfo)
     #cur = myConnection.cursor()
     #cur.execute("insert into orders ({c},open_close) VALUES ('{id}','{oc}')".format(c=col,id=coldata,oc=oClose))
     #myConnection.commit()
@@ -651,68 +657,69 @@ def updateOrderWhenPlaced(myConnection,oClose,orderInfo,coldata):
 
 def updateOrderContract(myConnection,orderInfo):
     cur = myConnection.cursor()
-    cur.execute("select from contract where con_id = '{c}'".format(c=orderInfo.contract.conId))
+    cur.execute("select from contract where con_id = '{c}'".format(c=orderInfo.conId))
     cur.fetchone()
     if cur.rowcount == 0: 
-        cur.execute("insert into contract (con_id) VALUES ('{c}')".format(c=orderInfo.contract.conId))
-    if hasattr(orderInfo.contract,"secType"):
-        cur.execute("update contract set sec_type = '{a}' where con_id='{c}'".format(a=orderInfo.contract.secType,c=orderInfo.contract.conId))
-    if hasattr(orderInfo.contract,"symbol"):
-        cur.execute("update contract set symbol = '{a}' where con_id='{c}'".format(a=orderInfo.contract.symbol,c=orderInfo.contract.conId))
-    if hasattr(orderInfo.contract,"lastTradeDateOrContractMonth"):
-        cur.execute("update contract set contract_month = '{a}' where con_id='{c}'".format(a=orderInfo.contract.lastTradeDateOrContractMonth,c=orderInfo.contract.conId))
-    if hasattr(orderInfo.contract,"multiplier"):
-        cur.execute("update contract set multiplier = {a} where con_id='{c}'".format(a=orderInfo.contract.multiplier,c=orderInfo.contract.conId))
-    if hasattr(orderInfo.contract,"exchange"):
-        cur.execute("update contract set exchange = '{a}' where con_id='{c}'".format(a=orderInfo.contract.exchange,c=orderInfo.contract.conId))
-    if hasattr(orderInfo.contract,"currency"):
-        cur.execute("update contract set currency = '{a}' where con_id='{c}'".format(a=orderInfo.contract.currency,c=orderInfo.contract.conId))
-    if hasattr(orderInfo.contract,"localSymbol"):
-        cur.execute("update contract set local_symbol = '{a}' where con_id='{c}'".format(a=orderInfo.contract.localSymbol,c=orderInfo.contract.conId))
-    if hasattr(orderInfo.contract,"tradingClass"):
-        cur.execute("update contract set trading_class = '{a}' where con_id='{c}'".format(a=orderInfo.contract.tradingClass,c=orderInfo.contract.conId))
+        cur.execute("insert into contract (con_id) VALUES ('{c}')".format(c=orderInfo.conId))
+    if hasattr(orderInfo,"secType"):
+        cur.execute("update contract set sec_type = '{a}' where con_id='{c}'".format(a=orderInfo.secType,c=orderInfo.conId))
+    if hasattr(orderInfo,"symbol"):
+        cur.execute("update contract set symbol = '{a}' where con_id='{c}'".format(a=orderInfo.symbol,c=orderInfo.conId))
+    if hasattr(orderInfo,"lastTradeDateOrContractMonth"):
+        cur.execute("update contract set contract_month = '{a}' where con_id='{c}'".format(a=orderInfo.lastTradeDateOrContractMonth,c=orderInfo.conId))
+    if hasattr(orderInfo,"multiplier"):
+        cur.execute("update contract set multiplier = {a} where con_id='{c}'".format(a=orderInfo.multiplier,c=orderInfo.conId))
+    if hasattr(orderInfo,"exchange"):
+        cur.execute("update contract set exchange = '{a}' where con_id='{c}'".format(a=orderInfo.exchange,c=orderInfo.conId))
+    if hasattr(orderInfo,"currency"):
+        cur.execute("update contract set currency = '{a}' where con_id='{c}'".format(a=orderInfo.currency,c=orderInfo.conId))
+    if hasattr(orderInfo,"localSymbol"):
+        cur.execute("update contract set local_symbol = '{a}' where con_id='{c}'".format(a=orderInfo.localSymbol,c=orderInfo.conId))
+    if hasattr(orderInfo,"tradingClass"):
+        cur.execute("update contract set trading_class = '{a}' where con_id='{c}'".format(a=orderInfo.tradingClass,c=orderInfo.conId))
     myConnection.commit()
     return
 
 def updateOrderOrder(myConnection,orderInfo,oClose):
     cur = myConnection.cursor()
-    cur.execute("select from orders where order_id = '{c}'".format(c=orderInfo.order.orderId))
+    cur.execute("select from orders where order_id = '{c}'".format(c=orderInfo.orderId))
     cur.fetchone()
     if cur.rowcount == 0:
-        cur.execute("insert into orders (order_id) VALUES ('{c}')".format(c=orderInfo.order.orderId))
+        cur.execute("insert into orders (order_id) VALUES ('{c}')".format(c=orderInfo.orderId))
         myConnection.commit()
     else:
         log.info("order already in DB going to update columns")
-    cur.execute("update orders set open_close = '{a}' where order_id='{c}'".format(a=oClose,c=orderInfo.order.orderId))
-    if hasattr(orderInfo.order,"action"):
-        cur.execute("update orders set action = '{a}' where order_id='{c}'".format(a=orderInfo.order.action,c=orderInfo.order.orderId))
-    if hasattr(orderInfo.order,"totalQuantity"):
-        cur.execute("update orders set quantity = {a} where order_id='{c}'".format(a=orderInfo.order.totalQuantity,c=orderInfo.order.orderId))
-    if hasattr(orderInfo.order,"orderType"):
-        cur.execute("update orders set order_type = '{a}' where order_id='{c}'".format(a=orderInfo.order.orderType,c=orderInfo.order.orderId))
-    if hasattr(orderInfo.order,"faProfile"):
-        cur.execute("update orders set fa_profile = '{a}' where order_id='{c}'".format(a=orderInfo.order.faProfile,c=orderInfo.order.orderId))
+    if oClose == "O" or oClose == "C":
+        cur.execute("update orders set open_close = '{a}' where order_id='{c}'".format(a=oClose,c=orderInfo.orderId))
+    if hasattr(orderInfo,"action"):
+        cur.execute("update orders set action = '{a}' where order_id='{c}'".format(a=orderInfo.action,c=orderInfo.orderId))
+    if hasattr(orderInfo,"totalQuantity"):
+        cur.execute("update orders set quantity = {a} where order_id='{c}'".format(a=orderInfo.totalQuantity,c=orderInfo.orderId))
+    if hasattr(orderInfo,"orderType"):
+        cur.execute("update orders set order_type = '{a}' where order_id='{c}'".format(a=orderInfo.orderType,c=orderInfo.orderId))
+    if hasattr(orderInfo,"faProfile"):
+        cur.execute("update orders set fa_profile = '{a}' where order_id='{c}'".format(a=orderInfo.faProfile,c=orderInfo.orderId))
     myConnection.commit()
     return
 
 def updateOrderStatus(myConnection,orderInfo):
     cur = myConnection.cursor()
-    cur.execute("select from orders_status where order_id = '{c}'".format(c=orderInfo.orderStatus.orderId))
+    cur.execute("select from orders_status where order_id = '{c}'".format(c=orderInfo.orderId))
     cur.fetchone()
     if cur.rowcount == 0:
-        cur.execute("insert into orders_status (order_id) VALUES ('{c}')".format(c=orderInfo.orderStatus.orderId))
+        cur.execute("insert into orders_status (order_id) VALUES ('{c}')".format(c=orderInfo.orderId))
         myConnection.commit()
     else:
         log.info("order already in DB going to update columns")
-    if hasattr(orderInfo.orderStatus,"status"):
-        cur.execute("update orders_status set status = '{a}' where order_id='{c}'".format(a=orderInfo.orderStatus.status,c=orderInfo.orderStatus.orderId))
-    if hasattr(orderInfo.orderStatus,"filled"):
-        cur.execute("update orders_status set filled = {a} where order_id='{c}'".format(a=orderInfo.orderStatus.filled,c=orderInfo.orderStatus.orderId))
-    if hasattr(orderInfo.orderStatus,"remaining"):
-        cur.execute("update orders_status set remaining = {a} where order_id='{c}'".format(a=orderInfo.orderStatus.remaining,c=orderInfo.orderStatus.orderId))
-    if hasattr(orderInfo.orderStatus,"avgFillPrice"):
-        cur.execute("update orders_status set avg_fill_price = {a} where order_id='{c}'".format(a=orderInfo.orderStatus.avgFillPrice,c=orderInfo.orderStatus.orderId))
-    cur.execute("update orders_status set datetime = '{a}' where order_id='{c}'".format(a=datetime.now(),c=orderInfo.orderStatus.orderId))
+    if hasattr(orderInfo,"status"):
+        cur.execute("update orders_status set status = '{a}' where order_id='{c}'".format(a=orderInfo.status,c=orderInfo.orderId))
+    if hasattr(orderInfo,"filled"):
+        cur.execute("update orders_status set filled = {a} where order_id='{c}'".format(a=orderInfo.filled,c=orderInfo.orderId))
+    if hasattr(orderInfo,"remaining"):
+        cur.execute("update orders_status set remaining = {a} where order_id='{c}'".format(a=orderInfo.remaining,c=orderInfo.orderId))
+    if hasattr(orderInfo,"avgFillPrice"):
+        cur.execute("update orders_status set avg_fill_price = {a} where order_id='{c}'".format(a=orderInfo.avgFillPrice,c=orderInfo.orderId))
+    cur.execute("update orders_status set datetime = '{a}' where order_id='{c}'".format(a=datetime.now(),c=orderInfo.orderId))
     
     myConnection.commit()
     return
