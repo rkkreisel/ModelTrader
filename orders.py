@@ -509,8 +509,8 @@ def buildOrders(ib, myConnection, tradeContract, action, quantity, cciProfile, b
         stoplossprice = buyStopLossPrice
         stoplimitprice = bars_15mclosePrice + 15
         trailLimitPrice = bars_15mclosePrice - config.trailStopOffset
-
-    log.info("close price: {c} stoplimitprice: {slp} limitprice {lp} trailLimitPrice {tlp}".format(c=bars_15mclosePrice,slp=stoplimitprice,lp=limitPrice,tlp=trailLimitPrice))
+    log.info("buildOrders: sellStopLossPrice: {sslp} buyStopLossPrice: {bslp}".format(sslp=sellStopLossPrice,bslp=buyStopLossPrice))
+    log.info("buildOrders: close price: {c} stoplimitprice: {slp} limitprice {lp} trailLimitPrice {tlp}".format(c=bars_15mclosePrice,slp=stoplimitprice,lp=limitPrice,tlp=trailLimitPrice))
     if STPorTRAIL == "STP":
         MktOrder = Order(
             action = action,
@@ -682,24 +682,23 @@ def updateOrderContract(myConnection,orderInfo):
     cur.fetchone()
     if cur.rowcount == 0: 
         cur.execute("insert into contract (con_id) VALUES ('{c}')".format(c=orderInfo.conId))
-    else:
-        if hasattr(orderInfo,"secType"):
-            cur.execute("update contract set sec_type = '{a}' where con_id='{c}'".format(a=orderInfo.secType,c=orderInfo.conId))
-        if hasattr(orderInfo,"symbol"):
-            cur.execute("update contract set symbol = '{a}' where con_id='{c}'".format(a=orderInfo.symbol,c=orderInfo.conId))
-        if hasattr(orderInfo,"lastTradeDateOrContractMonth"):
-            cur.execute("update contract set contract_month = '{a}' where con_id='{c}'".format(a=orderInfo.lastTradeDateOrContractMonth,c=orderInfo.conId))
-        if hasattr(orderInfo,"multiplier"):
-            cur.execute("update contract set multiplier = {a} where con_id='{c}'".format(a=orderInfo.multiplier,c=orderInfo.conId))
-        if hasattr(orderInfo,"exchange"):
-            cur.execute("update contract set exchange = '{a}' where con_id='{c}'".format(a=orderInfo.exchange,c=orderInfo.conId))
-        if hasattr(orderInfo,"currency"):
-            cur.execute("update contract set currency = '{a}' where con_id='{c}'".format(a=orderInfo.currency,c=orderInfo.conId))
-        if hasattr(orderInfo,"localSymbol"):
-            cur.execute("update contract set local_symbol = '{a}' where con_id='{c}'".format(a=orderInfo.localSymbol,c=orderInfo.conId))
-        if hasattr(orderInfo,"tradingClass"):
-            cur.execute("update contract set trading_class = '{a}' where con_id='{c}'".format(a=orderInfo.tradingClass,c=orderInfo.conId))
-        myConnection.commit()
+    if hasattr(orderInfo,"secType"):
+        cur.execute("update contract set sec_type = '{a}' where con_id='{c}'".format(a=orderInfo.secType,c=orderInfo.conId))
+    if hasattr(orderInfo,"symbol"):
+        cur.execute("update contract set symbol = '{a}' where con_id='{c}'".format(a=orderInfo.symbol,c=orderInfo.conId))
+    if hasattr(orderInfo,"lastTradeDateOrContractMonth"):
+        cur.execute("update contract set contract_month = '{a}' where con_id='{c}'".format(a=orderInfo.lastTradeDateOrContractMonth,c=orderInfo.conId))
+    if hasattr(orderInfo,"multiplier"):
+        cur.execute("update contract set multiplier = {a} where con_id='{c}'".format(a=orderInfo.multiplier,c=orderInfo.conId))
+    if hasattr(orderInfo,"exchange"):
+        cur.execute("update contract set exchange = '{a}' where con_id='{c}'".format(a=orderInfo.exchange,c=orderInfo.conId))
+    if hasattr(orderInfo,"currency"):
+        cur.execute("update contract set currency = '{a}' where con_id='{c}'".format(a=orderInfo.currency,c=orderInfo.conId))
+    if hasattr(orderInfo,"localSymbol"):
+        cur.execute("update contract set local_symbol = '{a}' where con_id='{c}'".format(a=orderInfo.localSymbol,c=orderInfo.conId))
+    if hasattr(orderInfo,"tradingClass"):
+        cur.execute("update contract set trading_class = '{a}' where con_id='{c}'".format(a=orderInfo.tradingClass,c=orderInfo.conId))
+    myConnection.commit()
     return
 
 def updateOrderOrder(myConnection,orderInfo,oClose):
@@ -710,19 +709,18 @@ def updateOrderOrder(myConnection,orderInfo,oClose):
     if cur.rowcount == 0:
         cur.execute("insert into orders (order_id) VALUES ('{c}')".format(c=orderInfo.orderId))
         myConnection.commit()
-    else:
-        log.info("order already in DB going to update columns")
-        if oClose == "O" or oClose == "C":
-            cur.execute("update orders set open_close = '{a}' where order_id='{c}'".format(a=oClose,c=orderInfo.orderId))
-        if hasattr(orderInfo,"action"):
-            cur.execute("update orders set action = '{a}' where order_id='{c}'".format(a=orderInfo.action,c=orderInfo.orderId))
-        if hasattr(orderInfo,"totalQuantity"):
-            cur.execute("update orders set quantity = {a} where order_id='{c}'".format(a=orderInfo.totalQuantity,c=orderInfo.orderId))
-        if hasattr(orderInfo,"orderType"):
-            cur.execute("update orders set order_type = '{a}' where order_id='{c}'".format(a=orderInfo.orderType,c=orderInfo.orderId))
-        if hasattr(orderInfo,"faProfile"):
-            cur.execute("update orders set fa_profile = '{a}' where order_id='{c}'".format(a=orderInfo.faProfile,c=orderInfo.orderId))
-        myConnection.commit()
+    log.info("order already in DB going to update columns")
+    if oClose == "O" or oClose == "C":
+        cur.execute("update orders set open_close = '{a}' where order_id='{c}'".format(a=oClose,c=orderInfo.orderId))
+    if hasattr(orderInfo,"action"):
+        cur.execute("update orders set action = '{a}' where order_id='{c}'".format(a=orderInfo.action,c=orderInfo.orderId))
+    if hasattr(orderInfo,"totalQuantity"):
+        cur.execute("update orders set quantity = {a} where order_id='{c}'".format(a=orderInfo.totalQuantity,c=orderInfo.orderId))
+    if hasattr(orderInfo,"orderType"):
+        cur.execute("update orders set order_type = '{a}' where order_id='{c}'".format(a=orderInfo.orderType,c=orderInfo.orderId))
+    if hasattr(orderInfo,"faProfile"):
+        cur.execute("update orders set fa_profile = '{a}' where order_id='{c}'".format(a=orderInfo.faProfile,c=orderInfo.orderId))
+    myConnection.commit()
     return
 
 def updateOrderStatus(myConnection,orderInfo):
@@ -733,18 +731,17 @@ def updateOrderStatus(myConnection,orderInfo):
     if cur.rowcount == 0:
         cur.execute("insert into orders_status (order_id) VALUES ('{c}')".format(c=orderInfo.orderId))
         myConnection.commit()
-    else:
-        log.info("order already in DB going to update columns")
-        if hasattr(orderInfo,"status"):
-            cur.execute("update orders_status set status = '{a}' where order_id='{c}'".format(a=orderInfo.status,c=orderInfo.orderId))
-        if hasattr(orderInfo,"filled"):
-            cur.execute("update orders_status set filled = {a} where order_id='{c}'".format(a=orderInfo.filled,c=orderInfo.orderId))
-        if hasattr(orderInfo,"remaining"):
-            cur.execute("update orders_status set remaining = {a} where order_id='{c}'".format(a=orderInfo.remaining,c=orderInfo.orderId))
-        if hasattr(orderInfo,"avgFillPrice"):
-            cur.execute("update orders_status set avg_fill_price = {a} where order_id='{c}'".format(a=orderInfo.avgFillPrice,c=orderInfo.orderId))
-        cur.execute("update orders_status set datetime = '{a}' where order_id='{c}'".format(a=datetime.now(),c=orderInfo.orderId))        
-        myConnection.commit()
+    log.info("order already in DB going to update columns")
+    if hasattr(orderInfo,"status"):
+        cur.execute("update orders_status set status = '{a}' where order_id='{c}'".format(a=orderInfo.status,c=orderInfo.orderId))
+    if hasattr(orderInfo,"filled"):
+        cur.execute("update orders_status set filled = {a} where order_id='{c}'".format(a=orderInfo.filled,c=orderInfo.orderId))
+    if hasattr(orderInfo,"remaining"):
+        cur.execute("update orders_status set remaining = {a} where order_id='{c}'".format(a=orderInfo.remaining,c=orderInfo.orderId))
+    if hasattr(orderInfo,"avgFillPrice"):
+        cur.execute("update orders_status set avg_fill_price = {a} where order_id='{c}'".format(a=orderInfo.avgFillPrice,c=orderInfo.orderId))
+    cur.execute("update orders_status set datetime = '{a}' where order_id='{c}'".format(a=datetime.now(),c=orderInfo.orderId))        
+    myConnection.commit()
     return
 
 def updateTradeMain(myConnection,tradeInfo,oClose):
@@ -766,15 +763,13 @@ def updateTradeOrder(myConnection,orderInfo):
     if cur.rowcount == 0:
         cur.execute("insert into ibtrades (order_id, order_type, action, fa_profile) VALUES ('{c}','{t}','{a}','{p}')".format(c=orderInfo.orderId,t=orderInfo.orderType,a=orderInfo.action,p=orderInfo.faProfile))
         myConnection.commit()
-    else:
-        log.info("updateTradeOrder: order already in DB going to update columns")
-        if hasattr(orderInfo,"action"):
-            cur.execute("update ibtrades set action = '{a}' where order_id='{c}'".format(a=orderInfo.action,c=orderInfo.orderId))
-        if hasattr(orderInfo,"orderType"):
-            cur.execute("update ibtrades set order_type = '{a}' where order_id='{c}'".format(a=orderInfo.orderType,c=orderInfo.orderId))
-        if hasattr(orderInfo,"faProfile"):
-            cur.execute("update ibtrades set fa_profile = '{a}' where order_id='{c}'".format(a=orderInfo.faProfile,c=orderInfo.orderId))
-        myConnection.commit()
+    if hasattr(orderInfo,"action"):
+        cur.execute("update ibtrades set action = '{a}' where order_id='{c}'".format(a=orderInfo.action,c=orderInfo.orderId))
+    if hasattr(orderInfo,"orderType"):
+        cur.execute("update ibtrades set order_type = '{a}' where order_id='{c}'".format(a=orderInfo.orderType,c=orderInfo.orderId))
+    if hasattr(orderInfo,"faProfile"):
+        cur.execute("update ibtrades set fa_profile = '{a}' where order_id='{c}'".format(a=orderInfo.faProfile,c=orderInfo.orderId))
+    myConnection.commit()
     return
 
 def updateTradeContract(myConnection,contractInfo,orderId):    
