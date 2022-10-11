@@ -144,7 +144,7 @@ class Algo():
             # testing orders and trades
             #if self.myTest:
             #    self.myTest = False
-            if not open_long or not open_short:
+            if not open_long and not open_short:
                 quantity = 1
                 modBuyStopLossPrice = bars_15m.buyStopLossPriceOpen     # need to set stop loss to open of current bar and not close of prior
                 modSellStopLossPrice = bars_15m.sellStopLossPriceOpen
