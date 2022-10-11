@@ -173,6 +173,40 @@ class App:
         self.connected.update("Disconnected")
         logger.getLogger().info("Disconnected.")
 
+    def disconnectedEvent(self): # Is emitted after disconnecting from TWS/gateway.
+        self.connected.update("disconnectedEvent")
+        logger.getLogger().info("disconnectedEvent")
+        try:
+            log.info("try on disconnectEvent")
+            self.ib.disconnect()
+            self.ib.waitOnUpdate(timeout=0.5)   #added to handle is client already in use https://github.com/erdewit/ib_insync/issues/76
+            self.connected.update("DError 200, 1100, 2100, 162, 2110:isconnected")
+            log.info("main.py:disconnectedEvent finished disconnect going into sleep")
+            self.ib.sleep(50)
+            log.info("main.py:disconnectedEvent:: waking up")
+            #self.ib.connect(config.HOST, config.PORT, clientId=config.CLIENTID,timeout=0)
+            self.ib.connect(config.HOST, config.PORT, clientId=0,timeout=0)
+            log.info("main.py:disconnectedEvent:: attempted reconnect")
+        except:
+            log.info("main.py:disconnectedEvent - try wasn't successful.  Going to sleep a bit")
+            log.info("main.py:disconnectedEvent:: errorcode going to disconnect")
+            self.ib.disconnect()
+            self.ib.waitOnUpdate(timeout=0.5)   #added to handle is client already in use https://github.com/erdewit/ib_insync/issues/76
+            self.connected.update("main.py:disconnectedEvent")
+            self.ib.sleep(50)
+            log.info("main.py:disconnectedEvent:: waking up")
+            self.ib.connect(config.HOST, config.PORT, clientId=0,timeout=0)
+            log.info("main.py:disconnectedEvent: attempted reconnect")
+        finally:
+            log.info("main.py:disconnectedEvent - but first try to reconnect one more time")
+            self.ib.disconnect()
+            self.ib.waitOnUpdate(timeout=0.5)   #added to handle is client already in use https://github.com/erdewit/ib_insync/issues/76
+            self.connected.update("main.py:disconnectedEvent")
+            self.ib.sleep(50)
+            log.info("main.py:disconnectedEvent: waking up")
+            self.ib.connect(config.HOST, config.PORT, clientId=0,timeout=0)
+            log.info("main.py:disconnectedEvent: attempted reconnect")
+
 #    def profitandloss(self):
 #        pandl = self.objects.PnL()
 #        log.info("main.py:PNL {p}".format(p=pandl))
@@ -200,11 +234,12 @@ class App:
         log.info("main.py:positionEvent {p}".format(p=Position))
 
     def execDetailsEvent(self, Trade, Fill):    # emits the fill together with the ongoing trade it belongs to.
-        log.info("main.py:execDetailsEvent: we had with the following trade type trade {c} type Fill {f} fill: {fill} trade: {t}".format(c=type(Trade),f=type(Fill),fill=Fill,t=Trade))
+        log.info("main.py:execDetailsEvent: we had with the following trade type trade: {c} type Fill: {f} fill: {fill} trade: {t}".format(c=type(Trade),f=type(Fill),fill=Fill,t=Trade))
         log.info("log.infoing the info from execDetailesEvent")
         log.info(Trade)
         log.info(Fill)
         orders.addNewTrades(self.ib, Trade, "Update")
+        orders.updateFills(self.ib, Fill, self.myConnection, self)
 
     def cancelOrderEvent(self, Trade): # Emits a trade directly after requesting for it to be cancelled.
         log.info("main.py:cancelOrderEvent type Trade: {c} trade: {t}".format(c=type(Trade),t=Trade))

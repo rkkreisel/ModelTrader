@@ -144,11 +144,12 @@ class Algo():
             # testing orders and trades
             #if self.myTest:
             #    self.myTest = False
-#            quantity = 1
-#            modBuyStopLossPrice = bars_15m.buyStopLossPriceOpen     # need to set stop loss to open of current bar and not close of prior
-#            modSellStopLossPrice = bars_15m.sellStopLossPriceOpen
-#            fillStatus = orders.buildOrders(self.ib, self.myConnection, tradeContract, tradeAction, quantity, dayNightProfileCCI, modBuyStopLossPrice,modSellStopLossPrice, modTrailStopLoss, bars_15m.closePrice, "STP")
-#            self.tradeBarCount = self.tradeBarCount + 1
+            if not open_long or not open_short:
+                quantity = 1
+                modBuyStopLossPrice = bars_15m.buyStopLossPriceOpen     # need to set stop loss to open of current bar and not close of prior
+                modSellStopLossPrice = bars_15m.sellStopLossPriceOpen
+                fillStatus = orders.buildOrders(self.ib, self.myConnection, tradeContract, tradeAction, quantity, dayNightProfileCCI, modBuyStopLossPrice,modSellStopLossPrice, modTrailStopLoss, bars_15m.closePrice, "STP")
+                self.tradeBarCount = self.tradeBarCount + 1
             # end testing
             # wrote_bar_to_csv = helpers.build_csv_bars_row(self.log_time, tradeAction, bars_15m, bars_1h, bars_1d, pendingLong, pendingShort, pendingCnt, tradeNow, ccibb_trade, cci_trade,ccibb_key, cci_key)
             tradenow, cci_trade, ccibb_trade = False, False, False
