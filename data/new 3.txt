@@ -1,0 +1,14 @@
+openTrades [Trade(contract=Future(conId=495512566, symbol='ES', lastTradeDateOrContractMonth='20220916', right='?', multiplier='50', exchange='GLOBEX', currency='USD', 
+localSymbol='ESU2', tradingClass='ES'), 
+
+order=Order(permId=1555940405, action='BUY', orderType='MKT', lmtPrice=4288.5, auxPrice=0.0, tif='DAY', ocaType=3, displaySize=2147483647, trailStopPrice=4289.5, volatilityType=0, deltaNeutralOrderType='None', referencePriceType=0, account='DU1044803', clearingIntent='IB', cashQty=0.0, dontUseAutoPriceForHedge=True, filledQuantity=3.0, refFuturesConId=2147483647, shareholder='Not an insider or substantial shareholder', parentPermId=9223372036854775807), 
+
+orderStatus=OrderStatus(orderId=0, status='Filled', filled=0, remaining=0, avgFillPrice=0.0, permId=0, parentId=0, lastFillPrice=0.0, clientId=0, whyHeld='', mktCapPrice=0.0), 
+
+fills=[Fill(contract=Future(conId=495512566, symbol='ES', lastTradeDateOrContractMonth='20220916', right='?', multiplier='50', exchange='GLOBEX', currency='USD', localSymbol='ESU2', tradingClass='ES'), 
+
+execution=Execution(execId='0000e1a7.62feb40f.01.01', time=datetime.datetime(2022, 8, 18, 22, 0, tzinfo=datetime.timezone.utc), acctNumber='DU1044803', exchange='GLOBEX', side='BOT', shares=3.0, price=4287.0, permId=1555940405, clientId=172, orderId=61, liquidation=0, cumQty=3.0, avgPrice=4287.0, orderRef='', evRule='', evMultiplier=0.0, modelCode='', lastLiquidity=1), 
+
+commissionReport=CommissionReport(execId='0000e1a7.62feb40f.01.01', commission=6.45, currency='USD', realizedPNL=-37.9, yield_=0.0, yieldRedemptionDate=0), time=datetime.datetime(2022, 8, 18, 22, 0, tzinfo=datetime.timezone.utc))], 
+
+log=[TradeLogEntry(time=datetime.datetime(2022, 8, 18, 22, 0, tzinfo=datetime.timezone.utc), status='Filled', message='Fill 3.0@4287.0')]),
