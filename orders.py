@@ -1,4 +1,5 @@
 """ Create and Transmit Orders """
+from asyncio.windows_events import NULL
 from pickle import FALSE
 from types import TracebackType
 from ib_insync.order import Order
@@ -31,98 +32,49 @@ def closeOutMain(ib, tradeContract, execute):           # this manages the closi
     closeOutPositions = closeOpenPositions(ib, tradeContract)  # we re going to execute (True)
     return
 
-def createOrdersMain(ib, tradeContract, tradeAction, quantity, cciProfile, buyStopLossPrice, sellStopLossPrice, openOrderType, modTrailStopLoss, bars_15mclosePrice,myConnection):
-    #trademkt, tradestp, parentId, MktOrder, stopLossOrder = buildOrders(ib, tradeContract, tradeAction, quantity, cciProfile, buyStopLossPrice, sellStopLossPrice, modTrailStopLoss, bars_15mclosePrice, "TRAIL")    # this places the order.  No confirm it was executed
-    #buildOrders(ib, tradeContract, tradeAction, quantity, cciProfile, buyStopLossPrice, sellStopLossPrice, modTrailStopLoss, bars_15mclosePrice, "STP")    # this places the order.  No confirm it was executed
-    #log.info("createOrdersMain: just created MKT: {l}   Order open/close true/false: {oot} ".format(l=trademkt,oot=openOrderType))
-    #log.info("--------------------------------------------------------------------------------------")
-    #log.info("createOrdersMain: just created  STP {s} order.  Order open/close true/false: {oot} ".format(s=tradestp,oot=openOrderType))
-    # we don't want to enter into the DB rather wait for new order event to trigger.  This gives us confirmation it was received and we get more information.
-    # #symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account, permID = parseTradeString(ib,trademkt)
-    #wroteOrdersToCSV = writeOrdersToCSV(ib, MktOrder, "MktOrder", status, openOrderType)
-    #filledTF, fillStatus = checkForOpenOrderStatus(ib, trademkt, "trademkt", trademkt.orderStatus.status)    # moving to event driven trade updates
-    #if fillStatus:
-    #    updateOrders = writeTradeToCSV(ib, trademkt, "tradeMkt", status, openOrderType = True)
-    #symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account, permID = parseTradeString(ib,tradestp)
-    #wroteOrdersToCSV = writeOrdersToCSV(ib, stopLossOrder, "stopLossOrder", status, openOrderType)
-    #countOpenOrders(ib,myConnection)
-    return True
-
-# this is counting for top of the loop for information only
-def countOpenOrders(ib,tradeInfo, myConnection):                 # This is to find open STP orders only
-#    log.info("countOpenOrders ************** in the countOpenOrders function *****************")
-#    openOrdersList = ib.openOrders()
-#    log.info("countOpenOrders openOrdersList: {ool}".format(ool=openOrdersList))
-#    for orderRow in openOrdersList:
-#        orderId, orderType, action, quantity, clientId, permId = parseOrderString(ib,orderRow)
-#        cur = myConnection.cursor()
-#        # order check
-#        cur.execute("select * from orders where permid = '{oi}'".format(oi=permId))
-#        orderQueryList = cur.fetchone()
-#        if cur.rowcount == 0:    # no entry in orders file need to add
-#            cur.execute("insert into orders (order_id,order_type,permid) values ('{oi}','{ot}','{p}')".format(oi=orderRow.orderId,ot=orderRow.orderType,p=orderRow.permId))
-#            myConnection.commit()
-#        else:
-#            log.info("we already have this order in the db")
-#    return len(openOrdersList)
-    return
-
-def addNewOrders(ib,orderInfo, myConnection,self):                 # This is to find open STP orders only
+def addNewOrders(ib,tempInfo, myConnection,self):                 # This is to find open STP orders only
     log.info("addNewOrders ************** in the addNewOrders function *****************")
     #log.info("addNewOrders::order info coming from main ")
-    #log.info(orderInfo)    # we are going to show each row below
+    log.info("addNewOrders: orderInfo: {o}".format(o=tempInfo))    # we are going to show each row below
+    log.info("type tempInfo: {t}".format(t=type(tempInfo)))
     counter = 0
+    orderInfo = ib.trades() # were going to get all the trades rather than deal with what the event throws.  
 #    cur = myConnection.cursor()
     #log.info("all orders type: {t}: {o}".format(t=type(orderInfo),o=orderInfo)) we get this from mainlocal.py
     for orderRow in orderInfo:
-#        log.info("while order in orderInfo (Trade) {w}".format(w=orderRow))
+        log.info("while orderRow in orderInfo (Trade) {w}".format(w=orderRow))
 #        cur.execute("select * from orders where permid = '{oi}'".format(oi=orderRow.permId))
 #        orderQueryList = cur.fetchone()
         #updateOrderWhenPlaced(myConnection,"",orderRow,"") no contract information
         updateOrderOrder(myConnection,orderRow,"")
         updateTradeMain(myConnection,orderRow,"")
         #updateOrderStatus(myConnection,orderInfo) no order status either
-        if orderRow.filledQuantity < 1:
-            counter=counter + 1
-#        if cur.rowcount == 0:
-#            log.info(type(orderRow))
-#            if hasattr(orderRow,"filledQuantity"):    #sometimes modified stp order trigger new trade when it isn't  This didn't work because ibysnc returned this huge number
-#            if hasattr(orderRow,"filledQuantity") and orderRow.filledQuantity < 10000:    #sometimes modified stp order trigger new trade when it isn't  This didn't work because ibysnc returned this huge number
-#                try:    # this would assume a STP order so there is more data
-#                    sql = "insert into orders (order_id,order_type,permid,action,filled_qty,lmtprice,auxprice,tif) VALUES \
-#                        ('{oi}','{ot}','{id}','{a}',{q},{lp},{ap},'{tif}')". \
-#                        format(oi=orderRow.orderId,ot=orderRow.orderType,id=orderRow.permId,a=orderRow.action,q=orderRow.filledQuantity,lp=orderRow.lmtPrice,ap=orderRow.auxPrice,tif=orderRow.tif)
-
- #                   log.info(sql)
-#                    cur.execute("insert into orders (order_id,order_type,permid,action,filled_qty,lmtprice,auxprice,tif) VALUES \
-#                        ('{oi}','{ot}','{id}','{a}',{q},{lp},{ap},'{tif}')". \
-#                        format(oi=orderRow.orderId,ot=orderRow.orderType,id=orderRow.permId,a=orderRow.action,q=orderRow.filledQuantity,lp=orderRow.lmtPrice,ap=orderRow.auxPrice,tif=orderRow.tif))
-#                    myConnection.commit()
-#                except: # this would assume a MKT order with much less data
-#                    log.info("insert into orders (order_id,order_type,permid,action,quantity) VALUES \
-#                        ('{oi}','{ot}','{id}','{a}',{q},'{s})". \
-#                        format(oi=orderRow.orderId,ot=orderRow.orderType,id=orderRow.permId,a=orderRow.action,q=orderRow.totalQuantity))
-#                    cur.execute("insert into orders (order_id,order_type,permid,action,quantity) VALUES \
-#                        ('{oi}','{ot}','{id}','{a}',{q})". \
-#                        format(oi=orderRow.orderId,ot=orderRow.orderType,id=orderRow.permId,a=orderRow.action,q=orderRow.totalQuantity))
-#                    myConnection.commit()
-#            else:
-#                log.info("insert into orders (order_id,order_type,permid,action,quantity) VALUES \
-#                    ('{oi}','{ot}','{id}','{a}',{q})".\heat seatsta
-#                    format(oi=orderRow.orderId,ot=orderRow.orderType,id=orderRow.permId,a=orderRow.action,q=orderRow.totalQuantity))
-#                cur.execute("insert into orders (order_id,order_type,permid,action,quantity) VALUES \
-#                    ('{oi}','{ot}','{id}','{a}',{q})".\
-#                    format(oi=orderRow.orderId,ot=orderRow.orderType,id=orderRow.permId,a=orderRow.action,q=orderRow.totalQuantity))
-#                myConnection.commit()
-#           open orders should never had filled information and such
-#        elif hasattr(orderRow,"filledQuantity") and orderRow.filledQuantity >= 1:       #maybe the order is in the DB but the order previously was not fill
-#            cur.execute("select * from orders where permid = '{oi}' and filled_qty = 0".format(oi=orderRow.permId))
-#            cur.execute("select * from orders where permid = '{oi}'".format(oi=orderRow.permId))
-#            orderQueryListFilled = cur.fetchone()
-#            if cur.rowcount > 0:
-#                cur.execute("update orders set filled_qty = {q},lmtprice = {lp},auxprice ={ap} where permid = '{p}'".format(q=orderRow.filledQuantity,p=orderRow.permId,lp=orderRow.lmtPrice,ap=orderRow.auxPrice,))
-#            log.info("we already have this order in the db but filled was 0 so we updated it")
+    if orderRow.filledQuantity < 1:
+        counter=counter + 1
     self.app.logicopenOrders.update(str(counter))
+    return
+
+def addSingleNewOrders(ib,tempInfo, myConnection,self):                 # This is to find open STP orders only
+    log.info("addSingleNewOrders ************** in the addNewOrders function *****************")
+    #log.info("addNewOrders::order info coming from main ")
+    log.info("addNewOrders: orderInfo: {o}".format(o=tempInfo))    # we are going to show each row below
+    log.info("type tempInfo: {t}".format(t=type(tempInfo)))
+    counter = 0
+#    cur = myConnection.cursor()
+    #log.info("all orders type: {t}: {o}".format(t=type(orderInfo),o=orderInfo)) we get this from mainlocal.py
+    if hasattr(tempInfo,"orderId"):
+        updateOrderOrder(myConnection,tempInfo,"")
+    else:
+        updateOrderByPermID(myConnection,tempInfo)
+    updateTradeMain(myConnection,tempInfo,"")
+    #updateOrderStatus(myConnection,orderInfo) no order status either
+    return
+
+def updateOrdersOnPullViaPermID(ib,myConnection,self):
+    log.info("updateOrdersOnPullViaPermID")
+    orderInfo = ib.orders()
+    for orderRow in orderInfo:
+        updateOrderByPermID(myConnection,orderRow)
     return
 
 def addNewTrades(ib,tradeInfo, myConnection,self):                 # This is to find open STP orders only
@@ -179,17 +131,19 @@ def addNewTrades(ib,tradeInfo, myConnection,self):                 # This is to 
 def updateFills(ib,fillInfo, myConnection,self):                 # This is to find open STP orders only
     # in the trade record we can expect contract, order and orderStatus.  The other tuple headers might not be there
     log.info("updateFills ************** in the updateFills function *****************")
-    #log.info(tradeInfo)
+    log.info(fillInfo)
     cur = myConnection.cursor()
     for fillRow in fillInfo:
         log.info("while order {w}".format(w=fillRow))
-        if hasattr(fillRow,"execution"):    #sometimes modified stp order trigger new trade when it isn't
-            log.info("while order {w}".format(w=fillRow))
+        #if hasattr(fillRow,"exchange"):    #sometimes modified stp order trigger new trade when it isn't
+        if fillInfo.get_name() == "execution":
+            log.info("while order has attr{w}".format(w=fillRow))
             # we have to assume their is an ibtrades entry correlated to this fill
             cur.execute("update ibtrades set date = '{date}', shares = {shares}, price = {price}, source = '{source}', account = '{acct}' where permid= '{id}'". \
                 format(id=fillRow.execution.permId,date=fillRow.execution.time,shares=fillRow.execution.shares,price=fillRow.execution.avgPrice,acct=fillRow.execution.acctNumber))
             myConnection.commit()
-        if hasattr(fillRow,"commissionReport"):
+#        if hasattr(fillRow,"commission"):
+        if fillInfo.get_name() == " commissionReport":
             cur.execute("update ibtrades set commission = {comm}, realizedPNL = {pnl} where permid= '{id}'". \
                 format(id=fillRow.execution.permId,comm=fillRow.commissionReport.commission,pnl=fillRow.execution.realizedPNL))
             myConnection.commit()
@@ -358,32 +312,6 @@ def createTradesCSVFromEvent(ib, Trade, eventType):    # called from main.py as 
     #logic.update_tk_text("update tk from orders.py.  Just finished updating CSV after a stop order")
     return 
 
-def updateTradesCSVFromEvent(ib, Trade, eventType):    # called from main.py as events come in RE trades
-    # we have an open order from IB.  Going to run through our CSV file and make sure it exists.
-    # if it doesn't exist, we will add it
-    #log.info("we are looking for openOrderId")
-    # REFERENCE fieldnames = ['Order_Id','Order','Status','Date_Pending','Date_Cancelled','Date_Filled','Date_Updated]
-    
-#    symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account, permID = parseTradeString(ib,Trade)
-#    foundOrderInCSV = False
-#    with open('data/trades.csv', newline ='') as csvfile:
-#        reader = csv.DictReader(csvfile)
-#        for row in reader:
-#            if row['Order_Id'] == orderId:
-#                csvfile.close()
-#                df = pd.read_csv("data/trades.csv")   # https://stackoverflow.com/questions/11033590/change-specific-value-in-csv-file-via-python
-#                #df.head(5)   #log.infos first 5 rows
-#                if status == "Filled": df.loc[df['Order_Id'] == orderId, 'AvgFillPrice'] = avgFillPrice
-#                if status == 'PreSubmitted': df.loc[df['Order_Id'] == orderId, 'Presubmitted'] = datetime.now()
-#                if status == 'PendingSubmit': df.loc[df['Order_Id'] == orderId, 'PendingSubmit'] = datetime.now()        
-#                if status == 'Cancelled': df.loc[df['Order_Id'] == orderId, 'Cancelled'] = datetime.now()        
-#                if status == 'Submitted': df.loc[df['Order_Id'] == orderId, 'Submitted'] = datetime.now()        
-#                if status == 'Filled': df.loc[df['Order_Id'] == orderId, 'Filled'] = datetime.now()        
-#                df.loc[df['Order_Id'] == orderId, 'Trade'] = Trade
-#                df.loc[df['Order_Id'] == orderId, 'Status'] = status
-#                df.to_csv("data/trades.csv", index=False)
-    return
-
 def updateCanceledOpenOrders(ib, orderId, trademkt):     # I don't think this creates a new order but just cancels and existing order.  No new csv records created but updated.
     startTime = datetime.now()
     cancelledTF = False
@@ -524,8 +452,9 @@ def buildOrders(ib, myConnection, tradeContract, action, quantity, cciProfile, b
             
         )
         trademkt = ib.placeOrder(tradeContract,MktOrder)
-        log.info("market order {l}".format(l=trademkt))
-        updateOrderWhenPlaced(myConnection,"O",trademkt.order,trademkt.contract,trademkt.orderStatus)
+        #log.info("market order {l}".format(l=trademkt))
+#        updateOrderWhenPlaced(myConnection,"O",trademkt.order,trademkt.contract,trademkt.orderStatus)
+        updateOrderWhenPlaced(ib,myConnection,"O",trademkt)
     #
         #Stop Loss Order
         
@@ -544,8 +473,10 @@ def buildOrders(ib, myConnection, tradeContract, action, quantity, cciProfile, b
             openClose = "C"
         )
         tradestp = ib.placeOrder(tradeContract,stopLossOrder)
-        log.info("stop order {l}".format(l=tradestp))
-        updateOrderWhenPlaced(myConnection,"C",tradestp.order,tradestp.contract,tradestp.orderStatus)
+        #log.info("stop order {l}".format(l=tradestp))
+#        updateOrderWhenPlaced(myConnection,"C",tradestp.order,tradestp.contract,tradestp.orderStatus)
+        updateOrderWhenPlaced(ib,myConnection,"O",trademkt)
+
 # Trail Order *************************************************
     elif STPorTRAIL == "TRAIL":
         limitOrder = Order(
@@ -560,7 +491,7 @@ def buildOrders(ib, myConnection, tradeContract, action, quantity, cciProfile, b
         openClose = "O"
         )
         trademkt = ib.placeOrder(tradeContract,limitOrder)
-        log.info("limit order {l}\n".format(l=trademkt))
+        #log.info("limit order {l}\n".format(l=trademkt))
     
         trailStopLossOrder = Order(
             action = stopAction,
@@ -577,7 +508,7 @@ def buildOrders(ib, myConnection, tradeContract, action, quantity, cciProfile, b
             openClose = "C"
         )
         tradestp = ib.placeOrder(tradeContract,trailStopLossOrder)
-        log.info("trail order {l}\n".format(l=tradestp))
+        #log.info("trail order {l}\n".format(l=tradestp))
     return
 
 def closePositionsOrders(ib, tradeContract, account, action, quantity):
@@ -612,10 +543,10 @@ def modifySTPOrder(ib, modBuyStopLossPrice,modSellStopLossPrice, closePrice,myCo
             log.info("Action: {a} orderType: {ot} auxPrice: {ap} modBuyStopLossPrice: {mbslp} modSellStopLossPrice: {msslp} # of orders: {no} close: {c}" \
                 .format(a=openOrder.action,ot=openOrder.orderType,ap=openOrder.auxPrice,mbslp=modBuyStopLossPrice,msslp=modSellStopLossPrice,no=len(openOrdersList),c=closePrice))
             # for debugging
-            log.info("openOrdersList: {ool}".format(ool=openOrdersList))
+            #log.info("openOrder: {ool}".format(ool=openOrder))
             if openOrder.action.upper() == "BUY" and openOrder.orderType == "STP" and openOrder.auxPrice > modSellStopLossPrice:
                 #cnt = cnt +1
-                log.info("new auxPrice buy: {ap}  new lmtprice {lt}".format(ap=modBuyStopLossPrice,lt=modSellStopLossPrice - 1))
+                log.info("new auxPrice buy: {ap}  new lmtprice {lt}".format(ap=modSellStopLossPrice,lt=modSellStopLossPrice - 1))
                 openOrder.auxPrice = modSellStopLossPrice
                 #openOrdersList[x].lmtPrice = modSellStopLossPrice - 10
                 #openOrder = openOrdersList[x]
@@ -623,13 +554,14 @@ def modifySTPOrder(ib, modBuyStopLossPrice,modSellStopLossPrice, closePrice,myCo
                 ib.placeOrder(tradeContract,openOrder)
             elif openOrder.action.upper() == "SELL" and openOrder.orderType == "STP" and openOrder.auxPrice < modBuyStopLossPrice:
                 #cnt = cnt +1
-                log.info("new auxPrice buy: {ap} from: {pp} new lmtprice {lt}".format(ap=modSellStopLossPrice,pp=openOrder.auxPrice,lt=modBuyStopLossPrice +1))
+                log.info("new auxPrice buy: {ap} from: {pp} new lmtprice {lt}".format(ap=modBuyStopLossPrice,pp=openOrder.auxPrice,lt=modBuyStopLossPrice +1))
                 openOrder.auxPrice = modBuyStopLossPrice
                 #openOrdersList[x].lmtPrice = modBuyStopLossPrice + 10
                 #openOrder = openOrdersList[x]
                 log.info("openOrdersList: {oo}".format(oo=openOrder))
                 ib.placeOrder(tradeContract,openOrder)
             else:
+                log.info("openOrder: {ool}".format(ool=openOrder))
                 log.info("modifySTPOrder:: we have open orders but either they were not better stops or not STP orders.  order action: \
                     {oa} type: {t} aux price: {ap} mod pricebuy: {mpb} mod price sell: {mps}".format(oa = openOrder.action, t = openOrder.orderType, ap = openOrder.auxPrice, mpb = modBuyStopLossPrice, mps = modSellStopLossPrice))
             #x += 1
@@ -662,14 +594,15 @@ def ListOfTradesWriteCsv(recentTradesListItem):
             'Action':recentTradesListItem.order.action,'Status':recentTradesListItem.orderStatus.status, 'ParentId': recentTradesListItem.orderStatus.parentId, 'Trade': recentTradesListItem})
     return
 
-def updateOrderWhenPlaced(myConnection,oClose,orderInfo,contractInfo,orderStatusInfo):
-    log.info(orderInfo)
-    log.info(orderStatusInfo)
-    log.info(contractInfo)
+def updateOrderWhenPlaced(ib,myConnection,oClose,orderInfo):
+    log.info("updateOrderWhenPlaced")
+    #log.info(orderInfo)
+    #log.info(orderStatusInfo)
+    #log.info(contractInfo)
     #we know the order when placed has the following components: contract, order, orderstatus, fills and log
-    updateOrderContract(myConnection,contractInfo)
-    updateOrderOrder(myConnection,orderInfo,oClose)
-    updateOrderStatus(myConnection,orderStatusInfo)
+    updateOrderContract(myConnection,orderInfo.contract)
+    updateOrderOrder(myConnection,orderInfo.order,oClose)
+    updateOrderStatus(myConnection,orderInfo.orderStatus)
     #cur = myConnection.cursor()
     #cur.execute("insert into orders ({c},open_close) VALUES ('{id}','{oc}')".format(c=col,id=coldata,oc=oClose))
     #myConnection.commit()
@@ -704,22 +637,57 @@ def updateOrderContract(myConnection,orderInfo):
 def updateOrderOrder(myConnection,orderInfo,oClose):
     log.info("updateOrderOrder")
     cur = myConnection.cursor()
-    cur.execute("select from orders where order_id = '{c}'".format(c=orderInfo.orderId))
+    if hasattr(orderInfo,"orderId"):
+        tCol = "order_id"
+    elif hasattr(orderInfo,"permId"):
+        tCol = "perm_id"
+    else:
+        tCol = NULL
+    if tCol != NULL:
+        cur.execute("select from orders where {tcol} = '{c}'".format(tcol=tCol,c=orderInfo.orderId))
+        cur.fetchone()
+        if cur.rowcount == 0:
+            cur.execute("insert into orders ({tcol}) VALUES ('{c}')".format(tcol=tCol,c=orderInfo.orderId))
+            myConnection.commit()
+        log.info("order already in DB going to update columns")
+        if oClose == "O" or oClose == "C":
+            cur.execute("update orders set open_close = '{a}' where {tcol}='{c}'".format(tcol=tCol,a=oClose,c=orderInfo.orderId))
+        if hasattr(orderInfo,"action"):
+            cur.execute("update orders set action = '{a}' where {tcol}='{c}'".format(tcol=tCol,a=orderInfo.action,c=orderInfo.orderId))
+        if hasattr(orderInfo,"totalQuantity"):
+            cur.execute("update orders set quantity = {a} where {tcol}='{c}'".format(tcol=tCol,a=orderInfo.totalQuantity,c=orderInfo.orderId))
+        if hasattr(orderInfo,"orderType"):
+            cur.execute("update orders set order_type = '{a}' where {tcol}='{c}'".format(tcol=tCol,a=orderInfo.orderType,c=orderInfo.orderId))
+        if hasattr(orderInfo,"faProfile"):
+            cur.execute("update orders set fa_profile = '{a}' where {tcol}='{c}'".format(tcol=tCol,a=orderInfo.faProfile,c=orderInfo.orderId))
+        if hasattr(orderInfo,"permId"):
+            cur.execute("update orders set permid = '{a}' where {tcol}='{c}'".format(tcol=tCol,a=orderInfo.permId,c=orderInfo.orderId))
+        myConnection.commit()
+    return
+
+def updateOrderByPermID(myConnection,orderInfo):
+    log.info("updateOrderByPermID")
+    cur = myConnection.cursor()
+    cur.execute("select from orders where permid = '{c}'".format(c=orderInfo.permId))
     cur.fetchone()
     if cur.rowcount == 0:
-        cur.execute("insert into orders (order_id) VALUES ('{c}')".format(c=orderInfo.orderId))
+        cur.execute("insert into orders (permid) VALUES ('{c}')".format(c=orderInfo.permId))
         myConnection.commit()
     log.info("order already in DB going to update columns")
-    if oClose == "O" or oClose == "C":
-        cur.execute("update orders set open_close = '{a}' where order_id='{c}'".format(a=oClose,c=orderInfo.orderId))
     if hasattr(orderInfo,"action"):
-        cur.execute("update orders set action = '{a}' where order_id='{c}'".format(a=orderInfo.action,c=orderInfo.orderId))
+        cur.execute("update orders set action = '{a}' where permid='{c}'".format(a=orderInfo.action,c=orderInfo.permId))
     if hasattr(orderInfo,"totalQuantity"):
-        cur.execute("update orders set quantity = {a} where order_id='{c}'".format(a=orderInfo.totalQuantity,c=orderInfo.orderId))
+        cur.execute("update orders set quantity = {a} where permid='{c}'".format(a=orderInfo.totalQuantity,c=orderInfo.permId))
     if hasattr(orderInfo,"orderType"):
-        cur.execute("update orders set order_type = '{a}' where order_id='{c}'".format(a=orderInfo.orderType,c=orderInfo.orderId))
+        cur.execute("update orders set order_type = '{a}' where permid='{c}'".format(a=orderInfo.orderType,c=orderInfo.permId))
     if hasattr(orderInfo,"faProfile"):
-        cur.execute("update orders set fa_profile = '{a}' where order_id='{c}'".format(a=orderInfo.faProfile,c=orderInfo.orderId))
+        cur.execute("update orders set fa_profile = '{a}' where permid='{c}'".format(a=orderInfo.faProfile,c=orderInfo.permId))
+    if hasattr(orderInfo,"orderId"):
+        cur.execute("update orders set order_id = '{a}' where permid='{c}'".format(a=orderInfo.orderId,c=orderInfo.permId))
+    log.info(type(orderInfo.filledQuantity))
+    log.info(int(orderInfo.filledQuantity))
+    if int(orderInfo.filledQuantity) >= 1 and int(orderInfo.filledQuantity) < 100000:
+        createTradeRecord(myConnection,orderInfo)
     myConnection.commit()
     return
 
@@ -744,8 +712,21 @@ def updateOrderStatus(myConnection,orderInfo):
     myConnection.commit()
     return
 
+def createTradeRecord(myConnection,orderInfo):
+    cur = myConnection.cursor()
+    cur.execute("select from ibtrades where permid = '{c}'".format(c=orderInfo.permId))
+    cur.fetchone()
+    if cur.rowcount == 0:
+        cur.execute("insert into ibtrades (permid) VALUES ('{c}')".format(c=orderInfo.permId))
+        myConnection.commit()
+    if hasattr(orderInfo,"filledQuantity"):
+        cur.execute("update ibtrades set filled_qty = {a} where permid='{c}'".format(a=orderInfo.filledQuantity,c=orderInfo.permId))
+    return
+
 def updateTradeMain(myConnection,tradeInfo,oClose):
     log.info("updateTradeMain")
+    #log.info(tradeInfo)
+    log.info("updateTradeMain tradeInfo attributes: {a}".format(a=tradeInfo.__dict__))
     if hasattr(tradeInfo,"order"):
         updateTradeOrder(myConnection,tradeInfo.order)
     if hasattr(tradeInfo,"trade"):

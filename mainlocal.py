@@ -102,16 +102,13 @@ class App:
         self.OrdersTradesText.grid(row=2, column=1, padx =5, pady = 5, sticky='nw',columnspan=5)         
         self.OrdersTradesText.insert(tk.INSERT,"Orders/Trades")
         #
-        self.ib.disconnectedEvent += self.disconnectEvent
+        self.ib.disconnectedEvent += self.disconnectedEvent
         self.ib.connectedEvent += self.connectEvent
         self.ib.updateEvent += self.updateEvent
         self.ib.orderStatusEvent += self.orderStatusEvent
         self.ib.newOrderEvent += self.newOrderEvent
         self.ib.orderModifyEvent += self.orderModifyEvent
-        self.ib.orderModifyEvent += self.orderModifyEvent
         self.ib.openOrderEvent += self.openOrderEvent
-        self.ib.orderStatusEvent += self.orderStatusEvent
-        self.ib.newOrderEvent += self.newOrderEvent
         self.ib.positionEvent += self.positionEvent
         self.ib.accountValueEvent += self.accountValueEvent
         self.ib.accountSummaryEvent += self.accountSummaryEvent
@@ -169,9 +166,9 @@ class App:
         self.connected.update("Connected")
         logger.getLogger().info("Connected.")
 
-    def disconnectEvent(self): # Is emitted after disconnecting from TWS/gateway.
-        self.connected.update("Disconnected")
-        logger.getLogger().info("Disconnected.")
+#    def disconnectEvent(self): # Is emitted after disconnecting from TWS/gateway.
+#        self.connected.update("Disconnected")
+#        logger.getLogger().info("Disconnected.")
 
     def disconnectedEvent(self): # Is emitted after disconnecting from TWS/gateway.
         self.connected.update("disconnectedEvent")
@@ -215,44 +212,57 @@ class App:
         log.info("main.py:update Event occurred - network packet has been handeled")
 
     def orderModifyEvent(sel,Trade):
-        log.info("main.py:an order has been modified class: {c} trade:{t}".format(c=type(Trade),t=Trade))
+        #log.info("main.py:an order has been modified class: {c} trade:{t}".format(c=type(Trade),t=Trade))
+        log.info("main.py:orderModifyEvent")
 
     def openOrderEvent(self,Trade):
-        log.info("main.py:open order event - was this the type {c} stp {t}".format(c=type(Trade),t=Trade))
+        #log.info("main.py:openOrderEvent - was this the type {c} stp {t}".format(c=type(Trade),t=Trade))
+        log.info("main.py:openOrderEvent")
 
     def orderStatusEvent(self, Trade): #Emits the changed order status of the ongoing trade.
-        log.info("main.py:orderStatusEvent: we had with the following trade type:{c} Trade: {t}".format(c=type(Trade),t=Trade))
-        orders.addNewOrders(self.ib, Trade, self.myConnection, self)
+        #log.info("main.py:orderStatusEvent: we had with the following trade type:{c} Trade: {t}".format(c=type(Trade),t=Trade))
+        log.info("main.py:orderStatusEvent:")
+#        orders.addNewOrders(self.ib, Trade, self.myConnection, self)
+        orders.updateOrderWhenPlaced(self.ib, self.myConnection, "", Trade)
         log.info("back in main.py after orderStatusEvent")
 
     def newOrderEvent(self, Trade): # Emits a newly placed trade.
-        log.info("main.py:newOrderEvent: we had with the following trade type: {c} Trade: {t}".format(c=type(Trade),t=Trade))
-        orders.addNewOrders(self.ib, Trade, self.myConnection, self)
-        log.info("back in main.py after orderStatusEvent")
+        log.info("main.py::newOrderEvent")
+        # log.info("main.py:newOrderEvent: we had with the following trade type: {c} Trade: {t}".format(c=type(Trade),t=Trade))
+#        orders.addNewOrders(self.ib, Trade, self.myConnection, self)
+        orders.updateOrderWhenPlaced(self.ib, self.myConnection, "", Trade)
+        log.info("back in main.py after newOrderEvent")
 
     def positionEvent(self, Position):
         log.info("main.py:positionEvent {p}".format(p=Position))
 
     def execDetailsEvent(self, Trade, Fill):    # emits the fill together with the ongoing trade it belongs to.
-        log.info("main.py:execDetailsEvent: we had with the following trade type trade: {c} type Fill: {f} fill: {fill} trade: {t}".format(c=type(Trade),f=type(Fill),fill=Fill,t=Trade))
+        #log.info("main.py:execDetailsEvent: we had with the following trade type trade: {c} type Fill: {f} fill: {fill} trade: {t}".format(c=type(Trade),f=type(Fill),fill=Fill,t=Trade))
+        log.info("main.py:execDetailsEvent:")
         log.info("log.infoing the info from execDetailesEvent")
         log.info(Trade)
+        log.info("Fill info")
         log.info(Fill)
-        orders.addNewTrades(self.ib, Trade, "Update")
+ 
+#        orders.addNewOrders(self.ib, Trade, self.myConnection, self)
+        orders.updateOrderWhenPlaced(self.ib, self.myConnection, "", Trade)
         orders.updateFills(self.ib, Fill, self.myConnection, self)
 
     def cancelOrderEvent(self, Trade): # Emits a trade directly after requesting for it to be cancelled.
-        log.info("main.py:cancelOrderEvent type Trade: {c} trade: {t}".format(c=type(Trade),t=Trade))
+        #log.info("main.py:cancelOrderEvent type Trade: {c} trade: {t}".format(c=type(Trade),t=Trade))
+        log.info("main.py:cancelOrderEvent")
 
     def updatePortfolioEvent(self, PortfolioItem): #A portfolio item has changed.
         log.info("main.py:updatePortfolioEvent: {i}".format(i=PortfolioItem))
 
-    def commissionReportEvent(self,Trade,Fill): #The commission report is emitted after the fill that it belongs to
+    def commissionReportEvent(self,Trade,Fill,CommissionReport): #The commission report is emitted after the fill that it belongs to
+        log.info("main.py:commissionReportEvent: Commission Report: {cr}".format(cr=CommissionReport))
         log.info("main.py:commissionReportEvent Trade: {t}".format(t=Trade))
         log.info("main.py:commissionReportEvent Fill: {f}".format(f=Fill))
 
     def accountValueEvent(self,AccountValue): #An account value has changed.
-        log.info("main.py:accountValueEvent: {a}".format(a=AccountValue))
+        #log.info("main.py:accountValueEvent: {a}".format(a=AccountValue))
+        log.info("main.py:accountValueEvent")
 
     def accountSummaryEvent(self,AccountValue):
         log.info("main.py:accountSummaryEvent: {a}".format(a=AccountValue))

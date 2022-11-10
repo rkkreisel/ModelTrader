@@ -144,7 +144,9 @@ class Algo():
             # testing orders and trades
             #if self.myTest:
             #    self.myTest = False
+            log.info("open_long: {ol} open_short:{os}".format(ol=open_long,os=open_short))
             if not open_long and not open_short:
+                log.info("open_long: {ol} open_short:{os}".format(ol=open_long,os=open_short))
                 quantity = 1
                 modBuyStopLossPrice = bars_15m.buyStopLossPriceOpen     # need to set stop loss to open of current bar and not close of prior
                 modSellStopLossPrice = bars_15m.sellStopLossPriceOpen
@@ -169,7 +171,8 @@ class Algo():
         localDateTime = datetime.now()
         twsTime = self.ib.reqCurrentTime()
         twsTime = twsTime.replace(tzinfo=None)
-        twsTimeLocal = twsTime - timedelta(hours=4) 
+#        twsTimeLocal = twsTime - timedelta(hours=4) #day lights saving time 
+        twsTimeLocal = twsTime - timedelta(hours=5)  #standard time
         log.debug("tws time in local time zone format: {t} localDateTime: {ldt} twsTimeLocal: {ttl} ".format(t=twsTimeLocal,ldt=localDateTime,ttl=twsTimeLocal))
         if localDateTime < twsTimeLocal:
             twsDiff = twsTimeLocal- localDateTime
@@ -347,7 +350,7 @@ class Algo():
         #
         # CHECK FOR FILLED ORDER
         #  PUT THIS BACK
-        orders.checkForFilledOrders(self.ib,self.myConnection,self)
+        orders.updateOrdersOnPullViaPermID(self.ib,self.myConnection,self)
         #contContract, contracthours = get_contract(self) #basic information on continuious contact
         #tradeContract = self.ib.qualifyContracts(contContract)[0]   # gives all the details of a contract so we can trade it
         open_long, open_short, long_position_qty, short_position_qty, account_qty = orders.countOpenPositions(self.ib,"")   # do we have an open position - not orders but positions?
