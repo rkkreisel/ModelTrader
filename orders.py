@@ -133,20 +133,22 @@ def updateFills(ib,fillInfo, myConnection,self):                 # This is to fi
     log.info("updateFills ************** in the updateFills function *****************")
     log.info(fillInfo)
     cur = myConnection.cursor()
-    for fillRow in fillInfo:
-        log.info("while order {w}".format(w=fillRow))
-        #if hasattr(fillRow,"exchange"):    #sometimes modified stp order trigger new trade when it isn't
-        if fillInfo.get_name() == "execution":
-            log.info("while order has attr{w}".format(w=fillRow))
+#    for fillRow in fillInfo:
+#        log.info("while order {w}".format(w=fillRow))
+    if hasattr(fillInfo,"execution"):    #sometimes modified stp order trigger new trade when it isn't
             # we have to assume their is an ibtrades entry correlated to this fill
-            cur.execute("update ibtrades set date = '{date}', shares = {shares}, price = {price}, source = '{source}', account = '{acct}' where permid= '{id}'". \
-                format(id=fillRow.execution.permId,date=fillRow.execution.time,shares=fillRow.execution.shares,price=fillRow.execution.avgPrice,acct=fillRow.execution.acctNumber))
-            myConnection.commit()
-#        if hasattr(fillRow,"commission"):
-        if fillInfo.get_name() == " commissionReport":
-            cur.execute("update ibtrades set commission = {comm}, realizedPNL = {pnl} where permid= '{id}'". \
-                format(id=fillRow.execution.permId,comm=fillRow.commissionReport.commission,pnl=fillRow.execution.realizedPNL))
-            myConnection.commit()
+        cur.execute("update ibtrades set date = '{date}', shares = {shares}, price = {price}, account = '{acct}' where permid= '{id}'". \
+            format(id=fillInfo.execution.permId,date=fillInfo.execution.time,shares=fillInfo.execution.shares,price=fillInfo.execution.avgPrice,acct=fillInfo.execution.acctNumber))
+#        sql = "update ibtrades set date = '{date}', shares = {shares}, price = {price}, account = '{acct}' where permid= '{id}'".format(id=fillInfo.execution.permId,date=fillInfo.execution.time,shares=fillInfo.execution.shares,price=fillInfo.execution.avgPrice,acct=fillInfo.execution.acctNumber)"
+#        log.info(sql)
+        myConnection.commit()
+    if hasattr(fillInfo,"commissionReport"):
+        cur.execute("update ibtrades set commission = {comm}, realizedPNL = {pnl} where permid= '{id}'". \
+            format(id=fillInfo.execution.permId,comm=fillInfo.commissionReport.commission,pnl=fillInfo.execution.realizedPNL))
+ #       sql = "update ibtrades set commission = {comm}, realizedPNL = {pnl} where permid= '{id}'". \
+ #           format(id=fillInfo.execution.permId,comm=fillInfo.commissionReport.commission,pnl=fillInfo.execution.realizedPNL)"
+ #       log.info(sql)
+        myConnection.commit()
     return
 
 def checkForFilledOrders(ib,myConnection,self):

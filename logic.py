@@ -166,21 +166,24 @@ class Algo():
             self.app.logicBarCount.update(self.tradeBarCount)
 
     def define_times(self,ib):
-        log.debug("TWS time is: {tws} ".format(tws=self.ib.reqCurrentTime()))
-        log.debug("PTH time is: {st}".format(st=datetime.now()))
+        log.info("TWS time is: {tws} ".format(tws=self.ib.reqCurrentTime()))
+        log.info("PTH time is: {st}".format(st=datetime.now()))
         localDateTime = datetime.now()
+        log.info("go through datetime.now")
         twsTime = self.ib.reqCurrentTime()
+        log.info("twstime first pass")
         twsTime = twsTime.replace(tzinfo=None)
-#        twsTimeLocal = twsTime - timedelta(hours=4) #day lights saving time 
+        # twsTimeLocal = twsTime - timedelta(hours=4) #day lights saving time 
+        log.info("twstime second pass")
         twsTimeLocal = twsTime - timedelta(hours=5)  #standard time
-        log.debug("tws time in local time zone format: {t} localDateTime: {ldt} twsTimeLocal: {ttl} ".format(t=twsTimeLocal,ldt=localDateTime,ttl=twsTimeLocal))
+        log.info("tws time in local time zone format: {t} localDateTime: {ldt} twsTimeLocal: {ttl} ".format(t=twsTimeLocal,ldt=localDateTime,ttl=twsTimeLocal))
         if localDateTime < twsTimeLocal:
             twsDiff = twsTimeLocal- localDateTime
         elif localDateTime > twsTimeLocal:
             twsDiff = localDateTime - twsTimeLocal
         else:
             twsDiff = 0
-        log.debug("tws to server time diff:{diff} in seconds {s} microsecond {m}".format(diff=twsDiff,s=twsDiff.seconds,m=twsDiff.microseconds))
+        log.info("tws to server time diff:{diff} in seconds {s} microsecond {m}".format(diff=twsDiff,s=twsDiff.seconds,m=twsDiff.microseconds))
         if self.backTest:   # added for backtest
             current_time = self.backTestStartDateTime
             current_minute = self.backTestStartDateTime.minute
@@ -188,7 +191,7 @@ class Algo():
         else:    
             current_time = localDateTime - timedelta(seconds = twsDiff.seconds, microseconds = twsDiff.microseconds) # trying to augment time differences
             current_minute = datetime.now().minute
-            log.debug("current adjusted time is: {ct} ".format(ct=current_time))
+            log.info("current adjusted time is: {ct} ".format(ct=current_time))
         
         if current_minute < 15:
             #self.datetime_1h = current_time - timedelta(hours=1)
@@ -231,7 +234,7 @@ class Algo():
         self.datetime_1d = current_time
         self.datetime_1d =self.datetime_1d.replace(hour = 0, minute=0, second=0, microsecond=0)
         self.app.qtrhour.update(f"{wait_time:%m/%d %I:%M:%S}")
-        #log.info("log time: {lt} wait time: {wt} 1 hour: {one} day: {day}".format(lt = self.log_time,wt=wait_time,one=self.datetime_1h,day=self.datetime_1d))
+        log.info("log time: {lt} wait time: {wt} 1 hour: {one} day: {day}".format(lt = self.log_time,wt=wait_time,one=self.datetime_1h,day=self.datetime_1d))
         return wait_time,self.datetime_15,self.datetime_1h,self.datetime_1d,self.log_time
 
     def row_results(self, row, cci_trade, ccibb_trade):
@@ -488,8 +491,11 @@ class Algo():
 
 def get_contract(client):
     contract = client.ib.reqContractDetails(
-        ContFuture(symbol=config.SYMBOL, exchange=config.EXCHANGE)
+        ContFuture(
+            symbol=config.SYMBOL, 
+            exchange=config.EXCHANGE)
     )
+    log.info("contract:{c}".format(c=contract))
     if not contract:
         log.error("Failed to Grab Continuous Future {}".format(config.SYMBOL))
         sysexit()

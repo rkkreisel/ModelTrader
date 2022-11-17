@@ -261,7 +261,7 @@ class App:
         log.info("main.py:commissionReportEvent Fill: {f}".format(f=Fill))
 
     def accountValueEvent(self,AccountValue): #An account value has changed.
-        #log.info("main.py:accountValueEvent: {a}".format(a=AccountValue))
+    #    log.info("main.py:accountValueEvent: {a}".format(a=AccountValue))
         log.info("main.py:accountValueEvent")
 
     def accountSummaryEvent(self,AccountValue):
