@@ -11,7 +11,7 @@ PORT = 55555
 CLIENTID = 0
 
 SYMBOL = "ES"
-EXCHANGE = "GLOBEX"
+EXCHANGE = "CME"
 
 # Type of Market Data To Stream.
 DATATYPE = MarketDataTypes.LIVE

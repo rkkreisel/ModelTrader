@@ -163,29 +163,30 @@ class Algo():
                     changed = orders.modifySTPOrder(self.ib,modBuyStopLossPrice,modSellStopLossPrice,bars_15m.closePrice,self.myConnection)
             self.app.logicBarCount.update(self.tradeBarCount)
 
-    def define_times(self,ib):
-        log.debug("TWS time is: {tws} ".format(tws=self.ib.reqCurrentTime()))
-        log.debug("PTH time is: {st}".format(st=datetime.now()))
+    def define_times(self,ib):  #rtemoving the calculation of time difference between PC and TWS.  PC is NTP and reqCurrentTime is not working
+        #twsTime = self.ib.reqCurrentTime()
+        #log.info("TWS time is: {tws} ".format(tws=twsTime))
+        log.info("PTH time is: {st}".format(st=datetime.now()))
         localDateTime = datetime.now()
-        twsTime = self.ib.reqCurrentTime()
-        twsTime = twsTime.replace(tzinfo=None)
-        twsTimeLocal = twsTime - timedelta(hours=4) 
-        log.debug("tws time in local time zone format: {t} localDateTime: {ldt} twsTimeLocal: {ttl} ".format(t=twsTimeLocal,ldt=localDateTime,ttl=twsTimeLocal))
-        if localDateTime < twsTimeLocal:
-            twsDiff = twsTimeLocal- localDateTime
-        elif localDateTime > twsTimeLocal:
-            twsDiff = localDateTime - twsTimeLocal
-        else:
-            twsDiff = 0
-        log.debug("tws to server time diff:{diff} in seconds {s} microsecond {m}".format(diff=twsDiff,s=twsDiff.seconds,m=twsDiff.microseconds))
+        #twsTime = twsTime.replace(tzinfo=None)
+        #twsTimeLocal = twsTime - timedelta(hours=5) 
+        #log.info("tws time in local time zone format: {t} localDateTime: {ldt} twsTimeLocal: {ttl} ".format(t=twsTimeLocal,ldt=localDateTime,ttl=twsTimeLocal))
+        #if localDateTime < twsTimeLocal:
+        #    twsDiff = twsTimeLocal- localDateTime
+        #elif localDateTime > twsTimeLocal:
+        #    twsDiff = localDateTime - twsTimeLocal
+        #else:
+        #    twsDiff = 0
+        #log.info("tws to server time diff:{diff} in seconds {s} microsecond {m}".format(diff=twsDiff,s=twsDiff.seconds,m=twsDiff.microseconds))
         if self.backTest:   # added for backtest
             current_time = self.backTestStartDateTime
             current_minute = self.backTestStartDateTime.minute
             self.backTestStartDateTime = current_time + timedelta(minutes=15)
         else:    
-            current_time = localDateTime - timedelta(seconds = twsDiff.seconds, microseconds = twsDiff.microseconds) # trying to augment time differences
+            #current_time = localDateTime - timedelta(seconds = twsDiff.seconds, microseconds = twsDiff.microseconds) # trying to augment time differences
+            current_time = localDateTime
             current_minute = datetime.now().minute
-            log.debug("current adjusted time is: {ct} ".format(ct=current_time))
+            log.info("current adjusted time is: {ct} ".format(ct=current_time))
         
         if current_minute < 15:
             #self.datetime_1h = current_time - timedelta(hours=1)
@@ -220,7 +221,8 @@ class Algo():
             self.log_time = wait_time
         #self.update_tk_text(" from define times - 1 hour time is: {o}".format(o=self.datetime_1h))
         #log.info("wait time going into difference {wt}".format(wt=wait_time))
-        wait_time = wait_time - timedelta(seconds = twsDiff.seconds, microseconds = twsDiff.microseconds) # trying to augment time differences
+        
+        #wait_time = wait_time - timedelta(seconds = twsDiff.seconds, microseconds = twsDiff.microseconds) # trying to augment time differences
         wait_time = wait_time + timedelta(seconds = 5) # adding 5 seconds just to address fluctuations from wait set to wait execute
         #log.info("Wait time adjusted for differnces in time between TWS and server is now: {t}".format(t=wait_time))
         #self.datetime_1h = self.datetime_1h.replace(minute=0, second=0, microsecond=0)
