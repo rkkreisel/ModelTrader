@@ -166,11 +166,12 @@ class Algo():
             self.app.logicBarCount.update(self.tradeBarCount)
 
     def define_times(self,ib):
-        log.info("TWS time is: {tws} ".format(tws=self.ib.reqCurrentTime()))
+        twsTime = self.ib.reqCurrentTime()
+        log.info("TWS time is: {tws} ".format(tws=twsTime))
         log.info("PTH time is: {st}".format(st=datetime.now()))
         localDateTime = datetime.now()
         log.info("go through datetime.now")
-        twsTime = self.ib.reqCurrentTime()
+        
         log.info("twstime first pass")
         twsTime = twsTime.replace(tzinfo=None)
         # twsTimeLocal = twsTime - timedelta(hours=4) #day lights saving time 

@@ -104,13 +104,13 @@ class App:
         #
         self.ib.disconnectedEvent += self.disconnectedEvent
         self.ib.connectedEvent += self.connectEvent
-        self.ib.updateEvent += self.updateEvent
+        #self.ib.updateEvent += self.updateEvent
         self.ib.orderStatusEvent += self.orderStatusEvent
         self.ib.newOrderEvent += self.newOrderEvent
         self.ib.orderModifyEvent += self.orderModifyEvent
         self.ib.openOrderEvent += self.openOrderEvent
         self.ib.positionEvent += self.positionEvent
-        self.ib.accountValueEvent += self.accountValueEvent
+        #self.ib.accountValueEvent += self.accountValueEvent
         self.ib.accountSummaryEvent += self.accountSummaryEvent
         self.ib.pnlEvent += self.pnlEvent
         self.ib.pnlSingleEvent += self.pnlSingleEvent
@@ -208,8 +208,8 @@ class App:
 #        pandl = self.objects.PnL()
 #        log.info("main.py:PNL {p}".format(p=pandl))
 
-    def updateEvent(self): # Is emitted after a network packet has been handeled.
-        log.info("main.py:update Event occurred - network packet has been handeled")
+    #def updateEvent(self): # Is emitted after a network packet has been handeled.
+    #    log.info("main.py:update Event occurred - network packet has been handeled")
 
     def orderModifyEvent(sel,Trade):
         #log.info("main.py:an order has been modified class: {c} trade:{t}".format(c=type(Trade),t=Trade))
@@ -260,9 +260,9 @@ class App:
         log.info("main.py:commissionReportEvent Trade: {t}".format(t=Trade))
         log.info("main.py:commissionReportEvent Fill: {f}".format(f=Fill))
 
-    def accountValueEvent(self,AccountValue): #An account value has changed.
+    #def accountValueEvent(self,AccountValue): #An account value has changed.
     #    log.info("main.py:accountValueEvent: {a}".format(a=AccountValue))
-        log.info("main.py:accountValueEvent")
+     #   log.info("main.py:accountValueEvent")
 
     def accountSummaryEvent(self,AccountValue):
         log.info("main.py:accountSummaryEvent: {a}".format(a=AccountValue))
