@@ -80,7 +80,7 @@ def updateOrdersOnPullViaPermID(ib,myConnection,self):
 def addNewTrades(ib,tradeInfo, myConnection,self):                 # This is to find open STP orders only
     # in the trade record we can expect contract, order and orderStatus.  The other tuple headers might not be there
     log.info("addNewTrades ************** in the addNewTrades function *****************")
-    #log.info(tradeInfo)
+    log.info(tradeInfo)
     cur = myConnection.cursor()
     try:
         for tradeRow in tradeInfo:
@@ -450,6 +450,8 @@ def buildOrders(ib, myConnection, tradeContract, action, quantity, cciProfile, b
             faProfile = cciProfile,
             totalQuantity = quantity,
             openClose = "O",
+            eTradeOnly = None,
+            firmQuoteOnly = None,
             transmit = False
             
         )
@@ -471,6 +473,9 @@ def buildOrders(ib, myConnection, tradeContract, action, quantity, cciProfile, b
             orderId = ib.client.getReqId(),
             parentId = parentId,
             outsideRth = True,
+            eTradeOnly = None,
+            firmQuoteOnly = None,
+
             tif = "GTC",
             openClose = "C"
         )
