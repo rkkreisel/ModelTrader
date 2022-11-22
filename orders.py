@@ -133,6 +133,25 @@ def updateFills(ib,fillInfo, myConnection,self):                 # This is to fi
     log.info("updateFills ************** in the updateFills function *****************")
     log.info(fillInfo)
     cur = myConnection.cursor()
+    cur.execute("select * from ibtrades where permid = '{oi}'".format(oi=fillInfo.execution.permId))
+    fillQueryList = cur.fetchone()
+    if cur.rowcount == 0:    # no entry in orders file need to add
+        sql = "insert into ibtrades (permid,contract_month,symbol,\
+            filled_qty,status,avg_fill_price,contract_id,account) VALUES \
+            ('{id}','{cm}','{s}','{q}',{afp},'{conid}','{account}')". \
+            format(id=fillInfo.execution.permId,cm=fillInfo.contract.lastTradeDateOrContractMonth,s=fillInfo.contract.localSymbol, \
+            q=fillInfo.execution.shares, \
+            afp=fillInfo.execution.price,conid=fillInfo.contract.conId,account=fillInfo.execution.acctNumber \
+            )
+        log.info(sql)
+        cur.execute("insert into ibtrades (permid,contract_month,symbol,\
+            filled_qty,status,avg_fill_price,contract_id,account) VALUES \
+            ('{id}','{cm}','{s}','{q}',{afp},'{conid}','{account}')". \
+            format(id=fillInfo.execution.permId,cm=fillInfo.contract.lastTradeDateOrContractMonth,s=fillInfo.contract.localSymbol, \
+            q=fillInfo.execution.shares, \
+            afp=fillInfo.execution.price,conid=fillInfo.contract.conId,account=fillInfo.execution.acctNumber \
+            ))
+    
 #    for fillRow in fillInfo:
 #        log.info("while order {w}".format(w=fillRow))
     if hasattr(fillInfo,"execution"):    #sometimes modified stp order trigger new trade when it isn't
@@ -389,7 +408,7 @@ def parseOrderString(ib,tradeInfo):
     return orderId, orderType, action, quantity, clientId, permId
     
 def parseTradeString(ib,Trade):
-    log.debug("parseTradeString: tradeInfo ")
+    log.info("parseTradeString: tradeInfo ")
     symbol = Trade.contract.symbol
     orderId = Trade.order.orderId
     orderType = Trade.order.orderType
@@ -533,9 +552,9 @@ def closePositionsOrders(ib, tradeContract, account, action, quantity):
         openClose = "C"
     ) 
     trademkt = ib.placeOrder(tradeContract,MktOrder)
-    symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account, permID = parseTradeString(ib,trademkt)
+    #symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account, permID = parseTradeString(ib,trademkt)
     log.info("closePositionsOrders: trademkt ",trademkt)
-    writeToCsv = writeOrdersToCSV(ib, MktOrder, "MktOrder",status, openOrderType = False)
+    #writeToCsv = writeOrdersToCSV(ib, MktOrder, "MktOrder",status, openOrderType = False)
     return trademkt, MktOrder
 
 def modifySTPOrder(ib, modBuyStopLossPrice,modSellStopLossPrice, closePrice,myConnection):

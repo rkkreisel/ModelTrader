@@ -248,6 +248,8 @@ class App:
         orders.updateOrderWhenPlaced(self.ib, self.myConnection, "", Trade)
         orders.updateFills(self.ib, Fill, self.myConnection, self)
 
+
+
     def cancelOrderEvent(self, Trade): # Emits a trade directly after requesting for it to be cancelled.
         #log.info("main.py:cancelOrderEvent type Trade: {c} trade: {t}".format(c=type(Trade),t=Trade))
         log.info("main.py:cancelOrderEvent")
