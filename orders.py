@@ -135,9 +135,9 @@ def updateFills(ib,fillInfo, myConnection,self):                 # This is to fi
     cur = myConnection.cursor()
     cur.execute("select * from ibtrades where permid = '{oi}'".format(oi=fillInfo.execution.permId))
     fillQueryList = cur.fetchone()
-    if cur.rowcount == 0:    # no entry in orders file need to add
+    if cur.rowcount == 0:    # no entry in orders file need to add    
         sql = "insert into ibtrades (permid,contract_month,symbol,\
-            filled_qty,status,avg_fill_price,contract_id,account) VALUES \
+            filled_qty,avg_fill_price,contract_id,account) VALUES \
             ('{id}','{cm}','{s}','{q}',{afp},'{conid}','{account}')". \
             format(id=fillInfo.execution.permId,cm=fillInfo.contract.lastTradeDateOrContractMonth,s=fillInfo.contract.localSymbol, \
             q=fillInfo.execution.shares, \
@@ -145,13 +145,13 @@ def updateFills(ib,fillInfo, myConnection,self):                 # This is to fi
             )
         log.info(sql)
         cur.execute("insert into ibtrades (permid,contract_month,symbol,\
-            filled_qty,status,avg_fill_price,contract_id,account) VALUES \
+            filled_qty,avg_fill_price,contract_id,account) VALUES \
             ('{id}','{cm}','{s}','{q}',{afp},'{conid}','{account}')". \
             format(id=fillInfo.execution.permId,cm=fillInfo.contract.lastTradeDateOrContractMonth,s=fillInfo.contract.localSymbol, \
             q=fillInfo.execution.shares, \
             afp=fillInfo.execution.price,conid=fillInfo.contract.conId,account=fillInfo.execution.acctNumber \
             ))
-    
+        myConnection.commit()
 #    for fillRow in fillInfo:
 #        log.info("while order {w}".format(w=fillRow))
     if hasattr(fillInfo,"execution"):    #sometimes modified stp order trigger new trade when it isn't
@@ -220,7 +220,7 @@ def closeOpenOrders(ib):                 # This is to find open STP orders and c
         #log.info("----------------------- TRADEMKT ---------------: {t}".format(t=trademkt))
         log.info("----------------------- TRADEMKT ---------------: ")
         #validatedOpenOrders = validateOpenOrdersCSV(ib, orderId, status)
-        symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account, permID = parseTradeString(ib,trademkt)      
+        #symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account, permID = parseTradeString(ib,trademkt)      
         #checkOrderStatus = updateCanceledOpenOrders(ib, orderId, trademkt)   # update each order that we cancelled
         log.info("lets see what event is trigger on the cancelled order ")
         x += 1
@@ -253,11 +253,11 @@ def closeOpenPositions(ib, tradeContract):             #we want to close open po
         positionLong += quantity
         #temp = temphold(orderId=openOrder[x].permId)
         trademkt, MktOrder = closePositionsOrders(ib,tradeContract, account, action, abs(quantity))
-        symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account, permID = parseTradeString(ib,trademkt)
+        #symbol, orderId, orderType, action, quantity, status, date_order, faProfile, parentId, avgFillPrice, account, permID = parseTradeString(ib,trademkt)
         #log.info("\n----------------------- openOrdersList ---------------\n",positions[x])
         #log.info("\n----------------------- TRADEMKT ---------------\n",trademkt)
-        writeToCsv = writeOrdersToCSV(ib, MktOrder, "MktOrder",status, openOrderType = False)               # writing to orders csv
-        log.info("closeOpenPositions: cancel order sent -> cv: {cv} and status: {s} ".format(cv=trademkt, s=status))
+        #writeToCsv = writeOrdersToCSV(ib, MktOrder, "MktOrder",status, openOrderType = False)               # writing to orders csv
+        log.info("closeOpenPositions: cancel order sent -> cv: {cv} ".format(cv=trademkt))
         # checking status of the order
         #filledTF, openOrderStatus = checkForOpenOrderStatus(ib, trademkt, "trademkt", status)  # doing with event driven trade info
         #if filledTF:

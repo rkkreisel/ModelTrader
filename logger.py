@@ -32,11 +32,11 @@ def setup():
         handler.setFormatter(logging.Formatter(fmt=FMT, datefmt=DATE_FMT, style='{'))
         logger.addHandler(handler)
 
-def my_handler(type, value, tb):
-    logging.exception("Uncaught exception: {0}".format(str(value)))
+#def my_handler(type, value, tb):
+#    logging.exception("Uncaught exception: {0}".format(str(value)))
 
 # Install exception handler
-sys.excepthook = my_handler
+#sys.excepthook = my_handler
 
 def getLogger():
     return logging.getLogger(LOGGER_NAME)
